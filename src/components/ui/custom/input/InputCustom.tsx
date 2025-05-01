@@ -134,7 +134,7 @@ export const InputCustom = React.forwardRef<HTMLInputElement, InputCustomProps>(
     );
 
     // Aumentamos a altura do campo para todos os tamanhos
-    const inputClasses = cn("w-full text-foreground ", {
+    const inputClasses = cn("w-full text-foreground dark:bg-background", {
       "pr-10": icon || rightIcon || (type === "password" && showPasswordToggle),
       "h-10": size === "sm",
       "h-12": size === "md",
