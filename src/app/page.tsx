@@ -9,9 +9,11 @@ export default function Home() {
             Este parágrafo usa o texto roxo escuro (purple–d20).
           </p>
 
-          <div className="bg__teal--l10 p-4 rounded">
+          <div className="">
             Este card tem fundo verde-água claro (teal–l10) e padding.
           </div>
+
+          <h1>text-default</h1>
 
           <button className="bg__blue tx__white px-4 py-2 rounded-md font-semibold">
             Salvar
