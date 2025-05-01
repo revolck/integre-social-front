@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { InputCustom } from "@/components/ui/custom/input";
+import { DarkTheme } from "@/components/partials/darkTheme/darkTheme";
 
 /**
  * Página de Login
@@ -25,6 +26,14 @@ export default function LoginPage() {
 
   // Estado de loading
   const [loading, setLoading] = useState(false);
+
+  // Estado para animação de entrada
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Trigger de animação na montagem do componente
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   /**
    * Handler para mudança nos campos do formulário
@@ -82,30 +91,50 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex relative overflow-hidden">
+      {/* Theme Toggle - Posicionado no canto superior direito */}
+      <div className="absolute top-4 right-4 z-10">
+        <DarkTheme />
+      </div>
+
       {/* Lado esquerdo - Formulário */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center  px-6 py-12">
-        <div className="max-w-md w-full space-y-6">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center px-6 py-12 bg-background transition-colors duration-300">
+        <div
+          className={`max-w-md w-full space-y-8 transition-all duration-500 ease-in-out transform ${
+            isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+          }`}
+        >
           {/* Logo */}
-          <Image
-            src="/logo-white.svg"
-            width={120}
-            height={40}
-            alt="Logo da aplicação"
-            className="mx-auto"
-          />
+          <div className="flex justify-center">
+            <Image
+              src="/logo-white.svg"
+              width={130}
+              height={45}
+              alt="Logo da aplicação"
+              className="mx-auto dark:invert transition-all duration-300"
+            />
+          </div>
 
           {/* Cabeçalho */}
-          <h1 className="text-3xl font-semibold">
-            Olá, Filipe.
-            <br />
-            Que bom te ver de novo!
-          </h1>
+          <div className="space-y-2 text-center lg:text-left mb-4">
+            <h1 className="text-3xl font-bold text-foreground transition-colors duration-300 mb-0">
+              Olá, Filipe.
+            </h1>
+            <p className="text-lg text-muted-foreground transition-colors duration-300">
+              Que bom te ver de novo!
+            </p>
+          </div>
 
           {/* Formulário */}
-          <div className="space-y-4">
-            <form className="space-y-5" onSubmit={handleSubmit}>
-              <div className="space-y-4">
+          <div
+            className={`space-y-6 transition-all duration-500 ease-in-out delay-100 transform ${
+              isVisible
+                ? "translate-y-0 opacity-100"
+                : "translate-y-8 opacity-0"
+            }`}
+          >
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              <div className="space-y-5">
                 {/* Input CPF */}
                 <div className="space-y-2">
                   <InputCustom
@@ -119,6 +148,7 @@ export default function LoginPage() {
                     error={errors.cpf}
                     required
                     size="md"
+                    disabled={loading}
                   />
                 </div>
 
@@ -135,44 +165,97 @@ export default function LoginPage() {
                     error={errors.senha}
                     required
                     size="md"
+                    disabled={loading}
                   />
                 </div>
               </div>
 
               {/* Opções adicionais */}
-              <div className="flex justify-between gap-2">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                 <div className="flex items-center gap-2">
-                  <Checkbox id="remember" />
+                  <Checkbox id="remember" disabled={loading} />
                   <Label
                     htmlFor="remember"
-                    className="font-normal text-muted-foreground"
+                    className={`font-normal text-muted-foreground cursor-pointer text-sm transition-colors duration-300 ${
+                      loading ? "opacity-50" : ""
+                    }`}
                   >
                     Me mantenha na conta
                   </Label>
                 </div>
                 <Link
                   href="/auth/recuperar-senha"
-                  className="text-sm underline hover:no-underline text-primary"
+                  className={`text-sm text-primary hover:text-primary/80 transition-colors duration-200 hover:underline ${
+                    loading ? "pointer-events-none opacity-50" : ""
+                  }`}
+                  tabIndex={loading ? -1 : 0}
+                  aria-disabled={loading}
                 >
                   Esqueceu a senha?
                 </Link>
               </div>
 
               {/* Botão de submissão */}
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Entrando..." : "Entrar"}
+              <Button
+                type="submit"
+                className="w-full h-12 text-base transition-all duration-300 relative overflow-hidden"
+                disabled={loading}
+              >
+                <span
+                  className={`transition-all duration-300 ${
+                    loading ? "opacity-0" : "opacity-100"
+                  }`}
+                >
+                  Entrar
+                </span>
+                {loading && (
+                  <span className="absolute inset-0 flex items-center justify-center">
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                  </span>
+                )}
               </Button>
             </form>
           </div>
 
           {/* Termos */}
-          <p className="text-xs text-gray-500 text-center">
+          <p
+            className={`text-xs text-muted-foreground text-center transition-all duration-500 ease-in-out delay-200 transform ${
+              isVisible
+                ? "translate-y-0 opacity-100"
+                : "translate-y-8 opacity-0"
+            }`}
+          >
             Ao continuar, você concorda com nossos{" "}
-            <Link href="/termos" className="underline text-primary">
+            <Link
+              href="/termos"
+              className="text-primary hover:underline transition-colors duration-200"
+            >
               Termos de Serviço
             </Link>{" "}
             e{" "}
-            <Link href="/privacidade" className="underline text-primary">
+            <Link
+              href="/privacidade"
+              className="text-primary hover:underline transition-colors duration-200"
+            >
               Política de Privacidade
             </Link>
             .
@@ -181,7 +264,8 @@ export default function LoginPage() {
       </div>
 
       {/* Lado direito - Imagem */}
-      <div className="hidden lg:block w-1/2 relative">
+      <div className="hidden lg:block w-1/2 relative bg-gradient-to-br from-purple-500/90 to-blue-600/90">
+        <div className="absolute inset-0 bg-black/30 z-0"></div>
         <Image
           src="/images/signup-collage.png"
           alt="Colagem de capturas de tela do app"
@@ -189,6 +273,9 @@ export default function LoginPage() {
           style={{ objectFit: "cover" }}
           quality={100}
           priority
+          className={`transition-all duration-1000 ease-in-out ${
+            isVisible ? "scale-100 opacity-80" : "scale-110 opacity-0"
+          }`}
         />
       </div>
     </div>

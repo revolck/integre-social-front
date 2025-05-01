@@ -134,16 +134,20 @@ export const InputCustom = React.forwardRef<HTMLInputElement, InputCustomProps>(
     );
 
     // Aumentamos a altura do campo para todos os tamanhos
-    const inputClasses = cn("w-full text-foreground dark:bg-background", {
-      "pr-10": icon || rightIcon || (type === "password" && showPasswordToggle),
-      "h-10": size === "sm",
-      "h-12": size === "md",
-      "h-14": size === "lg",
-      "border-destructive": error && touched,
-      "border-emerald-500": successMessage && !error,
-      "focus:border-blue-400 focus:ring-1 focus:ring-blue-300":
-        !error && !successMessage,
-    });
+    const inputClasses = cn(
+      "w-full text-foreground dark:bg-background focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+      {
+        "pr-10":
+          icon || rightIcon || (type === "password" && showPasswordToggle),
+        "h-10": size === "sm",
+        "h-12": size === "md",
+        "h-14": size === "lg",
+        "border-destructive": error && touched,
+        "border-emerald-500": successMessage && !error,
+        "focus:border-blue-400 focus:ring-1 focus:ring-blue-300":
+          !error && !successMessage,
+      }
+    );
 
     const labelClasses = cn(
       "origin-start absolute top-1/2 block -translate-y-1/2 cursor-text px-1 text-muted-foreground/70 transition-all left-3",

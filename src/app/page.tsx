@@ -9,7 +9,7 @@ export default function Home() {
             Este parágrafo usa o texto roxo escuro (purple–d20).
           </p>
 
-          <div className="">
+          <div className="bordered-[3px]">
             Este card tem fundo verde-água claro (teal–l10) e padding.
           </div>
 

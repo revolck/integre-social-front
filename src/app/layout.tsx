@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/providers/theme-provider";
-import { DarkTheme } from "@/components/partials/darkTheme/darkTheme";
 import "@/styles/globals.css";
+import "@/styles/theme.css";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,11 +20,9 @@ export default function RootLayout({
         <body>
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
-            enableSystem
+            defaultTheme="Light"
             disableTransitionOnChange
           >
-            <DarkTheme />
             {children}
           </ThemeProvider>
         </body>
