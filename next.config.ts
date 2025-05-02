@@ -2,69 +2,19 @@
 const nextConfig = {
   reactStrictMode: true,
 
-  // Configuração simples e direta de domínios e subdomínios
-  async rewrites() {
-    return [
-      // Subdomínio auth - solução robusta e testada
-      {
-        source: "/:path*",
-        has: [
-          {
-            type: "host",
-            value: "auth.localhost:3000",
-          },
-        ],
-        destination: "/auth/login",
-      },
-
-      // Subdomínio app - tudo vai para dashboard
-      {
-        source: "/",
-        has: [
-          {
-            type: "host",
-            value: "app.localhost:3000",
-          },
-        ],
-        destination: "/dashboard/analytics",
-      },
-
-      // Rotas específicas do app
-      {
-        source: "/analytics",
-        has: [
-          {
-            type: "host",
-            value: "app.localhost:3000",
-          },
-        ],
-        destination: "/dashboard/analytics",
-      },
-
-      // Outras rotas específicas (adicione mais conforme necessário)
-      {
-        source: "/users",
-        has: [
-          {
-            type: "host",
-            value: "app.localhost:3000",
-          },
-        ],
-        destination: "/dashboard/users",
-      },
-
-      {
-        source: "/settings",
-        has: [
-          {
-            type: "host",
-            value: "app.localhost:3000",
-          },
-        ],
-        destination: "/dashboard/settings",
-      },
-    ];
+  // Adicione a configuração de imagens para permitir domínios
+  images: {
+    domains: ["localhost"],
   },
+
+  // Configuração para garantir que os assets sejam acessíveis em subdomínios
+  assetPrefix:
+    process.env.NODE_ENV === "production"
+      ? "https://localhost:3000"
+      : undefined,
+
+  // Ativa o suporte a domínios cruzados para os assets
+  crossOrigin: "anonymous",
 };
 
 module.exports = nextConfig;
