@@ -85,7 +85,7 @@ export default function AnalyticsPage() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Analytics Dashboard</h1>
+        <h1 className="text-2xl font-bold">Analytics Dashboard2</h1>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
