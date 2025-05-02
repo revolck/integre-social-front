@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { IconName } from "@/components/ui/custom/Icons";
-import { SelectedProject, Project } from "./selected-project";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { SelectedProject } from "./selected-project";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 import { SidebarSection } from "./SidebarSection";
 import { SidebarSubMenu } from "./SidebarSubMenu";
@@ -49,31 +50,7 @@ export const DashboardSidebar = ({
   onCollapse,
 }: SidebarProps) => {
   const pathname = usePathname();
-
-  // Projetos de exemplo (dados mock)
-  const projects: Project[] = [
-    {
-      id: "1",
-      name: "Codeshaper",
-      logo: "/api/placeholder/40/40", // Placeholder para a imagem do projeto
-      initials: "CS",
-      color: "bg-blue-600",
-    },
-    {
-      id: "2",
-      name: "Instituto Amadal",
-      logo: "/api/placeholder/40/40", // Placeholder para a imagem do projeto
-      initials: "IA",
-      color: "bg-green-600",
-    },
-    {
-      id: "3",
-      name: "DashCode",
-      logo: "/api/placeholder/40/40", // Placeholder para a imagem do projeto
-      initials: "DC",
-      color: "bg-purple-600",
-    },
-  ];
+  const isMobile = useIsMobile();
 
   // Navegação do sidebar - itens e seções
   const navSections: NavSection[] = [
@@ -178,20 +155,27 @@ export const DashboardSidebar = ({
     return items.some((item) => isActive(item.href));
   };
 
+  // Adaptação do layout para dispositivos móveis
+  const sidebarWidth = collapsed || isMobile ? "w-16" : "w-64";
+
   return (
     <div
       className={cn(
-        "flex h-screen w-64 flex-col border-r bg-background",
+        "flex flex-col border-r bg-background transition-all duration-300",
+        sidebarWidth,
         className
       )}
     >
-      {/* Seletor de Projeto */}
-      <SelectedProject projects={projects} />
+      {/* Seletor de Projeto - agora utilizando o hook useProjects internamente */}
+      {!collapsed && <SelectedProject />}
 
       {/* Navegação Principal */}
       <div className="flex flex-1 flex-col overflow-y-auto px-2 py-4">
         {navSections.map((section, sectionIndex) => (
-          <SidebarSection key={`section-${sectionIndex}`} title={section.title}>
+          <SidebarSection
+            key={`section-${sectionIndex}`}
+            title={!collapsed ? section.title : undefined}
+          >
             {section.items.map((item, itemIndex) => {
               // Link simples
               if (item.type === "link") {
@@ -200,14 +184,14 @@ export const DashboardSidebar = ({
                     key={`item-${sectionIndex}-${itemIndex}`}
                     href={item.href}
                     icon={item.icon}
-                    title={item.title}
+                    title={!collapsed ? item.title : ""}
                     active={isActive(item.href)}
                   />
                 );
               }
 
-              // Submenu
-              if (item.type === "submenu") {
+              // Submenu - ocultado quando collapsed
+              if (item.type === "submenu" && !collapsed) {
                 return (
                   <SidebarSubMenu
                     key={`submenu-${sectionIndex}-${itemIndex}`}
@@ -218,6 +202,19 @@ export const DashboardSidebar = ({
                       active: isActive(subItem.href),
                     }))}
                     defaultOpen={hasActiveSubItem(item.items)}
+                  />
+                );
+              }
+
+              // Versão simplificada do submenu quando collapsed
+              if (item.type === "submenu" && collapsed) {
+                return (
+                  <SidebarMenuItem
+                    key={`item-collapsed-${sectionIndex}-${itemIndex}`}
+                    href={item.items[0].href} // Link para o primeiro item
+                    icon={item.icon}
+                    title=""
+                    active={hasActiveSubItem(item.items)}
                   />
                 );
               }
@@ -233,7 +230,7 @@ export const DashboardSidebar = ({
         <SidebarMenuItem
           href="/help-support"
           icon="HelpCircle"
-          title="Help & Support"
+          title={!collapsed ? "Help & Support" : ""}
         />
       </div>
     </div>

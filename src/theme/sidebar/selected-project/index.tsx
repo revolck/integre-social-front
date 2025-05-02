@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import React from "react";
 import { cn } from "@/lib/utils";
 import { Icon } from "@/components/ui/custom/Icons";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -11,8 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useProjects } from "@/hooks/useProjects";
 
-// Tipos para os projetos
+// Tipos para os projetos são importados direto do hook
 export interface Project {
   id: string;
   name: string;
@@ -22,64 +23,79 @@ export interface Project {
 }
 
 interface SelectedProjectProps {
-  projects: Project[];
-  currentProject?: Project;
-  onProjectChange?: (project: Project) => void;
   className?: string;
 }
 
-export const SelectedProject = ({
-  projects,
-  currentProject,
-  onProjectChange,
-  className,
-}: SelectedProjectProps) => {
-  // Estado para controlar o projeto selecionado
-  const [selected, setSelected] = useState<Project | undefined>(
-    currentProject || projects[0]
-  );
+export const SelectedProject = ({ className }: SelectedProjectProps) => {
+  // Usando o hook customizado para gerenciar projetos
+  const { projects, currentProject, loading, changeProject } = useProjects();
 
   // Função para lidar com a mudança de projeto
   const handleProjectChange = (value: string) => {
     const newProject = projects.find((p) => p.id === value);
     if (newProject) {
-      setSelected(newProject);
-      if (onProjectChange) {
-        onProjectChange(newProject);
-      }
+      changeProject(newProject);
     }
   };
 
+  // Se estiver carregando, exibir um skeleton
+  if (loading) {
+    return (
+      <div className={cn("px-2 py-3", className)}>
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8">
+            <Skeleton className="h-8 w-8 rounded-md" />
+          </div>
+          <div className="flex flex-col gap-1.5 flex-1">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Se não houver projetos, exibir mensagem
+  if (projects.length === 0) {
+    return (
+      <div className={cn("px-2 py-3", className)}>
+        <div className="text-sm text-muted-foreground">
+          Nenhum projeto encontrado
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={cn("px-2 py-3", className)}>
-      <Select value={selected?.id} onValueChange={handleProjectChange}>
+      <Select value={currentProject?.id} onValueChange={handleProjectChange}>
         <SelectTrigger
           className="h-auto w-full border-none bg-background px-2 py-2 shadow-none hover:bg-accent [&>span]:flex [&>span]:w-full [&>span]:items-center [&>span]:gap-3"
           aria-label="Selecionar projeto"
         >
           <SelectValue placeholder="Selecionar projeto">
-            {selected && (
+            {currentProject && (
               <div className="flex w-full items-center justify-between">
                 <div className="flex items-center gap-3">
-                  {selected.logo ? (
+                  {currentProject.logo ? (
                     <img
-                      src={selected.logo}
-                      alt={selected.name}
+                      src={currentProject.logo}
+                      alt={currentProject.name}
                       className="h-8 w-8 rounded-md object-cover"
                     />
                   ) : (
                     <div
                       className={cn(
                         "flex h-8 w-8 items-center justify-center rounded-md bg-muted text-sm font-medium text-foreground",
-                        selected.color
+                        currentProject.color
                       )}
                     >
-                      {selected.initials || selected.name.charAt(0)}
+                      {currentProject.initials || currentProject.name.charAt(0)}
                     </div>
                   )}
                   <div className="flex flex-col">
                     <span className="text-sm font-medium text-foreground">
-                      {selected.name}
+                      {currentProject.name}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       Workspace
