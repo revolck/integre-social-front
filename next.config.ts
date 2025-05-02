@@ -1,3 +1,4 @@
+// next.config.ts
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -15,6 +16,28 @@ const nextConfig = {
           },
         ],
         destination: "/dashboard/:path*",
+      },
+      // Mapeia a raiz do subdomínio app para a página principal do dashboard
+      {
+        source: "/",
+        has: [
+          {
+            type: "host",
+            value: "app.localhost:3000",
+          },
+        ],
+        destination: "/dashboard/analytics",
+      },
+      // Mapeia a raiz do subdomínio auth para a página de login
+      {
+        source: "/",
+        has: [
+          {
+            type: "host",
+            value: "auth.localhost:3000",
+          },
+        ],
+        destination: "/auth/login",
       },
     ];
   },
