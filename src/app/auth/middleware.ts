@@ -4,14 +4,14 @@ import { NextRequest, NextResponse } from "next/server";
 export function authMiddleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Evitar que /auth/login apareça na URL do navegador
-  if (pathname.includes("/auth/login")) {
-    if (request.nextUrl.search) {
-      return NextResponse.redirect(
-        new URL(`/?${request.nextUrl.search}`, request.url)
-      );
-    }
-    return NextResponse.redirect(new URL("/", request.url));
+  // Não redirecionamos mais /auth/login para a raiz
+  // Isso estava causando problemas com os estilos
+  // Apenas permitimos que a rota /auth/login seja renderizada normalmente
+
+  // Apenas gerencie redirecionamentos para outras rotas de autenticação, se necessário
+  if (pathname.startsWith("/auth/") && pathname !== "/auth/login") {
+    // Aqui você pode adicionar lógica específica para outras rotas de autenticação
+    // Por exemplo, redirecionar rotas protegidas para login
   }
 
   return NextResponse.next();

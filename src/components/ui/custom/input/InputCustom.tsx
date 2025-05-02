@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Icon, IconName } from "@/components/ui/custom/Icons";
 import { cn } from "@/lib/utils";
 import InputMaskService from "@/services/components/inputMaskService";
@@ -22,7 +23,7 @@ export const InputCustom = React.forwardRef<HTMLInputElement, InputCustomProps>(
       disabled = false,
       required = false,
       type = "text",
-      placeholder = " ",
+      placeholder = "",
       icon,
       rightIcon,
       mask,
@@ -30,7 +31,7 @@ export const InputCustom = React.forwardRef<HTMLInputElement, InputCustomProps>(
       showPasswordToggle = false,
       size = "md",
       fullWidth = true,
-      isFloatingLabel = true,
+      isFloatingLabel = false, // Mantemos essa prop para compatibilidade, mas ignoramos
       helperText,
       maxLength,
       successMessage,
@@ -123,7 +124,7 @@ export const InputCustom = React.forwardRef<HTMLInputElement, InputCustomProps>(
 
     // Calcula as classes CSS com base nas propriedades e estado
     const containerClasses = cn(
-      "group relative",
+      "group relative space-y-2",
       {
         "w-full": fullWidth,
         "min-w-[200px]": !fullWidth && size === "sm",
@@ -149,22 +150,8 @@ export const InputCustom = React.forwardRef<HTMLInputElement, InputCustomProps>(
       }
     );
 
-    const labelClasses = cn(
-      "origin-start absolute top-1/2 block -translate-y-1/2 cursor-text px-1 text-muted-foreground/70 transition-all left-3",
-      {
-        "pointer-events-none top-0 text-xs font-medium":
-          isFloatingLabel && (isFocused || innerValue),
-        "text-destructive": error && touched,
-        "text-emerald-500": successMessage && !error,
-        "text-default": isFocused && !error && !successMessage,
-        "text-xs": size === "sm",
-        "text-sm": size === "md",
-        "text-base": size === "lg",
-      }
-    );
-
     // Verifica se deve exibir o asterisco de obrigatório
-    const showRequiredIndicator = required && isFloatingLabel;
+    const showRequiredIndicator = required;
 
     // Determina o ícone a ser exibido (prioridade para o toggle de senha se for campo de senha)
     const displayIcon: IconName | undefined =
@@ -178,24 +165,25 @@ export const InputCustom = React.forwardRef<HTMLInputElement, InputCustomProps>(
     const shouldShowError = touched && error;
 
     return (
-      <div className="space-y-1">
-        <div
-          className={cn(containerClasses, "animated-input-wrapper", {
-            error: error && touched,
-            success: successMessage && !error,
-          })}
-        >
-          {/* Label com animação */}
-          <label htmlFor={inputId} className={labelClasses}>
-            <span className="inline-flex bg-background px-2">
-              {label}
-              {showRequiredIndicator && (
-                <span className="ml-1 text-destructive">*</span>
-              )}
-            </span>
-          </label>
+      <div className={containerClasses}>
+        {/* Label posicionado acima do input */}
+        {label && (
+          <Label
+            htmlFor={inputId}
+            className={cn("block text-sm font-medium", {
+              "text-destructive": error && touched,
+              "text-emerald-500": successMessage && !error,
+            })}
+          >
+            {label}
+            {showRequiredIndicator && (
+              <span className="ml-1 text-destructive">*</span>
+            )}
+          </Label>
+        )}
 
-          {/* Input */}
+        {/* Container do input */}
+        <div className="relative">
           <Input
             ref={ref || inputRef}
             id={inputId}

@@ -59,6 +59,7 @@
   --cyan: #01c1d8;
   --black: #000000;
   --gray-dark: #efefef;
+  --royal-blue: #0030b9;
 
   /* Variações de cores - variantes escuras (d) e claras (l) */
   /* GRAY */
@@ -160,6 +161,16 @@
   --gray-dark--l20: oklch(0.99 0.002 0);
   --gray-dark--l30: oklch(1 0.001 0);
   --gray-dark--l40: oklch(1 0 0);
+
+  /* ROYAL-BLUE */
+  --royal-blue--d40: oklch(0.2 0.35 262);
+  --royal-blue--d30: oklch(0.25 0.33 262);
+  --royal-blue--d20: oklch(0.3 0.31 262);
+  --royal-blue--d10: oklch(0.35 0.29 262);
+  --royal-blue--l10: oklch(0.45 0.26 262);
+  --royal-blue--l20: oklch(0.55 0.22 262);
+  --royal-blue--l30: oklch(0.65 0.18 262);
+  --royal-blue--l40: oklch(0.75 0.14 262);
 }
 
 :root {
@@ -929,5 +940,85 @@
   }
   .bg__gray-dark--l40 {
     background-color: var(--gray-dark--l40);
+  }
+
+  /* ROYAL-BLUE */
+  .tx__royal-blue,
+  .tx__royal-blue--d40,
+  .tx__royal-blue--d30,
+  .tx__royal-blue--d20,
+  .tx__royal-blue--d10,
+  .tx__royal-blue--l10,
+  .tx__royal-blue--l20,
+  .tx__royal-blue--l30,
+  .tx__royal-blue--l40 {
+    --color-fallback: var(--royal-blue);
+  }
+  .bg__royal-blue,
+  .bg__royal-blue--d40,
+  .bg__royal-blue--d30,
+  .bg__royal-blue--d20,
+  .bg__royal-blue--d10,
+  .bg__royal-blue--l10,
+  .bg__royal-blue--l20,
+  .bg__royal-blue--l30,
+  .bg__royal-blue--l40 {
+    --color-fallback: var(--royal-blue);
+  }
+
+  .tx__royal-blue {
+    color: var(--royal-blue);
+  }
+  .tx__royal-blue--d40 {
+    color: var(--royal-blue--d40);
+  }
+  .tx__royal-blue--d30 {
+    color: var(--royal-blue--d30);
+  }
+  .tx__royal-blue--d20 {
+    color: var(--royal-blue--d20);
+  }
+  .tx__royal-blue--d10 {
+    color: var(--royal-blue--d10);
+  }
+  .tx__royal-blue--l10 {
+    color: var(--royal-blue--l10);
+  }
+  .tx__royal-blue--l20 {
+    color: var(--royal-blue--l20);
+  }
+  .tx__royal-blue--l30 {
+    color: var(--royal-blue--l30);
+  }
+  .tx__royal-blue--l40 {
+    color: var(--royal-blue--l40);
+  }
+
+  .bg__royal-blue {
+    background-color: var(--royal-blue);
+  }
+  .bg__royal-blue--d40 {
+    background-color: var(--royal-blue--d40);
+  }
+  .bg__royal-blue--d30 {
+    background-color: var(--royal-blue--d30);
+  }
+  .bg__royal-blue--d20 {
+    background-color: var(--royal-blue--d20);
+  }
+  .bg__royal-blue--d10 {
+    background-color: var(--royal-blue--d10);
+  }
+  .bg__royal-blue--l10 {
+    background-color: var(--royal-blue--l10);
+  }
+  .bg__royal-blue--l20 {
+    background-color: var(--royal-blue--l20);
+  }
+  .bg__royal-blue--l30 {
+    background-color: var(--royal-blue--l30);
+  }
+  .bg__royal-blue--l40 {
+    background-color: var(--royal-blue--l40);
   }
 }

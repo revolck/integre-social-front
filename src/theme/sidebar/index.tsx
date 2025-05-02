@@ -1,55 +1,182 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  BarChart2,
-  Users,
-  Settings,
-  HelpCircle,
-} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { IconName } from "@/components/ui/custom/Icons";
+import { SelectedProject, Project } from "./selected-project";
+import { SidebarMenuItem } from "./SidebarMenuItem";
+import { SidebarSection } from "./SidebarSection";
+import { SidebarSubMenu } from "./SidebarSubMenu";
 
-// Basic sidebar navigation item type
-type SidebarNavItem = {
+// Tipos para os itens de navegação
+interface NavItemBase {
   title: string;
-  href: string;
-  icon: React.ReactNode;
-};
-
-// Props for the sidebar component
-interface SidebarProps {
-  className?: string;
+  icon?: IconName;
 }
 
-export function DashboardSidebar({ className }: SidebarProps) {
+interface NavItemLink extends NavItemBase {
+  type: "link";
+  href: string;
+}
+
+interface NavItemSubmenu extends NavItemBase {
+  type: "submenu";
+  items: Array<{
+    title: string;
+    href: string;
+  }>;
+}
+
+type NavItem = NavItemLink | NavItemSubmenu;
+
+// Tipos para as seções de navegação
+interface NavSection {
+  title?: string;
+  items: NavItem[];
+}
+
+// Props para o componente Sidebar
+interface SidebarProps {
+  className?: string;
+  collapsed?: boolean;
+  onCollapse?: (collapsed: boolean) => void;
+}
+
+export const DashboardSidebar = ({
+  className,
+  collapsed = false,
+  onCollapse,
+}: SidebarProps) => {
   const pathname = usePathname();
 
-  // Navigation items for the sidebar
-  const navItems: SidebarNavItem[] = [
+  // Projetos de exemplo (dados mock)
+  const projects: Project[] = [
     {
-      title: "Dashboard",
-      href: "/dashboard",
-      icon: <LayoutDashboard size={20} />,
+      id: "1",
+      name: "Codeshaper",
+      logo: "/api/placeholder/40/40", // Placeholder para a imagem do projeto
+      initials: "CS",
+      color: "bg-blue-600",
     },
     {
-      title: "Analytics",
-      href: "/analytics",
-      icon: <BarChart2 size={20} />,
+      id: "2",
+      name: "Instituto Amadal",
+      logo: "/api/placeholder/40/40", // Placeholder para a imagem do projeto
+      initials: "IA",
+      color: "bg-green-600",
     },
     {
-      title: "Users",
-      href: "/users",
-      icon: <Users size={20} />,
-    },
-    {
-      title: "Settings",
-      href: "/settings",
-      icon: <Settings size={20} />,
+      id: "3",
+      name: "DashCode",
+      logo: "/api/placeholder/40/40", // Placeholder para a imagem do projeto
+      initials: "DC",
+      color: "bg-purple-600",
     },
   ];
+
+  // Navegação do sidebar - itens e seções
+  const navSections: NavSection[] = [
+    {
+      title: "Dashboard",
+      items: [
+        {
+          type: "link",
+          title: "Dashboard",
+          icon: "LayoutDashboard",
+          href: "/dashboard",
+        },
+        {
+          type: "submenu",
+          title: "Analytics",
+          icon: "BarChart2",
+          items: [
+            { title: "Overview", href: "/analytics" },
+            { title: "Reports", href: "/analytics/reports" },
+            { title: "Metrics", href: "/analytics/metrics" },
+          ],
+        },
+        {
+          type: "submenu",
+          title: "E-commerce",
+          icon: "ShoppingCart",
+          items: [
+            { title: "Products", href: "/ecommerce/products" },
+            { title: "Orders", href: "/ecommerce/orders" },
+            { title: "Customers", href: "/ecommerce/customers" },
+          ],
+        },
+      ],
+    },
+    {
+      title: "Apps",
+      items: [
+        {
+          type: "link",
+          title: "Chat",
+          icon: "MessageSquare",
+          href: "/apps/chat",
+        },
+        {
+          type: "link",
+          title: "Email",
+          icon: "Mail",
+          href: "/apps/email",
+        },
+        {
+          type: "link",
+          title: "Kanban",
+          icon: "Trello",
+          href: "/apps/kanban",
+        },
+        {
+          type: "link",
+          title: "Calendar",
+          icon: "Calendar",
+          href: "/apps/calendar",
+        },
+        {
+          type: "link",
+          title: "Todo",
+          icon: "CheckSquare",
+          href: "/apps/todo",
+        },
+      ],
+    },
+    {
+      title: "Pages",
+      items: [
+        {
+          type: "submenu",
+          title: "Authentication",
+          icon: "Lock",
+          items: [
+            { title: "Login", href: "/auth/login" },
+            { title: "Register", href: "/auth/register" },
+            { title: "Forgot Password", href: "/auth/forgot-password" },
+          ],
+        },
+        {
+          type: "submenu",
+          title: "Utility",
+          icon: "Settings",
+          items: [
+            { title: "Settings", href: "/utility/settings" },
+            { title: "Profile", href: "/utility/profile" },
+            { title: "Help Center", href: "/utility/help" },
+          ],
+        },
+      ],
+    },
+  ];
+
+  // Verificar se um item está ativo
+  const isActive = (href: string) => pathname === href;
+
+  // Verificar se um submenu tem algum item ativo
+  const hasActiveSubItem = (items: Array<{ href: string }>) => {
+    return items.some((item) => isActive(item.href));
+  };
 
   return (
     <div
@@ -58,46 +185,59 @@ export function DashboardSidebar({ className }: SidebarProps) {
         className
       )}
     >
-      <div className="flex h-16 items-center border-b px-4">
-        <h2 className="text-lg font-semibold">Dashboard</h2>
-      </div>
+      {/* Seletor de Projeto */}
+      <SelectedProject projects={projects} />
 
-      <div className="flex flex-col flex-1 overflow-y-auto">
-        <nav className="flex-1 px-2 py-4">
-          <div className="space-y-1">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                    isActive
-                      ? "bg-accent text-accent-foreground"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                  )}
-                >
-                  {item.icon}
-                  <span>{item.title}</span>
-                </Link>
-              );
+      {/* Navegação Principal */}
+      <div className="flex flex-1 flex-col overflow-y-auto px-2 py-4">
+        {navSections.map((section, sectionIndex) => (
+          <SidebarSection key={`section-${sectionIndex}`} title={section.title}>
+            {section.items.map((item, itemIndex) => {
+              // Link simples
+              if (item.type === "link") {
+                return (
+                  <SidebarMenuItem
+                    key={`item-${sectionIndex}-${itemIndex}`}
+                    href={item.href}
+                    icon={item.icon}
+                    title={item.title}
+                    active={isActive(item.href)}
+                  />
+                );
+              }
+
+              // Submenu
+              if (item.type === "submenu") {
+                return (
+                  <SidebarSubMenu
+                    key={`submenu-${sectionIndex}-${itemIndex}`}
+                    icon={item.icon}
+                    title={item.title}
+                    items={item.items.map((subItem) => ({
+                      ...subItem,
+                      active: isActive(subItem.href),
+                    }))}
+                    defaultOpen={hasActiveSubItem(item.items)}
+                  />
+                );
+              }
+
+              return null;
             })}
-          </div>
-        </nav>
+          </SidebarSection>
+        ))}
       </div>
 
-      <div className="mt-auto p-4 border-t">
-        <Link
-          href="/help"
-          className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <HelpCircle size={18} />
-          <span>Help & Support</span>
-        </Link>
+      {/* Rodapé do Sidebar */}
+      <div className="border-t p-4">
+        <SidebarMenuItem
+          href="/help-support"
+          icon="HelpCircle"
+          title="Help & Support"
+        />
       </div>
     </div>
   );
-}
+};
 
 export default DashboardSidebar;

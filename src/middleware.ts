@@ -29,21 +29,27 @@ export function middleware(request: NextRequest) {
 
   // === SUBDOMÍNIO AUTH ===
   if (isAuthSubdomain) {
-    // Qualquer path no subdomínio auth redireciona para o login
-    const rewriteResponse = NextResponse.rewrite(
-      new URL("/auth/login", request.url)
-    );
-    // Copiar os cabeçalhos CORS para a resposta de reescrita
-    rewriteResponse.headers.set("Access-Control-Allow-Origin", "*");
-    rewriteResponse.headers.set(
-      "Access-Control-Allow-Methods",
-      "GET, POST, PUT, DELETE, OPTIONS"
-    );
-    rewriteResponse.headers.set(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization"
-    );
-    return rewriteResponse;
+    // Apenas reescreva para auth/login se estiver na raiz do subdomínio auth
+    if (pathname === "/" || pathname === "") {
+      const rewriteResponse = NextResponse.rewrite(
+        new URL("/auth/login", request.url)
+      );
+
+      // Copiar os cabeçalhos CORS para a resposta de reescrita
+      rewriteResponse.headers.set("Access-Control-Allow-Origin", "*");
+      rewriteResponse.headers.set(
+        "Access-Control-Allow-Methods",
+        "GET, POST, PUT, DELETE, OPTIONS"
+      );
+      rewriteResponse.headers.set(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Authorization"
+      );
+      return rewriteResponse;
+    }
+
+    // Para qualquer outro caminho no auth subdomain, apenas passar adiante
+    return response;
   }
 
   // === SUBDOMÍNIO APP ===

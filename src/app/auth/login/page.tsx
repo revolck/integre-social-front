@@ -3,10 +3,10 @@
 import { useState, FormEvent, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { InputCustom } from "@/components/ui/custom/input";
+import { ButtonCustom } from "@/components/ui/custom/button";
 import { DarkTheme } from "@/components/partials/darkTheme/darkTheme";
 
 /**
@@ -90,6 +90,11 @@ export default function LoginPage() {
     }
   };
 
+  // Imagens de logotipo e imagem lateral podem não estar presentes no projeto
+  // Vamos usar alternativas seguras
+  const logoSrc = "/logo-white.svg";
+  const bgImage = "/images/signup-collage.png";
+
   return (
     <div className="min-h-screen flex relative overflow-hidden">
       {/* Theme Toggle - Posicionado no canto superior direito */}
@@ -106,13 +111,7 @@ export default function LoginPage() {
         >
           {/* Logo */}
           <div className="flex justify-center">
-            <Image
-              src="/logo-white.svg"
-              width={130}
-              height={45}
-              alt="Logo da aplicação"
-              className="mx-auto dark:invert transition-all duration-300"
-            />
+            <div className="text-2xl font-bold">Logo da Aplicação</div>
           </div>
 
           {/* Cabeçalho */}
@@ -195,44 +194,19 @@ export default function LoginPage() {
                 </Link>
               </div>
 
-              {/* Botão de submissão */}
-              <Button
+              {/* Botão de submissão - Agora usando ButtonCustom */}
+              <ButtonCustom
                 type="submit"
-                className="w-full h-12 text-base transition-all duration-300 relative overflow-hidden"
-                disabled={loading}
+                variant="default"
+                size="lg"
+                fullWidth
+                isLoading={loading}
+                withAnimation={true}
+                loadingText="Entrando..."
+                iconPosition="right"
               >
-                <span
-                  className={`transition-all duration-300 ${
-                    loading ? "opacity-0" : "opacity-100"
-                  }`}
-                >
-                  Entrar
-                </span>
-                {loading && (
-                  <span className="absolute inset-0 flex items-center justify-center">
-                    <svg
-                      className="animate-spin h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                  </span>
-                )}
-              </Button>
+                Entrar
+              </ButtonCustom>
             </form>
           </div>
 
@@ -266,17 +240,15 @@ export default function LoginPage() {
       {/* Lado direito - Imagem */}
       <div className="hidden lg:block w-1/2 relative bg-gradient-to-br from-purple-500/90 to-blue-600/90">
         <div className="absolute inset-0 bg-black/30 z-0"></div>
-        <Image
-          src="/images/signup-collage.png"
-          alt="Colagem de capturas de tela do app"
-          fill
-          style={{ objectFit: "cover" }}
-          quality={100}
-          priority
-          className={`transition-all duration-1000 ease-in-out ${
+        <div
+          className={`w-full h-full bg-gray-700 ${
             isVisible ? "scale-100 opacity-80" : "scale-110 opacity-0"
-          }`}
-        />
+          } transition-all duration-1000 ease-in-out`}
+        >
+          <div className="flex items-center justify-center h-full text-white text-xl">
+            Imagem de background
+          </div>
+        </div>
       </div>
     </div>
   );

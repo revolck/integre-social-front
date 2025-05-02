@@ -85,6 +85,13 @@ const sections: Section[] = [
     description: "Fundos escuros e bordas sutis.",
     shades: [],
   },
+  {
+    varName: "royal-blue",
+    title: "Azul Escuro",
+    subtitle: "(royal-dark)",
+    description: "Cor principal",
+    shades: [],
+  },
 ];
 
 // Gera automaticamente as 9 variações de cada cor
