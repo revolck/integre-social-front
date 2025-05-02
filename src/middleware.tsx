@@ -1,56 +1,41 @@
-// src/middleware.ts
+// src/middleware.tsx
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-
-// Constantes para facilitar manutenção
-const AUTH_COOKIE_NAME = "auth_token";
-const TENANT_COOKIE_NAME = "current_tenant";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const host = request.headers.get("host") || "";
 
+  // Identificar o tipo de subdomínio
   const isAuthSubdomain = host.startsWith("auth.");
   const isAppSubdomain = host.startsWith("app.");
 
-  // Caso 1: Redireciona o domínio principal para o subdomínio auth
-  if (pathname === "/" && !isAuthSubdomain && !isAppSubdomain) {
+  // Domínio principal -> redireciona para auth
+  if (!isAuthSubdomain && !isAppSubdomain && pathname === "/") {
     return NextResponse.redirect(new URL("http://auth." + host));
   }
 
-  // Caso 2: Rota raiz do subdomínio auth -> reescrever para página de login
-  if (isAuthSubdomain && pathname === "/") {
-    return NextResponse.rewrite(new URL("/auth/login", request.url));
+  // Evitar que /auth/login apareça na URL do navegador
+  if (isAuthSubdomain && pathname.includes("/auth/login")) {
+    // Se o usuário acessou diretamente /auth/login, redireciona para a raiz
+    if (request.nextUrl.search) {
+      return NextResponse.redirect(
+        new URL(`/?${request.nextUrl.search}`, request.url)
+      );
+    }
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // NOVO - Caso 3: Rota raiz do subdomínio app -> reescrever para o dashboard
-  if (isAppSubdomain && pathname === "/") {
-    return NextResponse.rewrite(new URL("/dashboard/analytics", request.url));
-  }
-
-  // Caso 4: Redireciona a raiz do dashboard para analytics
-  if (isAppSubdomain && pathname === "/dashboard") {
-    return NextResponse.redirect(new URL("/dashboard/analytics", request.url));
-  }
-
-  // Caso 5: Reescreve URLs do dashboard no subdomínio app
+  // Evitar que /dashboard apareça nas URLs do app
   if (isAppSubdomain && pathname.startsWith("/dashboard/")) {
-    const path = pathname.replace("/dashboard/", "/");
-    return NextResponse.rewrite(new URL(path, request.url));
+    // Extrair o caminho após /dashboard/
+    const cleanPath = pathname.replace("/dashboard/", "/");
+    return NextResponse.redirect(new URL(cleanPath, request.url));
   }
 
-  // Permita o acesso a todas as outras rotas
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    "/",
-    "/auth/:path*",
-    "/dashboard",
-    "/dashboard/:path*",
-    "/select-tenant",
-    "/maintenance",
-    "/api/:path*",
-  ],
+  matcher: ["/", "/auth/login", "/dashboard/:path*"],
 };

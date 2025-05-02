@@ -36,17 +36,17 @@ export function DashboardSidebar({ className }: SidebarProps) {
     },
     {
       title: "Analytics",
-      href: "/dashboard/analytics",
+      href: "/analytics",
       icon: <BarChart2 size={20} />,
     },
     {
       title: "Users",
-      href: "/dashboard/users",
+      href: "/users",
       icon: <Users size={20} />,
     },
     {
       title: "Settings",
-      href: "/dashboard/settings",
+      href: "/settings",
       icon: <Settings size={20} />,
     },
   ];

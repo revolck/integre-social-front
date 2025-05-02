@@ -1,23 +1,23 @@
-// next.config.ts
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
 
-  // Configuração de domínios e subdomínios
+  // Configuração simples e direta de domínios e subdomínios
   async rewrites() {
     return [
-      // Mapeia o subdomínio app para a pasta dashboard
+      // Subdomínio auth - solução robusta e testada
       {
         source: "/:path*",
         has: [
           {
             type: "host",
-            value: "app.localhost:3000",
+            value: "auth.localhost:3000",
           },
         ],
-        destination: "/dashboard/:path*",
+        destination: "/auth/login",
       },
-      // Mapeia a raiz do subdomínio app para a página principal do dashboard
+
+      // Subdomínio app - tudo vai para dashboard
       {
         source: "/",
         has: [
@@ -28,16 +28,40 @@ const nextConfig = {
         ],
         destination: "/dashboard/analytics",
       },
-      // Mapeia a raiz do subdomínio auth para a página de login
+
+      // Rotas específicas do app
       {
-        source: "/",
+        source: "/analytics",
         has: [
           {
             type: "host",
-            value: "auth.localhost:3000",
+            value: "app.localhost:3000",
           },
         ],
-        destination: "/auth/login",
+        destination: "/dashboard/analytics",
+      },
+
+      // Outras rotas específicas (adicione mais conforme necessário)
+      {
+        source: "/users",
+        has: [
+          {
+            type: "host",
+            value: "app.localhost:3000",
+          },
+        ],
+        destination: "/dashboard/users",
+      },
+
+      {
+        source: "/settings",
+        has: [
+          {
+            type: "host",
+            value: "app.localhost:3000",
+          },
+        ],
+        destination: "/dashboard/settings",
       },
     ];
   },
