@@ -9,6 +9,8 @@ import { SelectedProject } from "./selected-project";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 import { SidebarSection } from "./SidebarSection";
 import { SidebarSubMenu } from "./SidebarSubMenu";
+// Importe framer-motion para animações
+import { motion } from "framer-motion";
 
 // Tipos para os itens de navegação
 interface NavItemBase {
@@ -41,13 +43,11 @@ interface NavSection {
 interface SidebarProps {
   className?: string;
   collapsed?: boolean;
-  onCollapse?: (collapsed: boolean) => void;
 }
 
 export const DashboardSidebar = ({
   className,
   collapsed = false,
-  onCollapse,
 }: SidebarProps) => {
   const pathname = usePathname();
   const isMobile = useIsMobile();
@@ -166,8 +166,8 @@ export const DashboardSidebar = ({
         className
       )}
     >
-      {/* Seletor de Projeto - agora utilizando o hook useProjects internamente */}
-      {!collapsed && <SelectedProject />}
+      {/* Seletor de Projeto com design atualizado */}
+      <SelectedProject collapsed={collapsed} />
 
       {/* Navegação Principal */}
       <div className="flex flex-1 flex-col overflow-y-auto px-2 py-4">

@@ -1,9 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Icon } from "@/components/ui/custom/Icons";
+import { ChevronDown } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useProjects } from "@/hooks/useProjects";
+import { motion } from "framer-motion";
 import {
   Select,
   SelectContent,
@@ -11,24 +13,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useProjects } from "@/hooks/useProjects";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-// Tipos para os projetos são importados direto do hook
+// Tipos para os projetos
 export interface Project {
   id: string;
   name: string;
   logo?: string;
   initials?: string;
   color?: string;
+  description?: string;
 }
 
 interface SelectedProjectProps {
   className?: string;
+  collapsed?: boolean;
 }
 
-export const SelectedProject = ({ className }: SelectedProjectProps) => {
+export const SelectedProject = ({
+  className,
+  collapsed = false,
+}: SelectedProjectProps) => {
   // Usando o hook customizado para gerenciar projetos
   const { projects, currentProject, loading, changeProject } = useProjects();
+  const [isOpen, setIsOpen] = useState(false);
 
   // Função para lidar com a mudança de projeto
   const handleProjectChange = (value: string) => {
@@ -38,18 +46,26 @@ export const SelectedProject = ({ className }: SelectedProjectProps) => {
     }
   };
 
+  // Truncate description function
+  const truncateText = (text: string, maxLength: number = 15) => {
+    if (!text) return "";
+    return text.length > maxLength
+      ? `${text.substring(0, maxLength)}...`
+      : text;
+  };
+
   // Se estiver carregando, exibir um skeleton
   if (loading) {
     return (
-      <div className={cn("px-2 py-3", className)}>
+      <div className={cn("p-4", className)}>
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8">
-            <Skeleton className="h-8 w-8 rounded-md" />
-          </div>
-          <div className="flex flex-col gap-1.5 flex-1">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-3 w-16" />
-          </div>
+          <Skeleton className="h-10 w-10 rounded-full" />
+          {!collapsed && (
+            <div className="flex-1">
+              <Skeleton className="h-4 w-24 mb-1" />
+              <Skeleton className="h-3 w-16" />
+            </div>
+          )}
         </div>
       </div>
     );
@@ -58,87 +74,136 @@ export const SelectedProject = ({ className }: SelectedProjectProps) => {
   // Se não houver projetos, exibir mensagem
   if (projects.length === 0) {
     return (
-      <div className={cn("px-2 py-3", className)}>
-        <div className="text-sm text-muted-foreground">
-          Nenhum projeto encontrado
-        </div>
+      <div className={cn("p-4", className)}>
+        {!collapsed ? (
+          <div className="text-sm text-muted-foreground">
+            Nenhum projeto encontrado
+          </div>
+        ) : (
+          <Avatar className="h-10 w-10">
+            <AvatarFallback>N/A</AvatarFallback>
+          </Avatar>
+        )}
       </div>
     );
   }
 
+  // Quando colapsado, apenas mostrar o avatar/logo do projeto selecionado
+  if (collapsed) {
+    return (
+      <div className={cn("py-4 px-3 flex justify-center", className)}>
+        {currentProject && (
+          <Avatar className="h-10 w-10">
+            {currentProject.logo ? (
+              <AvatarImage
+                src={currentProject.logo}
+                alt={currentProject.name}
+              />
+            ) : (
+              <AvatarFallback
+                className={cn(
+                  "text-white",
+                  currentProject.color || "bg-gray-600"
+                )}
+              >
+                {currentProject.initials || currentProject.name.charAt(0)}
+              </AvatarFallback>
+            )}
+          </Avatar>
+        )}
+      </div>
+    );
+  }
+
+  // Default description se não houver uma
+  const description = currentProject?.description || "Designing Workspace";
+
+  // Versão expandida (não colapsada)
   return (
-    <div className={cn("px-2 py-3", className)}>
-      <Select value={currentProject?.id} onValueChange={handleProjectChange}>
+    <div className={cn("py-4 px-3 border-b relative", className)}>
+      <Select
+        value={currentProject?.id}
+        onValueChange={handleProjectChange}
+        onOpenChange={(open) => setIsOpen(open)}
+      >
         <SelectTrigger
-          className="h-auto w-full border-none bg-background px-2 py-2 shadow-none hover:bg-accent [&>span]:flex [&>span]:w-full [&>span]:items-center [&>span]:gap-3"
+          className="p-0 h-auto w-full border-0 bg-transparent shadow-none hover:bg-transparent focus:ring-0"
           aria-label="Selecionar projeto"
         >
           <SelectValue placeholder="Selecionar projeto">
             {currentProject && (
-              <div className="flex w-full items-center justify-between">
-                <div className="flex items-center gap-3">
+              <div className="flex w-full items-center gap-3">
+                <Avatar className="h-10 w-10">
                   {currentProject.logo ? (
-                    <img
+                    <AvatarImage
                       src={currentProject.logo}
                       alt={currentProject.name}
-                      className="h-8 w-8 rounded-md object-cover"
                     />
                   ) : (
-                    <div
+                    <AvatarFallback
                       className={cn(
-                        "flex h-8 w-8 items-center justify-center rounded-md bg-muted text-sm font-medium text-foreground",
-                        currentProject.color
+                        "text-white",
+                        currentProject.color || "bg-gray-600"
                       )}
                     >
                       {currentProject.initials || currentProject.name.charAt(0)}
-                    </div>
+                    </AvatarFallback>
                   )}
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium text-foreground">
-                      {currentProject.name}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      Workspace
-                    </span>
-                  </div>
+                </Avatar>
+                <div className="flex flex-col items-start text-left">
+                  <span className="text-sm font-medium text-foreground">
+                    {currentProject.name}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {truncateText(description, 20)}
+                  </span>
                 </div>
-                <Icon
-                  name="ChevronDown"
-                  size={16}
-                  className="ml-auto text-muted-foreground"
-                />
               </div>
             )}
           </SelectValue>
         </SelectTrigger>
+
+        {/* Ícone à direita - posicionado absolutamente para não afetar o layout */}
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+          <motion.div
+            animate={{ rotate: isOpen ? 180 : 0 }}
+            transition={{
+              duration: 0.2,
+              type: "spring",
+              stiffness: 200,
+              damping: 20,
+            }}
+          >
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          </motion.div>
+        </div>
+
         <SelectContent className="max-h-[300px] w-[250px]">
           {projects.map((project) => (
             <SelectItem
               key={project.id}
               value={project.id}
-              className="p-0 focus:bg-accent focus:text-accent-foreground"
+              className="p-2 focus:bg-accent focus:text-accent-foreground"
             >
-              <div className="flex w-full items-center gap-3 px-2 py-2">
-                {project.logo ? (
-                  <img
-                    src={project.logo}
-                    alt={project.name}
-                    className="h-8 w-8 rounded-md object-cover"
-                  />
-                ) : (
-                  <div
-                    className={cn(
-                      "flex h-8 w-8 items-center justify-center rounded-md bg-muted text-sm font-medium text-foreground",
-                      project.color
-                    )}
-                  >
-                    {project.initials || project.name.charAt(0)}
-                  </div>
-                )}
-                <div className="flex flex-col">
+              <div className="flex w-full items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  {project.logo ? (
+                    <AvatarImage src={project.logo} alt={project.name} />
+                  ) : (
+                    <AvatarFallback
+                      className={cn(
+                        "text-white",
+                        project.color || "bg-gray-600"
+                      )}
+                    >
+                      {project.initials || project.name.charAt(0)}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+                <div className="flex flex-col items-start">
                   <span className="text-sm font-medium">{project.name}</span>
                   <span className="text-xs text-muted-foreground">
-                    Workspace
+                    {truncateText(project.description || "Workspace", 20)}
                   </span>
                 </div>
               </div>

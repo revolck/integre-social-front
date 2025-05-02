@@ -4,7 +4,6 @@ import React, { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { DashboardHeader } from "@/theme/header";
 import { DashboardSidebar } from "@/theme/sidebar";
-import { ToggleSidebarButton } from "@/theme/sidebar/ToggleSidebarButton";
 import { useSidebarCollapse } from "@/hooks/use-sidebar-collapse";
 
 interface DashboardLayoutProps {
@@ -25,27 +24,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="relative min-h-screen flex flex-col">
-      {/* Header - usando o componente existente */}
-      <DashboardHeader />
+      {/* Header - recebe o estado do sidebar e a função de toggle */}
+      <DashboardHeader collapsed={collapsed} toggleCollapse={toggleCollapse} />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex-1 flex overflow-hidden">
         {/* Sidebar */}
         <DashboardSidebar collapsed={collapsed} />
 
         {/* Conteúdo principal */}
-        <div className="flex flex-1 flex-col overflow-hidden">
-          {/* Barra de título da página com toggle do sidebar */}
-          <div className="flex h-12 items-center border-b px-4 bg-background">
-            <div className="flex items-center">
-              <ToggleSidebarButton
-                collapsed={collapsed}
-                onClick={toggleCollapse}
-                className="mr-4"
-              />
-            </div>
-          </div>
-
-          {/* Conteúdo */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Área de conteúdo com scroll */}
           <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
             {children}
           </main>

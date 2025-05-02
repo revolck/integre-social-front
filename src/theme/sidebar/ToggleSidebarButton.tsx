@@ -2,7 +2,7 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
-import { Icon } from "@/components/ui/custom/Icons";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ToggleSidebarButtonProps {
@@ -25,7 +25,8 @@ export const ToggleSidebarButton: React.FC<ToggleSidebarButtonProps> = ({
       size="icon"
       aria-label={collapsed ? "Expandir sidebar" : "Colapsar sidebar"}
     >
-      <Icon name={collapsed ? "ChevronRight" : "ChevronLeft"} size={18} />
+      {/* Usando o ícone de Menu conforme solicitado */}
+      <Menu size={18} />
     </Button>
   );
 };
