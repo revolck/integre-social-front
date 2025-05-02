@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { DarkTheme } from "@/components/partials/darkTheme/darkTheme";
 import Image from "next/image";
 import { Bell } from "lucide-react";
-import { ToggleSidebarButton } from "@/theme/sidebar/ToggleSidebarButton";
 
 interface DashboardHeaderProps {
   collapsed: boolean;
@@ -20,7 +19,6 @@ export function DashboardHeader({
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-background px-4">
       <div className="flex items-center gap-2">
         {/* Toggle Sidebar Button à esquerda do logo */}
-        <ToggleSidebarButton collapsed={collapsed} onClick={toggleCollapse} />
 
         {/* Logo */}
         <div className="flex items-center">
