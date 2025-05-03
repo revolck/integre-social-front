@@ -72,6 +72,8 @@ export const Icons = {
   ChevronUp: LucideIcons.ChevronUp,
   ChevronLeft: LucideIcons.ChevronLeft,
   ChevronRight: LucideIcons.ChevronRight,
+  AlignLeft: LucideIcons.AlignLeft,
+  ArrowRight: LucideIcons.ArrowRight,
 
   // Função de utilidade para ícones
   get: (name: IconName): LucideIconComponent =>
