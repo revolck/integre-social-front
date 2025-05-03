@@ -1,10 +1,11 @@
 "use client";
 import React from "react";
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
-
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/custom/Icons";
 import {
   Collapsible,
   CollapsibleContent,
@@ -22,7 +23,6 @@ interface CollapseMenuButtonProps {
 }
 
 export function MultiCollapseMenuButton({
-  icon,
   label,
   active,
   submenus,
@@ -33,25 +33,24 @@ export function MultiCollapseMenuButton({
   );
   const [isCollapsed, setIsCollapsed] = useState<boolean>(isSubmenuActive);
   const [mobileMenuConfig, setMobileMenuConfig] = useMobileMenuConfig();
+
   return (
     <Collapsible
       open={isCollapsed}
       onOpenChange={setIsCollapsed}
-      className="w-full mb-2 last:mb-0 "
+      className="w-full mb-2 last:mb-0"
     >
       <CollapsibleTrigger asChild>
-        <div className=" flex items-center group [&[data-state=open]>button>div>div>svg]:rotate-180 first:mt-3 ">
+        <div className="flex items-center group [&[data-state=open]>button>div>div>svg]:rotate-180 first:mt-3">
           <Button
-            color="secondary"
             variant="ghost"
-            className="w-full justify-start h-auto hover:bg-transparent hover:ring-offset-0 capitalize text-sm font-normal   md:px-5 px-5 "
-            fullWidth
+            className="w-full justify-start h-auto hover:bg-transparent hover:ring-offset-0 capitalize text-sm font-normal md:px-5 px-5"
           >
             <div className="w-full items-center flex justify-between">
               <div className="flex items-center">
                 <span
                   className={cn(
-                    "h-1.5 w-1.5 me-3 rounded-full  transition-all duration-150 ring-1     ring-default-600 ",
+                    "h-1.5 w-1.5 me-3 rounded-full transition-all duration-150 ring-1 ring-default-600",
                     {
                       "ring-4 bg-default ring-opacity-30 ring-default": active,
                     }
@@ -61,13 +60,14 @@ export function MultiCollapseMenuButton({
               </div>
               <div
                 className={cn(
-                  "whitespace-nowrap inline-flex items-center justify-center rounded-full h-5 w-5 bg-menu-arrow text-menu-menu-foreground  group-hover:bg-menu-arrow-active transition-all duration-300 ",
+                  "whitespace-nowrap inline-flex items-center justify-center rounded-full h-5 w-5 bg-menu-arrow text-menu-menu-foreground group-hover:bg-menu-arrow-active transition-all duration-300",
                   {
                     "bg-menu-arrow-active": active,
                   }
                 )}
               >
-                <ChevronDown
+                <Icon
+                  name="ChevronDown"
                   size={16}
                   className="transition-transform duration-200"
                 />
@@ -83,15 +83,14 @@ export function MultiCollapseMenuButton({
             onClick={() =>
               setMobileMenuConfig({ ...mobileMenuConfig, isOpen: false })
             }
-            color="secondary"
             variant="ghost"
-            className="w-full justify-start  h-auto mb-1.5  hover:bg-transparent first:mt-3 text-[13px]  font-normal "
+            className="w-full justify-start h-auto mb-1.5 hover:bg-transparent first:mt-3 text-[13px] font-normal"
             asChild
           >
             <Link href={href}>
               <span
                 className={cn(
-                  "h-1 w-1 me-3 rounded-full  transition-all duration-150 ring-0   bg-default-300 dark:bg-secondary  dark:ring-menu-arrow-active  ring-default-300 ",
+                  "h-1 w-1 me-3 rounded-full transition-all duration-150 ring-0 bg-default-300 dark:bg-secondary dark:ring-menu-arrow-active ring-default-300",
                   {
                     "ring-4 bg-default ring-opacity-30 ring-default": active,
                   }
