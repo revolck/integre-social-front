@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { Project } from "@/types/project/project-types";
+import type { Project } from "@/types/projects/projects-types";
 
 interface ProjectAvatarProps {
   project: Project;

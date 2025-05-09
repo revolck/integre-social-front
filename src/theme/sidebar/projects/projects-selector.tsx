@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
-import { ProjectAvatar } from "./project-avatar";
-import { ProjectSelectorModal } from "./project-selector-modal";
-import { useProjectStore } from "@/lib/project/project-store";
+import { ProjectAvatar } from "./projects-avatar";
+import { ProjectSelectorModal } from "./projects-selector-modal";
+import { useProjectStore } from "@/lib/projects/projects-store";
 
 interface ProjectSelectorProps {
   isCollapsed?: boolean;

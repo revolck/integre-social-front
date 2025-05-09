@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Project } from "@/types/project/project-types";
+import type { Project } from "@/types/projects/projects-types";
 
 // Sample projects data
 const sampleProjects: Project[] = [

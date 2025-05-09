@@ -9,9 +9,9 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ProjectAvatar } from "./project-avatar";
-import { useProjectStore } from "@/lib/project/project-store";
-import type { Project } from "@/types/project/project-types";
+import { ProjectAvatar } from "./projects-avatar";
+import { useProjectStore } from "@/lib/projects/projects-store";
+import type { Project } from "@/types/projects/projects-types";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
