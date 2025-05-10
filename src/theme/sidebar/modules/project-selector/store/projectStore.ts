@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Project } from "@/types/projects/projects-types";
+import type { Project } from "../types/project.types";
 
 // Sample projects data
 const sampleProjects: Project[] = [
@@ -35,26 +35,44 @@ const sampleProjects: Project[] = [
   },
 ];
 
+/**
+ * Interface de estado para o store de projetos/tenants
+ */
 interface ProjectState {
   projects: Project[];
   selectedProject: Project | null;
   hasSelectedProject: boolean;
+
+  // Ações
   selectProject: (project: Project) => void;
   addProject: (project: Project) => void;
   updateProject: (project: Project) => void;
   removeProject: (id: string) => void;
 }
 
+/**
+ * Store de projetos/tenants utilizando Zustand com persistência
+ *
+ * Gerencia o estado global relacionado a tenants do sistema:
+ * - Lista de tenants disponíveis para o usuário
+ * - Tenant selecionado atualmente (determina qual fonte de dados é usada)
+ * - Ações para manipulação de tenants
+ */
 export const useProjectStore = create<ProjectState>()(
   persist(
     (set) => ({
+      // Estado inicial
       projects: sampleProjects,
       selectedProject: null,
       hasSelectedProject: false,
+
+      // Ações
       selectProject: (project) =>
         set({ selectedProject: project, hasSelectedProject: true }),
+
       addProject: (project) =>
         set((state) => ({ projects: [...state.projects, project] })),
+
       updateProject: (project) =>
         set((state) => ({
           projects: state.projects.map((p) =>
@@ -65,6 +83,7 @@ export const useProjectStore = create<ProjectState>()(
               ? project
               : state.selectedProject,
         })),
+
       removeProject: (id) =>
         set((state) => ({
           projects: state.projects.filter((p) => p.id !== id),
@@ -75,7 +94,7 @@ export const useProjectStore = create<ProjectState>()(
         })),
     }),
     {
-      name: "project-storage",
+      name: "tenant-storage", // Nome usado para armazenamento persistente
     }
   )
 );

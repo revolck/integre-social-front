@@ -2,4 +2,7 @@
 export { DashboardHeader } from "./header";
 
 // Export Sidebar components
-export { DashboardSidebar } from "./sidebar";
+export { Sidebar as DashboardSidebar } from "./sidebar/Sidebar";
+
+// Export types
+export type { SidebarProps } from "./sidebar/types/sidebar.types";
