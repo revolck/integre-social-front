@@ -3,12 +3,12 @@
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { XIcon } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 
 // Tipos para as props do componente
-export interface ModalCustomProps
+export interface ModalProps
   extends React.ComponentProps<typeof DialogPrimitive.Root> {
   /**
    * Tamanho da modal
@@ -124,10 +124,10 @@ const createModalContext = () => {
   return React.createContext<{
     isOpen: boolean;
     onClose: () => void;
-    size: ModalCustomProps["size"];
-    radius: ModalCustomProps["radius"];
-    scrollBehavior: ModalCustomProps["scrollBehavior"];
-    classNames: Required<ModalCustomProps>["classNames"];
+    size: ModalProps["size"];
+    radius: ModalProps["radius"];
+    scrollBehavior: ModalProps["scrollBehavior"];
+    classNames: Required<ModalProps>["classNames"];
   }>({
     isOpen: false,
     onClose: () => {},
@@ -206,9 +206,9 @@ const backdropClasses = {
 };
 
 /**
- * Componente principal ModalCustom
+ * Componente principal Modal
  */
-export function ModalCustom({
+export function Modal({
   children,
   isOpen,
   defaultOpen,
@@ -230,7 +230,7 @@ export function ModalCustom({
   disableAnimation = false,
   classNames = {},
   ...props
-}: ModalCustomProps) {
+}: ModalProps) {
   // Função para fechar a modal
   const handleClose = React.useCallback(() => {
     onClose?.();
@@ -245,7 +245,7 @@ export function ModalCustom({
       size,
       radius,
       scrollBehavior,
-      classNames: classNames as Required<ModalCustomProps>["classNames"],
+      classNames: classNames as Required<ModalProps>["classNames"],
     };
   }, [isOpen, handleClose, size, radius, scrollBehavior, classNames]);
 
@@ -287,6 +287,13 @@ function ModalTrigger({
   );
 }
 
+// Interface estendida para as props do ModalPortal
+interface ModalPortalProps
+  extends React.ComponentProps<typeof DialogPrimitive.Portal> {
+  container?: HTMLElement;
+  className?: string;
+}
+
 /**
  * Componente que serve como portal para renderizar a modal
  */
@@ -295,14 +302,11 @@ function ModalPortal({
   children,
   container,
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Portal> & {
-  container?: HTMLElement;
-}) {
+}: ModalPortalProps) {
   return (
     <DialogPrimitive.Portal
       data-slot="modal-portal"
       container={container}
-      className={cn("", className)}
       {...props}
     >
       {children}
@@ -350,6 +354,17 @@ function ModalOverlay({
   );
 }
 
+// Interface para estender as props do DialogPrimitive.Content
+interface ModalContentProps
+  extends React.ComponentProps<typeof DialogPrimitive.Content> {
+  isKeyboardDismissDisabled?: boolean;
+  isDismissable?: boolean;
+  hideCloseButton?: boolean;
+  closeButton?: React.ReactNode;
+  shadow?: "none" | "sm" | "md" | "lg";
+  placement?: "auto" | "top" | "center" | "bottom";
+}
+
 /**
  * Componente principal de conteúdo da modal
  */
@@ -359,14 +374,20 @@ function ModalContent({
   onEscapeKeyDown,
   onPointerDownOutside,
   onInteractOutside,
+  isKeyboardDismissDisabled,
+  isDismissable,
+  hideCloseButton,
+  closeButton,
+  shadow = "lg",
+  placement = "center",
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Content>) {
+}: ModalContentProps) {
   const {
     onClose,
     size = "md",
     radius = "lg",
     scrollBehavior = "normal",
-    classNames,
+    classNames = {},
   } = useModalContext();
 
   // Renderização do conteúdo da modal
@@ -374,29 +395,29 @@ function ModalContent({
     <DialogPrimitive.Content
       data-slot="modal-content"
       onEscapeKeyDown={(e) => {
-        if (props.onEscapeKeyDown) {
-          props.onEscapeKeyDown(e);
+        if (onEscapeKeyDown) {
+          onEscapeKeyDown(e);
         }
         // Não propaga evento se isKeyboardDismissDisabled for true
-        if (props["isKeyboardDismissDisabled"]) {
+        if (isKeyboardDismissDisabled) {
           e.preventDefault();
         }
       }}
       onPointerDownOutside={(e) => {
-        if (props.onPointerDownOutside) {
-          props.onPointerDownOutside(e);
+        if (onPointerDownOutside) {
+          onPointerDownOutside(e);
         }
         // Não propaga evento se isDismissable for false
-        if (!props["isDismissable"]) {
+        if (isDismissable === false) {
           e.preventDefault();
         }
       }}
       onInteractOutside={(e) => {
-        if (props.onInteractOutside) {
-          props.onInteractOutside(e);
+        if (onInteractOutside) {
+          onInteractOutside(e);
         }
         // Não propaga evento se isDismissable for false
-        if (!props["isDismissable"]) {
+        if (isDismissable === false) {
           e.preventDefault();
         }
       }}
@@ -405,10 +426,8 @@ function ModalContent({
         "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-200",
         sizeClasses[size],
         radiusClasses[radius],
-        shadowClasses[(props["shadow"] as keyof typeof shadowClasses) || "lg"],
-        placementClasses[
-          (props["placement"] as keyof typeof placementClasses) || "center"
-        ],
+        shadowClasses[shadow as keyof typeof shadowClasses],
+        placementClasses[placement as keyof typeof placementClasses],
         scrollBehaviorClasses[scrollBehavior],
         classNames?.base,
         className
@@ -418,8 +437,8 @@ function ModalContent({
       {children}
 
       {/* Botão de fechar (pode ser personalizado ou escondido) */}
-      {!props["hideCloseButton"] &&
-        (props["closeButton"] || (
+      {!hideCloseButton &&
+        (closeButton || (
           <ModalClose
             className={cn(
               "absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity",
@@ -434,6 +453,14 @@ function ModalContent({
         ))}
     </DialogPrimitive.Content>
   );
+}
+
+// Interface para as props do ModalContentWrapper
+interface ModalContentWrapperProps extends ModalContentProps {
+  backdrop?: "transparent" | "opaque" | "blur";
+  container?: HTMLElement;
+  motionProps?: any;
+  disableAnimation?: boolean;
 }
 
 /**
@@ -453,18 +480,7 @@ function ModalContentWrapper({
   motionProps,
   disableAnimation = false,
   ...props
-}: React.ComponentProps<typeof ModalContent> & {
-  backdrop?: "transparent" | "opaque" | "blur";
-  container?: HTMLElement;
-  isDismissable?: boolean;
-  isKeyboardDismissDisabled?: boolean;
-  hideCloseButton?: boolean;
-  closeButton?: React.ReactNode;
-  shadow?: "none" | "sm" | "md" | "lg";
-  placement?: "auto" | "top" | "center" | "bottom";
-  motionProps?: any;
-  disableAnimation?: boolean;
-}) {
+}: ModalContentWrapperProps) {
   const Content = disableAnimation ? React.Fragment : motion.div;
   const contentProps = disableAnimation
     ? {}
@@ -501,7 +517,7 @@ function ModalContentWrapper({
  * Componente para o cabeçalho da modal
  */
 function ModalHeader({ className, ...props }: React.ComponentProps<"div">) {
-  const { classNames } = useModalContext();
+  const { classNames = {} } = useModalContext();
 
   return (
     <div
@@ -520,7 +536,7 @@ function ModalHeader({ className, ...props }: React.ComponentProps<"div">) {
  * Componente para o rodapé da modal
  */
 function ModalFooter({ className, ...props }: React.ComponentProps<"div">) {
-  const { classNames } = useModalContext();
+  const { classNames = {} } = useModalContext();
 
   return (
     <div
@@ -571,7 +587,7 @@ function ModalDescription({
  * Componente para o corpo da modal
  */
 function ModalBody({ className, ...props }: React.ComponentProps<"div">) {
-  const { scrollBehavior, classNames } = useModalContext();
+  const { scrollBehavior = "normal", classNames } = useModalContext();
 
   return (
     <div
@@ -589,7 +605,7 @@ function ModalBody({ className, ...props }: React.ComponentProps<"div">) {
 
 // Exportação dos componentes
 export {
-  ModalCustom,
+  Modal as ModalCustom,
   ModalTrigger,
   ModalContent,
   ModalContentWrapper,
