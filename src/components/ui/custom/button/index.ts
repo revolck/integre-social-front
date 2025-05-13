@@ -1,2 +1,3 @@
-export { ButtonCustom, buttonCustomVariants } from "./buttonCustom";
-export type { ButtonCustomProps } from "./buttonCustom";
+export { ButtonCustom } from "./buttonCustom";
+export { buttonCustomVariants } from "./variants";
+export type { ButtonCustomProps } from "./types";

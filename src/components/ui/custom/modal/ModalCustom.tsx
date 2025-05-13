@@ -2,143 +2,79 @@
 
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { XIcon } from "lucide-react";
 import { motion } from "framer-motion";
+import { XIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import type {
+  ModalProps,
+  ModalSize,
+  ModalBackdrop,
+  ModalPlacement,
+} from "./types";
 
-// Tipos para as props do componente
-export interface ModalProps
-  extends React.ComponentProps<typeof DialogPrimitive.Root> {
-  /**
-   * Tamanho da modal
-   */
-  size?:
-    | "xs"
-    | "sm"
-    | "md"
-    | "lg"
-    | "xl"
-    | "2xl"
-    | "3xl"
-    | "4xl"
-    | "5xl"
-    | "full";
-
-  /**
-   * Radio das bordas
-   */
-  radius?: "none" | "sm" | "md" | "lg";
-
-  /**
-   * Sombra da modal
-   */
-  shadow?: "none" | "sm" | "md" | "lg";
-
-  /**
-   * Tipo de backdrop
-   */
-  backdrop?: "transparent" | "opaque" | "blur";
-
-  /**
-   * Comportamento de scroll
-   */
-  scrollBehavior?: "normal" | "inside" | "outside";
-
-  /**
-   * Posição da modal na tela
-   */
-  placement?: "auto" | "top" | "center" | "bottom";
-
-  /**
-   * Se a modal está aberta
-   */
-  isOpen?: boolean;
-
-  /**
-   * Se a modal pode ser fechada clicando fora
-   */
-  isDismissable?: boolean;
-
-  /**
-   * Se a modal pode ser fechada pressionando ESC
-   */
-  isKeyboardDismissDisabled?: boolean;
-
-  /**
-   * Se o scroll da página deve ser bloqueado quando a modal estiver aberta
-   */
-  shouldBlockScroll?: boolean;
-
-  /**
-   * Se o botão de fechar deve ser escondido
-   */
-  hideCloseButton?: boolean;
-
-  /**
-   * Botão de fechar personalizado
-   */
-  closeButton?: React.ReactNode;
-
-  /**
-   * Props de animação
-   */
-  motionProps?: any;
-
-  /**
-   * Container do portal
-   */
-  portalContainer?: HTMLElement;
-
-  /**
-   * Se a animação deve ser desativada
-   */
-  disableAnimation?: boolean;
-
-  /**
-   * Classes personalizadas
-   */
-  classNames?: {
-    wrapper?: string;
-    base?: string;
-    backdrop?: string;
-    header?: string;
-    body?: string;
-    footer?: string;
-    closeButton?: string;
-  };
-
-  /**
-   * Função chamada quando o estado de abertura muda
-   */
-  onOpenChange?: (isOpen: boolean) => void;
-
-  /**
-   * Função chamada quando a modal é fechada
-   */
-  onClose?: () => void;
-}
-
-// Factory function para ModalContext
-const createModalContext = () => {
-  return React.createContext<{
-    isOpen: boolean;
-    onClose: () => void;
-    size: ModalProps["size"];
-    radius: ModalProps["radius"];
-    scrollBehavior: ModalProps["scrollBehavior"];
-    classNames: Required<ModalProps>["classNames"];
-  }>({
-    isOpen: false,
-    onClose: () => {},
-    size: "md",
-    radius: "lg",
-    scrollBehavior: "normal",
-    classNames: {},
-  });
+// Mapeamento de tamanhos para classes
+const sizeClasses: Record<ModalSize, string> = {
+  xs: "max-w-xs",
+  sm: "max-w-sm",
+  md: "max-w-md",
+  lg: "max-w-lg",
+  xl: "max-w-xl",
+  "2xl": "max-w-2xl",
+  "3xl": "max-w-3xl",
+  "4xl": "max-w-4xl",
+  "5xl": "max-w-5xl",
+  full: "max-w-full",
 };
 
-const ModalContext = createModalContext();
+// Mapeamento de raios para classes
+const radiusClasses: Record<string, string> = {
+  none: "rounded-none",
+  sm: "rounded-sm",
+  md: "rounded-md",
+  lg: "rounded-lg",
+};
+
+// Mapeamento de sombras para classes
+const shadowClasses: Record<string, string> = {
+  none: "shadow-none",
+  sm: "shadow-sm",
+  md: "shadow-md",
+  lg: "shadow-lg",
+};
+
+// Mapeamento de comportamentos de scroll para classes
+const scrollBehaviorClasses: Record<string, string> = {
+  normal: "overflow-auto",
+  inside: "overflow-y-auto",
+  outside: "overflow-y-visible",
+};
+
+// Mapeamento de posições para classes
+const placementClasses: Record<ModalPlacement, string> = {
+  auto: "top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]",
+  top: "top-4 left-[50%] translate-x-[-50%]",
+  center: "top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]",
+  bottom: "bottom-4 left-[50%] translate-x-[-50%]",
+};
+
+// Mapeamento de backdrops para classes
+const backdropClasses: Record<ModalBackdrop, string> = {
+  transparent: "bg-transparent",
+  opaque: "bg-black/50",
+  blur: "backdrop-blur-sm bg-black/30",
+};
+
+type ModalContextProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  size: ModalSize;
+  radius: string;
+  scrollBehavior: string;
+  classNames: Required<ModalProps>["classNames"];
+};
+
+const ModalContext = React.createContext<ModalContextProps | null>(null);
 
 /**
  * Hook para acessar o contexto da modal
@@ -153,62 +89,10 @@ export const useModalContext = () => {
   return context;
 };
 
-// Mapeamento de tamanhos para classes
-const sizeClasses = {
-  xs: "max-w-xs",
-  sm: "max-w-sm",
-  md: "max-w-md",
-  lg: "max-w-lg",
-  xl: "max-w-xl",
-  "2xl": "max-w-2xl",
-  "3xl": "max-w-3xl",
-  "4xl": "max-w-4xl",
-  "5xl": "max-w-5xl",
-  full: "max-w-full",
-};
-
-// Mapeamento de raios para classes
-const radiusClasses = {
-  none: "rounded-none",
-  sm: "rounded-sm",
-  md: "rounded-md",
-  lg: "rounded-lg",
-};
-
-// Mapeamento de sombras para classes
-const shadowClasses = {
-  none: "shadow-none",
-  sm: "shadow-sm",
-  md: "shadow-md",
-  lg: "shadow-lg",
-};
-
-// Mapeamento de comportamentos de scroll para classes
-const scrollBehaviorClasses = {
-  normal: "overflow-auto",
-  inside: "overflow-y-auto",
-  outside: "overflow-y-visible",
-};
-
-// Mapeamento de posições para classes
-const placementClasses = {
-  auto: "top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]",
-  top: "top-4 left-[50%] translate-x-[-50%]",
-  center: "top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]",
-  bottom: "bottom-4 left-[50%] translate-x-[-50%]",
-};
-
-// Mapeamento de backdrops para classes
-const backdropClasses = {
-  transparent: "bg-transparent",
-  opaque: "bg-black/50",
-  blur: "backdrop-blur-sm bg-black/30",
-};
-
 /**
  * Componente principal Modal
  */
-export function Modal({
+export function ModalCustom({
   children,
   isOpen,
   defaultOpen,
@@ -271,7 +155,7 @@ export function Modal({
 /**
  * Componente de gatilho para a modal
  */
-function ModalTrigger({
+export function ModalTrigger({
   className,
   children,
   ...props
@@ -297,7 +181,7 @@ interface ModalPortalProps
 /**
  * Componente que serve como portal para renderizar a modal
  */
-function ModalPortal({
+export function ModalPortal({
   className,
   children,
   container,
@@ -317,7 +201,7 @@ function ModalPortal({
 /**
  * Componente para fechar a modal
  */
-function ModalClose({
+export function ModalClose({
   className,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Close>) {
@@ -333,12 +217,12 @@ function ModalClose({
 /**
  * Componente de overlay (fundo escuro) da modal
  */
-function ModalOverlay({
+export function ModalOverlay({
   className,
   backdrop = "opaque",
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Overlay> & {
-  backdrop?: "transparent" | "opaque" | "blur";
+  backdrop?: ModalBackdrop;
 }) {
   return (
     <DialogPrimitive.Overlay
@@ -362,13 +246,13 @@ interface ModalContentProps
   hideCloseButton?: boolean;
   closeButton?: React.ReactNode;
   shadow?: "none" | "sm" | "md" | "lg";
-  placement?: "auto" | "top" | "center" | "bottom";
+  placement?: ModalPlacement;
 }
 
 /**
  * Componente principal de conteúdo da modal
  */
-function ModalContent({
+export function ModalContent({
   className,
   children,
   onEscapeKeyDown,
@@ -426,8 +310,8 @@ function ModalContent({
         "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-200",
         sizeClasses[size],
         radiusClasses[radius],
-        shadowClasses[shadow as keyof typeof shadowClasses],
-        placementClasses[placement as keyof typeof placementClasses],
+        shadowClasses[shadow],
+        placementClasses[placement],
         scrollBehaviorClasses[scrollBehavior],
         classNames?.base,
         className
@@ -457,7 +341,7 @@ function ModalContent({
 
 // Interface para as props do ModalContentWrapper
 interface ModalContentWrapperProps extends ModalContentProps {
-  backdrop?: "transparent" | "opaque" | "blur";
+  backdrop?: ModalBackdrop;
   container?: HTMLElement;
   motionProps?: any;
   disableAnimation?: boolean;
@@ -466,7 +350,7 @@ interface ModalContentWrapperProps extends ModalContentProps {
 /**
  * Wrapper do conteúdo da modal com overlay e portal
  */
-function ModalContentWrapper({
+export function ModalContentWrapper({
   children,
   className,
   backdrop = "opaque",
@@ -516,7 +400,10 @@ function ModalContentWrapper({
 /**
  * Componente para o cabeçalho da modal
  */
-function ModalHeader({ className, ...props }: React.ComponentProps<"div">) {
+export function ModalHeader({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
   const { classNames = {} } = useModalContext();
 
   return (
@@ -535,7 +422,10 @@ function ModalHeader({ className, ...props }: React.ComponentProps<"div">) {
 /**
  * Componente para o rodapé da modal
  */
-function ModalFooter({ className, ...props }: React.ComponentProps<"div">) {
+export function ModalFooter({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
   const { classNames = {} } = useModalContext();
 
   return (
@@ -554,7 +444,7 @@ function ModalFooter({ className, ...props }: React.ComponentProps<"div">) {
 /**
  * Componente para o título da modal
  */
-function ModalTitle({
+export function ModalTitle({
   className,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Title>) {
@@ -570,7 +460,7 @@ function ModalTitle({
 /**
  * Componente para a descrição da modal
  */
-function ModalDescription({
+export function ModalDescription({
   className,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Description>) {
@@ -586,7 +476,10 @@ function ModalDescription({
 /**
  * Componente para o corpo da modal
  */
-function ModalBody({ className, ...props }: React.ComponentProps<"div">) {
+export function ModalBody({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
   const { scrollBehavior = "normal", classNames } = useModalContext();
 
   return (
@@ -602,18 +495,3 @@ function ModalBody({ className, ...props }: React.ComponentProps<"div">) {
     />
   );
 }
-
-// Exportação dos componentes
-export {
-  Modal as ModalCustom,
-  ModalTrigger,
-  ModalContent,
-  ModalContentWrapper,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ModalTitle,
-  ModalDescription,
-  ModalClose,
-  ModalOverlay,
-};

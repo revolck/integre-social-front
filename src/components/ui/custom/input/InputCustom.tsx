@@ -3,11 +3,15 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Icon, IconName } from "@/components/ui/custom/Icons";
+import { Icon } from "@/components/ui/custom/Icons";
 import { cn } from "@/lib/utils";
-import InputMaskService from "@/services/components/inputMaskService";
-import { InputCustomProps, MaskType } from "@/types/components/input";
+import InputMaskService from "./InputMaskService";
+import type { InputCustomProps } from "./types";
 
+/**
+ * Componente de input customizado com suporte para máscaras, validação,
+ * estados visuais e muito mais.
+ */
 export const InputCustom = React.forwardRef<HTMLInputElement, InputCustomProps>(
   (
     {
@@ -70,11 +74,7 @@ export const InputCustom = React.forwardRef<HTMLInputElement, InputCustomProps>(
         // Se tivermos uma máscara, aplicamos o processamento
         let processedValue = newValue;
         if (mask) {
-          processedValue = maskService.processInput(
-            newValue,
-            mask as MaskType,
-            maskConfig
-          );
+          processedValue = maskService.processInput(newValue, mask, maskConfig);
         }
 
         // Atualiza o valor interno
@@ -154,7 +154,7 @@ export const InputCustom = React.forwardRef<HTMLInputElement, InputCustomProps>(
     const showRequiredIndicator = required;
 
     // Determina o ícone a ser exibido (prioridade para o toggle de senha se for campo de senha)
-    const displayIcon: IconName | undefined =
+    const displayIcon =
       type === "password" && showPasswordToggle
         ? isPasswordVisible
           ? "EyeOff"

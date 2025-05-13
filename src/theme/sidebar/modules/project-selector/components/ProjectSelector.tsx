@@ -1,8 +1,13 @@
+"use client";
+
 import { useState, useEffect } from "react";
-import { Icon } from "@/components/ui/custom/Icons";
+import { ChevronDown } from "lucide-react";
 import { ProjectAvatar } from "./ProjectAvatar";
-import { ProjectSelectorModal } from "./ProjectSelectorModal";
 import { useProjectStore } from "../store/projectStore";
+import { ProjectSelectorModal } from "./ProjectSelectorModal";
+import { motion, AnimatePresence } from "framer-motion";
+import { toastCustom } from "@/components/ui/custom";
+import { cn } from "@/lib/utils";
 
 interface ProjectSelectorProps {
   isCollapsed?: boolean;
@@ -11,26 +16,57 @@ interface ProjectSelectorProps {
 /**
  * Componente seletor de projetos para o sidebar
  *
- * Permite ao usuário visualizar o tenant atual e abrir o modal de seleção
- * Adapta-se a estados colapsados e não colapsados do sidebar
+ * Características:
+ * - Adaptativo ao estado colapsado/expandido da sidebar
+ * - Animações suaves para transições
+ * - Gerencia estados de loading e primeira utilização
  */
 export function ProjectSelector({ isCollapsed = false }: ProjectSelectorProps) {
   // Estado local para controle do modal
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Estado global dos projetos
-  const { selectedProject, projects, hasSelectedProject } = useProjectStore();
+  const {
+    selectedProject,
+    projects,
+    shouldShowProjectSelector,
+    checkAndUpdateSelectionDate,
+    resetFirstTimeUser,
+    isFirstTimeUser,
+    isLoading,
+  } = useProjectStore();
 
-  // Verificar necessidade de seleção inicial de projeto
+  // Verificar necessidade de seleção inicial e atualizar data
   useEffect(() => {
-    if (!hasSelectedProject && projects.length > 0) {
+    // Verificar se precisa atualizar a data de seleção
+    checkAndUpdateSelectionDate();
+
+    // Verificar se deve mostrar o seletor de projetos na inicialização
+    if (shouldShowProjectSelector()) {
       setIsModalOpen(true);
     }
-  }, [hasSelectedProject, projects.length]);
+  }, [checkAndUpdateSelectionDate, shouldShowProjectSelector]);
 
   // Handlers para o modal
   const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+
+  const closeModal = () => {
+    // Se for primeira utilização e não tiver projeto selecionado, não permite fechar
+    if (isFirstTimeUser && !selectedProject) {
+      toastCustom.error({
+        title: "Seleção necessária",
+        description: "Você precisa selecionar um projeto para continuar.",
+      });
+      return;
+    }
+
+    // Não é mais primeira utilização
+    if (isFirstTimeUser) {
+      resetFirstTimeUser();
+    }
+
+    setIsModalOpen(false);
+  };
 
   /**
    * Trunca o nome do projeto se for muito longo
@@ -44,50 +80,75 @@ export function ProjectSelector({ isCollapsed = false }: ProjectSelectorProps) {
     <>
       <button
         onClick={openModal}
-        className={`w-full flex items-center ${
-          isCollapsed ? "justify-center" : "justify-between"
-        } p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1F1F23] transition-colors`}
-        aria-label="Selecionar tenant/projeto"
+        className={cn(
+          "w-full flex items-center p-2 rounded-lg transition-all duration-300",
+          isCollapsed ? "justify-center" : "justify-between",
+          "hover:bg-slate-100 dark:hover:bg-slate-800",
+          "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+        )}
+        aria-label="Selecionar projeto"
       >
-        <div className="flex items-center gap-3">
+        <motion.div className="flex items-center gap-3" layout>
           {selectedProject ? (
             <ProjectAvatar
               project={selectedProject}
               size={isCollapsed ? "md" : "sm"}
             />
           ) : (
-            <div className="w-8 h-8 rounded-md bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-              <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+            <div className="w-8 h-8 rounded-md bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                 ?
               </span>
             </div>
           )}
 
-          {/* Nome do projeto - visível apenas quando não está colapsado */}
-          {!isCollapsed && selectedProject && (
-            <div className="text-left">
-              <p className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[160px]">
-                {truncateName(selectedProject.name)}
-              </p>
-            </div>
-          )}
-        </div>
+          {/* Nome do projeto - com animação para transição */}
+          <AnimatePresence mode="wait">
+            {!isCollapsed && selectedProject && (
+              <motion.div
+                key="project-name"
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.2 }}
+                className="text-left overflow-hidden"
+              >
+                <p className="text-sm font-medium text-slate-900 dark:text-white truncate max-w-[160px]">
+                  {truncateName(selectedProject.name)}
+                </p>
+                {isLoading && (
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Carregando dados...
+                  </p>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
 
         {/* Ícone de expansão - visível apenas quando não está colapsado */}
-        {!isCollapsed && (
-          <Icon
-            name="ChevronDown"
-            size={16}
-            className="text-gray-500 dark:text-gray-400 flex-shrink-0"
-          />
-        )}
+        <AnimatePresence>
+          {!isCollapsed && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ChevronDown
+                size={16}
+                className="text-slate-500 dark:text-slate-400 flex-shrink-0 transition-transform duration-200"
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </button>
 
       {/* Modal de seleção de projeto */}
       <ProjectSelectorModal
         isOpen={isModalOpen}
         onClose={closeModal}
-        isInitialSelection={!hasSelectedProject}
+        isInitialSelection={isFirstTimeUser}
       />
     </>
   );
