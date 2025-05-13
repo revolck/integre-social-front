@@ -11,18 +11,15 @@ interface ProjectAvatarProps {
   size?: "xs" | "sm" | "md" | "lg" | "xl";
   className?: string;
   isSelected?: boolean;
-  showInitials?: boolean; // Nova prop para mostrar iniciais
+  showInitials?: boolean;
 }
 
-/**
- * Componente para renderizar o avatar de um projeto
- */
 export function ProjectAvatar({
   project,
   size = "md",
   className = "",
-  isSelected = false,
-  showInitials = true, // Por padrão, mostra iniciais
+  isSelected = false, // Mantemos o prop, mas não usaremos para estilos visuais
+  showInitials = true,
 }: ProjectAvatarProps) {
   // Configuração de tamanhos
   const sizeConfigs = {
@@ -36,22 +33,17 @@ export function ProjectAvatar({
   // Extrai cores com base no ID do projeto (para consistência)
   const getAvatarColor = (id: string) => {
     const colors = {
-      "1": "bg-blue-900/80 text-blue-200", // IA
-      "2": "bg-green-900/80 text-green-200", // Instituto Amigos
-      "3": "bg-purple-900/80 text-purple-200", // TS
-      "4": "bg-green-900/80 text-green-200", // Global
-      "5": "bg-teal-900/80 text-teal-200", // HI
-      // Default para projetos com outros IDs
-      default: "bg-gray-800 text-gray-200",
+      "1": "bg-blue-100 text-blue-800",
+      "2": "bg-green-100 text-green-800",
+      "3": "bg-purple-100 text-purple-800",
+      "4": "bg-amber-100 text-amber-800",
+      "5": "bg-teal-100 text-teal-800",
+      default: "bg-gray-100 text-gray-800",
     };
 
     return colors[id as keyof typeof colors] || colors.default;
   };
 
-  /**
-   * Extrai as iniciais do nome do projeto
-   * Para projetos com múltiplas palavras, usa as iniciais das duas primeiras
-   */
   const getInitials = (name: string) => {
     const words = name.split(" ");
     if (words.length === 1) {
@@ -64,8 +56,7 @@ export function ProjectAvatar({
     <div
       className={cn(
         sizeConfigs[size],
-        "flex items-center justify-center rounded-md overflow-hidden transition-all",
-        isSelected ? "ring-2 ring-blue-600" : "",
+        "flex items-center justify-center rounded-md overflow-hidden",
         className
       )}
     >
@@ -80,11 +71,6 @@ export function ProjectAvatar({
               sizeConfigs[size].split(" ")[0]
             }`}
           />
-          {isSelected && (
-            <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center">
-              <div className="w-3 h-3 bg-blue-500 rounded-full" />
-            </div>
-          )}
         </div>
       ) : (
         <div

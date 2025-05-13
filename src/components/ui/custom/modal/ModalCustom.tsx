@@ -60,11 +60,11 @@ const placementClasses: Record<ModalPlacement, string> = {
   bottom: "bottom-4 left-[50%] translate-x-[-50%]",
 };
 
-// Mapeamento de backdrops para classes - ESTA É A PARTE QUE PRECISAMOS CORRIGIR
+// Mapeamento de backdrops para classes
 const backdropClasses: Record<ModalBackdrop, string> = {
   transparent: "bg-transparent",
-  opaque: "bg-black/75", // Mais escuro para ser realmente opaco
-  blur: "backdrop-blur-md bg-black/30", // Blur mais forte para o efeito ficar mais evidente
+  opaque: "bg-black/75",
+  blur: "backdrop-blur-md bg-black/30",
 };
 
 type ModalContextProps = {
@@ -105,7 +105,7 @@ export function ModalCustom({
   size = "md",
   radius = "lg",
   shadow = "lg",
-  backdrop = "opaque", // Opaque como valor padrão
+  backdrop = "opaque",
   scrollBehavior = "normal",
   placement = "center",
   shouldBlockScroll = true,
@@ -122,6 +122,26 @@ export function ModalCustom({
     onClose?.();
     onOpenChange?.(false);
   }, [onClose, onOpenChange]);
+
+  // Efeito para bloquear o scroll quando a modal está aberta
+  React.useEffect(() => {
+    if (!shouldBlockScroll) return;
+
+    if (isOpen) {
+      // Salva a posição atual do scroll
+      const scrollY = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+    } else {
+      // Restaura a posição do scroll
+      const scrollY = document.body.style.top;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      window.scrollTo(0, parseInt(scrollY || "0") * -1);
+    }
+  }, [isOpen, shouldBlockScroll]);
 
   // Contexto para ser passado para os componentes filhos
   const modalContext = React.useMemo(() => {
@@ -227,17 +247,23 @@ export function ModalOverlay({
   backdrop?: ModalBackdrop;
 }) {
   return (
-    <DialogPrimitive.Overlay
-      data-slot="modal-overlay"
-      data-backdrop={backdrop} // Adicionamos um atributo para facilitar debugging
-      className={cn(
-        "fixed inset-0 z-50",
-        backdropClasses[backdrop],
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-        className
-      )}
-      {...props}
-    />
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+    >
+      <DialogPrimitive.Overlay
+        data-slot="modal-overlay"
+        data-backdrop={backdrop}
+        className={cn(
+          "fixed inset-0 z-50",
+          backdropClasses[backdrop],
+          className
+        )}
+        {...props}
+      />
+    </motion.div>
   );
 }
 
@@ -310,7 +336,6 @@ export function ModalContent({
       }}
       className={cn(
         "fixed z-50 grid w-full gap-4 border p-6 bg-background",
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-200",
         sizeClasses[size],
         radiusClasses[radius],
         shadowClasses[shadow],
@@ -328,7 +353,7 @@ export function ModalContent({
         (closeButton || (
           <ModalClose
             className={cn(
-              "absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity",
+              "absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity",
               "hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden",
               "disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
               classNames?.closeButton
@@ -356,7 +381,7 @@ interface ModalContentWrapperProps extends ModalContentProps {
 export function ModalContentWrapper({
   children,
   className,
-  backdrop = "opaque", // Mudei para opaque como padrão
+  backdrop = "opaque",
   container,
   isDismissable,
   isKeyboardDismissDisabled,
@@ -368,21 +393,27 @@ export function ModalContentWrapper({
   disableAnimation = false,
   ...props
 }: ModalContentWrapperProps) {
-  const Content = disableAnimation ? React.Fragment : motion.div;
-  const contentProps = disableAnimation
-    ? {}
-    : {
-        initial: { opacity: 0, scale: 0.95 },
-        animate: { opacity: 1, scale: 1 },
-        exit: { opacity: 0, scale: 0.95 },
-        transition: { duration: 0.15 },
-        ...motionProps,
-      };
+  // Definições de animações padrão
+  const defaultMotionProps = {
+    initial: { opacity: 0, scale: 0.95, y: 10 },
+    animate: { opacity: 1, scale: 1, y: 0 },
+    exit: { opacity: 0, scale: 0.98, y: 5 },
+    transition: {
+      duration: 0.2,
+      ease: [0.16, 1, 0.3, 1], // Easing personalizado para animações mais suaves
+    },
+  };
+
+  // Combina props padrão com personalizadas
+  const combinedMotionProps = {
+    ...defaultMotionProps,
+    ...motionProps,
+  };
 
   return (
     <ModalPortal container={container}>
       <ModalOverlay backdrop={backdrop} />
-      <Content {...contentProps}>
+      {disableAnimation ? (
         <ModalContent
           className={className}
           isDismissable={isDismissable}
@@ -395,7 +426,25 @@ export function ModalContentWrapper({
         >
           {children}
         </ModalContent>
-      </Content>
+      ) : (
+        <motion.div
+          {...combinedMotionProps}
+          style={{ width: "100%", zIndex: 50 }}
+        >
+          <ModalContent
+            className={className}
+            isDismissable={isDismissable}
+            isKeyboardDismissDisabled={isKeyboardDismissDisabled}
+            hideCloseButton={hideCloseButton}
+            closeButton={closeButton}
+            shadow={shadow}
+            placement={placement}
+            {...props}
+          >
+            {children}
+          </ModalContent>
+        </motion.div>
+      )}
     </ModalPortal>
   );
 }

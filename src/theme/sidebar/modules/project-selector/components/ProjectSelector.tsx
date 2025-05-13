@@ -1,77 +1,38 @@
+// src/theme/sidebar/modules/project-selector/components/ProjectSelector.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import { ProjectAvatar } from "./ProjectAvatar";
 import { useProjectStore } from "../store/projectStore";
 import { ProjectSelectorModal } from "./ProjectSelectorModal";
 import { motion, AnimatePresence } from "framer-motion";
-import { toastCustom } from "@/components/ui/custom";
 import { cn } from "@/lib/utils";
+import { Icon } from "@/components/ui/custom/Icons";
 
 interface ProjectSelectorProps {
   isCollapsed?: boolean;
 }
 
-/**
- * Componente seletor de projetos para o sidebar
- *
- * Características:
- * - Adaptativo ao estado colapsado/expandido da sidebar
- * - Animações suaves para transições
- * - Gerencia estados de loading e primeira utilização
- */
 export function ProjectSelector({ isCollapsed = false }: ProjectSelectorProps) {
-  // Estado local para controle do modal
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   // Estado global dos projetos
   const {
     selectedProject,
-    projects,
-    shouldShowProjectSelector,
-    checkAndUpdateSelectionDate,
-    resetFirstTimeUser,
-    isFirstTimeUser,
     isLoading,
+    checkAndUpdateSelectionDate,
+    openProjectSelector,
   } = useProjectStore();
 
   // Verificar necessidade de seleção inicial e atualizar data
   useEffect(() => {
-    // Verificar se precisa atualizar a data de seleção
     checkAndUpdateSelectionDate();
-
-    // Verificar se deve mostrar o seletor de projetos na inicialização
-    if (shouldShowProjectSelector()) {
-      setIsModalOpen(true);
-    }
-  }, [checkAndUpdateSelectionDate, shouldShowProjectSelector]);
-
-  // Handlers para o modal
-  const openModal = () => setIsModalOpen(true);
-
-  const closeModal = () => {
-    // Se for primeira utilização e não tiver projeto selecionado, não permite fechar
-    if (isFirstTimeUser && !selectedProject) {
-      toastCustom.error({
-        title: "Seleção necessária",
-        description: "Você precisa selecionar um projeto para continuar.",
-      });
-      return;
-    }
-
-    // Não é mais primeira utilização
-    if (isFirstTimeUser) {
-      resetFirstTimeUser();
-    }
-
-    setIsModalOpen(false);
-  };
+  }, [checkAndUpdateSelectionDate]);
 
   /**
    * Trunca o nome do projeto se for muito longo
    */
   const truncateName = (name: string, maxLength = 20) => {
+    if (!name) return "";
     if (name.length <= maxLength) return name;
     return name.substring(0, maxLength) + "...";
   };
@@ -79,7 +40,7 @@ export function ProjectSelector({ isCollapsed = false }: ProjectSelectorProps) {
   return (
     <>
       <button
-        onClick={openModal}
+        onClick={openProjectSelector}
         className={cn(
           "w-full flex items-center p-2 rounded-lg transition-all duration-300",
           isCollapsed ? "justify-center" : "justify-between",
@@ -135,7 +96,8 @@ export function ProjectSelector({ isCollapsed = false }: ProjectSelectorProps) {
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ duration: 0.2 }}
             >
-              <ChevronDown
+              <Icon
+                name="ChevronDown"
                 size={16}
                 className="text-slate-500 dark:text-slate-400 flex-shrink-0 transition-transform duration-200"
               />
@@ -144,12 +106,8 @@ export function ProjectSelector({ isCollapsed = false }: ProjectSelectorProps) {
         </AnimatePresence>
       </button>
 
-      {/* Modal de seleção de projeto */}
-      <ProjectSelectorModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        isInitialSelection={isFirstTimeUser}
-      />
+      {/* Modal de seleção de projeto - agora gerenciado pelo Zustand */}
+      <ProjectSelectorModal />
     </>
   );
 }

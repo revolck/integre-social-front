@@ -1,7 +1,9 @@
+// src/theme/sidebar/modules/project-selector/store/projectStore.ts
 "use client";
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { toastCustom } from "@/components/ui/custom";
 import type { Project } from "../types/project.types";
 
 // Sample projects data
@@ -39,24 +41,32 @@ const sampleProjects: Project[] = [
  * Interface de estado para o store de projetos/tenants
  */
 interface ProjectState {
+  // Estados
   projects: Project[];
   selectedProject: Project | null;
   hasSelectedProject: boolean;
   lastSelectionDate: string | null;
   isFirstTimeUser: boolean;
   isLoading: boolean;
+  isSelectorModalOpen: boolean;
+  isConfirmingSelection: boolean;
+  temporarySelectedProject: Project | null;
 
   // Ações
   selectProject: (project: Project) => void;
+  setTemporarySelectedProject: (project: Project | null) => void;
+  confirmProjectSelection: () => Promise<void>;
+  openProjectSelector: () => void;
+  closeProjectSelector: () => void;
   addProject: (project: Project) => void;
   updateProject: (project: Project) => void;
   removeProject: (id: string) => void;
   setIsLoading: (loading: boolean) => void;
+  resetFirstTimeUser: () => void;
 
   // Getters
   shouldShowProjectSelector: () => boolean;
   checkAndUpdateSelectionDate: () => void;
-  resetFirstTimeUser: () => void;
 }
 
 // Helper para obter a data atual no formato YYYY-MM-DD
@@ -66,11 +76,6 @@ const getCurrentDate = () => {
 
 /**
  * Store de projetos/tenants utilizando Zustand com persistência
- *
- * Gerencia o estado global relacionado a tenants do sistema:
- * - Lista de tenants disponíveis para o usuário
- * - Tenant selecionado atualmente (determina qual fonte de dados é usada)
- * - Ações para manipulação de tenants
  */
 export const useProjectStore = create<ProjectState>()(
   persist(
@@ -82,6 +87,13 @@ export const useProjectStore = create<ProjectState>()(
       lastSelectionDate: null,
       isFirstTimeUser: true,
       isLoading: false,
+      isSelectorModalOpen: false,
+      isConfirmingSelection: false,
+      temporarySelectedProject: null,
+
+      // Seleção temporária de projeto (para a modal)
+      setTemporarySelectedProject: (project) =>
+        set({ temporarySelectedProject: project }),
 
       // Ações
       selectProject: (project) =>
@@ -91,6 +103,76 @@ export const useProjectStore = create<ProjectState>()(
           lastSelectionDate: getCurrentDate(),
           isLoading: true,
         }),
+
+      // Confirmação de seleção - processo completo
+      confirmProjectSelection: async () => {
+        const state = get();
+        const project = state.temporarySelectedProject;
+
+        if (!project) return;
+
+        // Inicia processo de confirmação
+        set({ isConfirmingSelection: true });
+
+        try {
+          // Seleciona o projeto no estado
+          get().selectProject(project);
+
+          // Simula carregamento de dados
+          await new Promise((resolve) => setTimeout(resolve, 800));
+
+          // Fecha o modal ANTES de mostrar o toast
+          set({
+            isSelectorModalOpen: false,
+            isConfirmingSelection: false,
+          });
+
+          // Aguarda um pouco para garantir que o modal fechou
+          await new Promise((resolve) => setTimeout(resolve, 100));
+
+          // Mostra o toast de sucesso
+          toastCustom.success({
+            title: "Projeto selecionado",
+            description: `Você está agora trabalhando em: ${project.name}`,
+          });
+
+          // Finaliza o carregamento
+          set({ isLoading: false });
+        } catch (error) {
+          // Em caso de erro
+          toastCustom.error({
+            title: "Erro ao selecionar projeto",
+            description: "Ocorreu um erro ao carregar os dados do projeto.",
+          });
+
+          set({
+            isLoading: false,
+            isConfirmingSelection: false,
+          });
+        }
+      },
+
+      // Abrir o seletor de projetos
+      openProjectSelector: () => {
+        const state = get();
+        set({
+          isSelectorModalOpen: true,
+          temporarySelectedProject: state.selectedProject,
+        });
+      },
+
+      // Fechar o seletor de projetos
+      closeProjectSelector: () => {
+        const state = get();
+
+        // Se estiver no processo de confirmação, não permitir fechar
+        if (state.isConfirmingSelection) return;
+
+        set({
+          isSelectorModalOpen: false,
+          temporarySelectedProject: null,
+        });
+      },
 
       addProject: (project) =>
         set((state) => ({ projects: [...state.projects, project] })),
@@ -117,6 +199,8 @@ export const useProjectStore = create<ProjectState>()(
 
       setIsLoading: (loading) => set({ isLoading: loading }),
 
+      resetFirstTimeUser: () => set({ isFirstTimeUser: false }),
+
       // Getters e métodos utilitários
       shouldShowProjectSelector: () => {
         const state = get();
@@ -140,21 +224,22 @@ export const useProjectStore = create<ProjectState>()(
         const state = get();
         const today = getCurrentDate();
 
-        // Se não tiver data de seleção ou for diferente de hoje
-        if (!state.lastSelectionDate || state.lastSelectionDate !== today) {
-          // Se tiver apenas um projeto, seleciona automaticamente
-          if (state.projects.length === 1) {
-            get().selectProject(state.projects[0]);
-          }
+        // Verificar se precisa mostrar seletor hoje
+        if (state.shouldShowProjectSelector()) {
+          set({ isSelectorModalOpen: true });
+        }
+
+        // Se tem só um projeto, seleciona automaticamente
+        if (state.projects.length === 1 && !state.selectedProject) {
+          get().selectProject(state.projects[0]);
+          set({ isLoading: false });
         }
       },
-
-      resetFirstTimeUser: () => set({ isFirstTimeUser: false }),
     }),
     {
       name: "tenant-storage", // Nome usado para armazenamento persistente
       partialize: (state) => ({
-        // Não persistimos o estado de loading
+        // Não persistimos estados temporários
         selectedProject: state.selectedProject,
         hasSelectedProject: state.hasSelectedProject,
         lastSelectionDate: state.lastSelectionDate,
