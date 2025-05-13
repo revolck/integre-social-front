@@ -1,3 +1,5 @@
+// src/components/ui/custom/modal/ModalCustom.tsx
+
 "use client";
 
 import * as React from "react";
@@ -58,11 +60,11 @@ const placementClasses: Record<ModalPlacement, string> = {
   bottom: "bottom-4 left-[50%] translate-x-[-50%]",
 };
 
-// Mapeamento de backdrops para classes
+// Mapeamento de backdrops para classes - ESTA É A PARTE QUE PRECISAMOS CORRIGIR
 const backdropClasses: Record<ModalBackdrop, string> = {
   transparent: "bg-transparent",
-  opaque: "bg-black/50",
-  blur: "backdrop-blur-sm bg-black/30",
+  opaque: "bg-black/75", // Mais escuro para ser realmente opaco
+  blur: "backdrop-blur-md bg-black/30", // Blur mais forte para o efeito ficar mais evidente
 };
 
 type ModalContextProps = {
@@ -103,7 +105,7 @@ export function ModalCustom({
   size = "md",
   radius = "lg",
   shadow = "lg",
-  backdrop = "opaque",
+  backdrop = "opaque", // Opaque como valor padrão
   scrollBehavior = "normal",
   placement = "center",
   shouldBlockScroll = true,
@@ -227,6 +229,7 @@ export function ModalOverlay({
   return (
     <DialogPrimitive.Overlay
       data-slot="modal-overlay"
+      data-backdrop={backdrop} // Adicionamos um atributo para facilitar debugging
       className={cn(
         "fixed inset-0 z-50",
         backdropClasses[backdrop],
@@ -353,7 +356,7 @@ interface ModalContentWrapperProps extends ModalContentProps {
 export function ModalContentWrapper({
   children,
   className,
-  backdrop = "opaque",
+  backdrop = "opaque", // Mudei para opaque como padrão
   container,
   isDismissable,
   isKeyboardDismissDisabled,

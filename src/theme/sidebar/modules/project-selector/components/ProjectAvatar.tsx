@@ -1,3 +1,4 @@
+// src/theme/sidebar/modules/project-selector/components/ProjectAvatar.tsx
 "use client";
 
 import React from "react";
@@ -10,24 +11,20 @@ interface ProjectAvatarProps {
   size?: "xs" | "sm" | "md" | "lg" | "xl";
   className?: string;
   isSelected?: boolean;
+  showInitials?: boolean; // Nova prop para mostrar iniciais
 }
 
 /**
- * Componente aprimorado para renderizar o avatar de um projeto
- *
- * Características:
- * - Suporte a diferentes tamanhos
- * - Efeitos visuais para seleção
- * - Fallback para iniciais quando não há logo
- * - Animações suaves
+ * Componente para renderizar o avatar de um projeto
  */
 export function ProjectAvatar({
   project,
   size = "md",
   className = "",
   isSelected = false,
+  showInitials = true, // Por padrão, mostra iniciais
 }: ProjectAvatarProps) {
-  // Configuração de tamanhos responsivos
+  // Configuração de tamanhos
   const sizeConfigs = {
     xs: "w-6 h-6 text-xs",
     sm: "w-8 h-8 text-xs",
@@ -36,45 +33,39 @@ export function ProjectAvatar({
     xl: "w-16 h-16 text-xl",
   };
 
-  // Extrai cores do nome do projeto para avatares sem logo
-  const getBackgroundColor = (name: string) => {
-    const colors = [
-      "bg-blue-500 text-white",
-      "bg-purple-500 text-white",
-      "bg-teal-500 text-white",
-      "bg-pink-500 text-white",
-      "bg-amber-500 text-white",
-      "bg-emerald-500 text-white",
-      "bg-indigo-500 text-white",
-    ];
+  // Extrai cores com base no ID do projeto (para consistência)
+  const getAvatarColor = (id: string) => {
+    const colors = {
+      "1": "bg-blue-900/80 text-blue-200", // IA
+      "2": "bg-green-900/80 text-green-200", // Instituto Amigos
+      "3": "bg-purple-900/80 text-purple-200", // TS
+      "4": "bg-green-900/80 text-green-200", // Global
+      "5": "bg-teal-900/80 text-teal-200", // HI
+      // Default para projetos com outros IDs
+      default: "bg-gray-800 text-gray-200",
+    };
 
-    // Use a soma dos códigos de caractere para escolher a cor
-    const charSum = name
-      .split("")
-      .reduce((sum, char) => sum + char.charCodeAt(0), 0);
-    return colors[charSum % colors.length];
+    return colors[id as keyof typeof colors] || colors.default;
   };
 
   /**
    * Extrai as iniciais do nome do projeto
    * Para projetos com múltiplas palavras, usa as iniciais das duas primeiras
-   * Para projetos com uma palavra, usa as duas primeiras letras
    */
   const getInitials = (name: string) => {
     const words = name.split(" ");
     if (words.length === 1) {
       return words[0].substring(0, 2).toUpperCase();
     }
-    return (words[0][0] + words[1][0]).toUpperCase();
+    return (words[0][0] + (words[1] ? words[1][0] : "")).toUpperCase();
   };
 
   return (
     <div
       className={cn(
         sizeConfigs[size],
-        "relative rounded-md overflow-hidden transition-all duration-300",
-        isSelected &&
-          "ring-2 ring-blue-500 ring-offset-2 ring-offset-background",
+        "flex items-center justify-center rounded-md overflow-hidden transition-all",
+        isSelected ? "ring-2 ring-blue-600" : "",
         className
       )}
     >
@@ -98,16 +89,11 @@ export function ProjectAvatar({
       ) : (
         <div
           className={cn(
-            "w-full h-full flex items-center justify-center",
-            getBackgroundColor(project.name)
+            "w-full h-full flex items-center justify-center font-medium",
+            getAvatarColor(project.id)
           )}
         >
-          <span className="font-medium">{getInitials(project.name)}</span>
-          {isSelected && (
-            <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center">
-              <div className="w-3 h-3 bg-white rounded-full" />
-            </div>
-          )}
+          {showInitials && getInitials(project.name)}
         </div>
       )}
     </div>

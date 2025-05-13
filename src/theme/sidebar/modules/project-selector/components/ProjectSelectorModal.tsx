@@ -1,3 +1,4 @@
+// src/theme/sidebar/modules/project-selector/components/ProjectSelectorModal.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -18,7 +19,7 @@ import {
   ModalTitle,
   ModalDescription,
   ModalContentWrapper,
-} from "@/components/ui/custom";
+} from "@/components/ui/custom/modal";
 
 import type { Project } from "../types/project.types";
 
@@ -135,178 +136,225 @@ export function ProjectSelectorModal({
 
   // Variantes de animação para os itens da lista
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 5 },
     visible: (i: number) => ({
       opacity: 1,
       y: 0,
       transition: {
-        delay: i * 0.05,
-        duration: 0.3,
+        delay: i * 0.03,
+        duration: 0.2,
         ease: [0.25, 0.1, 0.25, 1.0],
       },
     }),
-    exit: { opacity: 0, y: -10, transition: { duration: 0.2 } },
+    exit: { opacity: 0, y: -5, transition: { duration: 0.15 } },
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0, scale: 0.98 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.3,
+        ease: [0.22, 1, 0.36, 1],
+        staggerChildren: 0.05,
+      },
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.98,
+      transition: {
+        duration: 0.2,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
   };
 
   return (
-    <ModalCustom
-      isOpen={isOpen}
-      onOpenChange={
-        isInitialSelection ? undefined : (open) => !open && onClose()
-      }
-      size={isMobile ? "full" : "md"}
-      isDismissable={!isInitialSelection}
-      isKeyboardDismissDisabled={isInitialSelection}
-      backdrop="blur"
-      hideCloseButton={isInitialSelection}
+    <div
+      className={cn(
+        "fixed inset-0 z-[100]", // z-index maior que o sidebar (70)
+        isOpen ? "pointer-events-auto" : "pointer-events-none"
+      )}
     >
-      <ModalContentWrapper
-        placement={isMobile ? "bottom" : "center"}
+      <ModalCustom
+        isOpen={isOpen}
+        onOpenChange={
+          isInitialSelection ? undefined : (open) => !open && onClose()
+        }
+        size={isMobile ? "full" : "md"}
         isDismissable={!isInitialSelection}
         isKeyboardDismissDisabled={isInitialSelection}
+        backdrop="blur" // Usando o backdrop tipo blur
         hideCloseButton={isInitialSelection}
-        motionProps={{
-          initial: {
-            opacity: 0,
-            y: isMobile ? 100 : 0,
-            scale: isMobile ? 1 : 0.95,
-          },
-          animate: { opacity: 1, y: 0, scale: 1 },
-          exit: {
-            opacity: 0,
-            y: isMobile ? 100 : 0,
-            scale: isMobile ? 1 : 0.95,
-          },
-          transition: { duration: 0.2 },
+        // Custom classes para garantir que a modal fique por cima
+        classNames={{
+          backdrop: "!z-[100]",
+          base: "!z-[101] shadow-xl",
         }}
       >
-        <ModalHeader>
-          <ModalTitle>
-            {isInitialSelection
-              ? "Bem-vindo! Selecione um projeto"
-              : "Escolha um projeto"}
-          </ModalTitle>
-          {isInitialSelection && (
-            <ModalDescription>
-              Selecione o projeto em que deseja trabalhar. Esta seleção
-              determina quais dados e funcionalidades estarão disponíveis.
-            </ModalDescription>
-          )}
-        </ModalHeader>
-
-        <ModalBody className="py-2">
-          {/* Campo de busca */}
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <Input
-              placeholder="Pesquise por um projeto..."
-              className="pl-9"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
-          {/* Lista de projetos filtrados */}
-          <div
-            className={cn(
-              "relative overflow-y-auto pr-1",
-              isMobile ? "max-h-[40vh]" : "max-h-[50vh]"
+        <ModalContentWrapper
+          placement={isMobile ? "bottom" : "center"}
+          isDismissable={!isInitialSelection}
+          isKeyboardDismissDisabled={isInitialSelection}
+          hideCloseButton={isInitialSelection}
+          backdrop="blur" // Também definindo aqui para garantir
+          motionProps={{
+            initial: {
+              opacity: 0,
+              y: isMobile ? 30 : 0,
+              scale: isMobile ? 1 : 0.97,
+            },
+            animate: {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              transition: {
+                duration: 0.35,
+                ease: [0.16, 1, 0.3, 1], // Custom bezier curve
+              },
+            },
+            exit: {
+              opacity: 0,
+              y: isMobile ? 20 : 0,
+              scale: isMobile ? 1 : 0.97,
+              transition: {
+                duration: 0.25,
+              },
+            },
+          }}
+          className="!max-w-lg" // Limita a largura máxima para melhor aparência
+        >
+          <ModalHeader className="pb-1">
+            <ModalTitle className="text-xl">
+              {isInitialSelection
+                ? "Bem-vindo! Selecione um projeto"
+                : "Escolha um projeto"}
+            </ModalTitle>
+            {isInitialSelection && (
+              <ModalDescription className="text-sm opacity-80 mt-1">
+                Selecione o projeto em que deseja trabalhar. Esta seleção
+                determina quais dados e funcionalidades estarão disponíveis.
+              </ModalDescription>
             )}
-          >
-            <AnimatePresence mode="wait">
-              {filteredProjects.length > 0 ? (
-                <motion.div
-                  key="project-list"
-                  className="grid gap-2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  {filteredProjects.map((project: Project, index: number) => (
-                    <motion.div
-                      key={project.id}
-                      custom={index}
-                      variants={itemVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      className={cn(
-                        "flex items-center gap-3 p-3 rounded-lg cursor-pointer border",
-                        selectedProjectId === project.id
-                          ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700"
-                          : "hover:bg-slate-50 dark:hover:bg-slate-800/50 border-slate-200 dark:border-slate-700",
-                        "transition-all duration-200 ease-in-out"
-                      )}
-                      onClick={() => handleSelectProject(project)}
-                    >
-                      <ProjectAvatar
-                        project={project}
-                        size="md"
-                        isSelected={selectedProjectId === project.id}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
-                          {project.name}
-                        </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                          Criado em:{" "}
-                          {new Date(project.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="no-results"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="flex flex-col items-center justify-center py-10 text-slate-500 dark:text-slate-400"
-                >
-                  <Info className="h-10 w-10 mb-2 opacity-50" />
-                  <p className="text-center">
-                    Nenhum projeto encontrado com este termo
-                  </p>
-                  <p className="text-xs mt-1">
-                    Tente outro termo ou limpe a busca
-                  </p>
-                </motion.div>
+          </ModalHeader>
+
+          <ModalBody className="py-3">
+            {/* Campo de busca */}
+            <div className="relative mb-5">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Pesquise por um projeto..."
+                className="pl-9 py-5 h-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+
+            {/* Lista de projetos filtrados */}
+            <div
+              className={cn(
+                "relative overflow-y-auto pr-1",
+                isMobile ? "max-h-[35vh]" : "max-h-[45vh]"
               )}
-            </AnimatePresence>
-          </div>
-        </ModalBody>
+            >
+              <AnimatePresence mode="wait">
+                {filteredProjects.length > 0 ? (
+                  <motion.div
+                    key="project-list"
+                    className="grid gap-2"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                  >
+                    {filteredProjects.map((project: Project, index: number) => (
+                      <motion.div
+                        key={project.id}
+                        custom={index}
+                        variants={itemVariants}
+                        className={cn(
+                          "flex items-center gap-3 p-3 rounded-lg cursor-pointer border",
+                          selectedProjectId === project.id
+                            ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700"
+                            : "hover:bg-slate-50 dark:hover:bg-slate-800/50 border-slate-200 dark:border-slate-700",
+                          "transition-all duration-150 ease-in-out"
+                        )}
+                        onClick={() => handleSelectProject(project)}
+                      >
+                        <ProjectAvatar
+                          project={project}
+                          size="md"
+                          isSelected={selectedProjectId === project.id}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
+                            {project.name}
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            Criado em:{" "}
+                            {new Date(project.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="no-results"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex flex-col items-center justify-center py-10 text-slate-500 dark:text-slate-400"
+                  >
+                    <Info className="h-10 w-10 mb-2 opacity-50" />
+                    <p className="text-center">
+                      Nenhum projeto encontrado com este termo
+                    </p>
+                    <p className="text-xs mt-1">
+                      Tente outro termo ou limpe a busca
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </ModalBody>
 
-        <ModalFooter>
-          {/* Botão cancelar não aparece na seleção inicial */}
-          {!isInitialSelection && (
-            <Button variant="outline" onClick={onClose} disabled={isConfirming}>
-              Cancelar
+          <ModalFooter className="pt-2">
+            {/* Botão cancelar não aparece na seleção inicial */}
+            {!isInitialSelection && (
+              <Button
+                variant="outline"
+                onClick={onClose}
+                disabled={isConfirming}
+              >
+                Cancelar
+              </Button>
+            )}
+
+            <Button
+              onClick={handleConfirm}
+              disabled={!selectedProjectId || isConfirming}
+              className={cn(
+                "relative transition-all duration-200",
+                isInitialSelection
+                  ? "bg-blue-500 hover:bg-blue-600 text-white"
+                  : ""
+              )}
+            >
+              {isConfirming ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Carregando...
+                </>
+              ) : (
+                "Confirmar"
+              )}
             </Button>
-          )}
-
-          <Button
-            onClick={handleConfirm}
-            disabled={!selectedProjectId || isConfirming}
-            className={cn(
-              "relative",
-              isInitialSelection
-                ? "bg-blue-500 hover:bg-blue-600 text-white"
-                : ""
-            )}
-          >
-            {isConfirming ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Carregando...
-              </>
-            ) : (
-              "Confirmar"
-            )}
-          </Button>
-        </ModalFooter>
-      </ModalContentWrapper>
-    </ModalCustom>
+          </ModalFooter>
+        </ModalContentWrapper>
+      </ModalCustom>
+    </div>
   );
 }

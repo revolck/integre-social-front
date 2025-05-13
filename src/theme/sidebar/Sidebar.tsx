@@ -25,7 +25,7 @@ export function Sidebar({
       {/* Container principal do sidebar */}
       <nav
         className={cn(
-          "fixed inset-y-0 left-0 z-[70] bg-white dark:bg-[#0F0F12] transform transition-all duration-200 ease-in-out",
+          "fixed inset-y-0 left-0 bg-white dark:bg-[#0F0F12] transform transition-all duration-200 ease-in-out",
           "lg:translate-x-0 lg:static border-r border-gray-200 dark:border-[#1F1F23] overflow-hidden",
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full",
           isCollapsed ? "w-16" : "w-64"

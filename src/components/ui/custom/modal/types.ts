@@ -1,3 +1,5 @@
+// src/components/ui/custom/modal/types.ts
+
 import { DialogProps } from "@radix-ui/react-dialog";
 
 // Tipos para as propriedades do modal
@@ -13,6 +15,7 @@ export type ModalSize =
   | "5xl"
   | "full";
 
+// Aqui está o tipo para os backdrops da modal
 export type ModalBackdrop = "transparent" | "opaque" | "blur";
 
 export type ModalPlacement = "auto" | "top" | "center" | "bottom";
