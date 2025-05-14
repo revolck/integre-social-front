@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 // Lista de módulos disponíveis
 const SYSTEM_MODULES = [
-  "analytics",
+  "overview",
   "beneficiaries",
   "projects",
   "users",
@@ -13,9 +13,9 @@ const SYSTEM_MODULES = [
 // Matriz de permissões por função
 const ROLE_PERMISSIONS = {
   admin: [...SYSTEM_MODULES],
-  manager: ["analytics", "beneficiaries", "projects"],
+  manager: ["overview", "beneficiaries", "projects"],
   operator: ["beneficiaries", "projects"],
-  viewer: ["analytics"],
+  viewer: ["overview"],
 };
 
 export function dashboardMiddleware(request: NextRequest) {
@@ -27,7 +27,7 @@ export function dashboardMiddleware(request: NextRequest) {
 
   // Se estamos na raiz do app, redirecionar para analytics
   if (pathname === "/") {
-    return NextResponse.rewrite(new URL("/dashboard/analytics", request.url));
+    return NextResponse.rewrite(new URL("/dashboard/overview", request.url));
   }
 
   // Extrair o módulo solicitado da URL

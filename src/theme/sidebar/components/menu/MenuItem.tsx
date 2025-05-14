@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/custom/Icons";
 import { cn } from "@/lib/utils";
@@ -6,115 +6,52 @@ import { MenuItemProps } from "../../types/sidebar.types";
 import { useProjectStore } from "../../modules/project-selector/store/projectStore";
 
 /**
- * Componente otimizado que renderiza um item de menu individual
+ * Componente que renderiza um item de menu individual
  */
 export function MenuItem({
   item,
   isCollapsed,
   handleNavigation,
   level,
+  parentId = "",
 }: MenuItemProps) {
-  // Estados locais
-  const [isOpen, setIsOpen] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
+  // Estado local para controlar o submenu
+  const [isSubmenuOpen, setIsSubmenuOpen] = useState(false);
 
   // Estados globais do projectStore
   const { setNavigating } = useProjectStore();
 
-  // A propriedade active agora vem do processamento no MenuList
-  const isActive = item.active || false;
-
   // Propriedades derivadas
   const hasSubmenu = item.submenu && item.submenu.length > 0;
+  const isActive = item.active || false;
+  const itemId = parentId ? `${parentId}-${item.label}` : item.label;
 
-  // Refs
-  const submenuRef = useRef<HTMLDivElement>(null);
-  const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Fecha o submenu quando clicado fora
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        submenuRef.current &&
-        !submenuRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen]);
-
-  // Fecha submenu quando o sidebar é colapsado
-  useEffect(() => {
-    if (isCollapsed && isOpen) {
-      setIsOpen(false);
-    }
-  }, [isCollapsed, isOpen]);
-
-  // Limpa timeout quando o componente é desmontado
-  useEffect(() => {
-    return () => {
-      if (tooltipTimeoutRef.current) {
-        clearTimeout(tooltipTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  // Handler de navegação customizado sem toast
+  // Handler de navegação customizado
   const handleItemNavigation = () => {
-    // Marca como navegando para evitar que a modal de projetos seja aberta
     setNavigating(true);
-
-    // Chama o handler de navegação original
-    handleNavigation();
-
-    // Reseta o estado de navegação após um curto intervalo
-    setTimeout(() => {
-      setNavigating(false);
-    }, 300);
+    if (typeof handleNavigation === "function") {
+      handleNavigation();
+    }
+    setTimeout(() => setNavigating(false), 300);
   };
 
-  // Handlers
+  // Handler para o submenu
   const toggleSubmenu = (e: React.MouseEvent) => {
     if (hasSubmenu) {
       e.preventDefault();
-      setIsOpen(!isOpen);
+      e.stopPropagation();
+      setIsSubmenuOpen(!isSubmenuOpen);
     }
   };
 
-  const handleMouseEnter = () => {
-    if (isCollapsed && level === 0) {
-      // Delay para evitar flickering
-      tooltipTimeoutRef.current = setTimeout(() => {
-        setShowTooltip(true);
-      }, 200);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (tooltipTimeoutRef.current) {
-      clearTimeout(tooltipTimeoutRef.current);
-      tooltipTimeoutRef.current = null;
-    }
-    setShowTooltip(false);
-  };
-
-  // Renderização condicional para estado colapsado
+  // Renderização condicional para estado colapsado em primeiro nível
   if (isCollapsed && level === 0) {
     const menuContent = (
       <button
         onClick={hasSubmenu ? toggleSubmenu : handleItemNavigation}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
         className={cn(
           "relative w-10 h-10 mx-auto my-1 flex items-center justify-center rounded-md transition-colors",
-          isActive || isOpen
+          isActive || isSubmenuOpen
             ? "bg-primary/90 text-primary-foreground dark:bg-primary/90 dark:text-primary-foreground"
             : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#1F1F23]"
         )}
@@ -124,7 +61,7 @@ export function MenuItem({
     );
 
     return (
-      <div className="relative">
+      <div className="relative group">
         {item.href && !hasSubmenu ? (
           <Link
             href={item.href}
@@ -137,30 +74,17 @@ export function MenuItem({
           <div>{menuContent}</div>
         )}
 
-        {/* Submenu popup para estado colapsado */}
-        {hasSubmenu && (showTooltip || isOpen) && (
+        {/* Popup submenu para estado colapsado */}
+        {hasSubmenu && isSubmenuOpen && (
           <div
-            ref={submenuRef}
             className={cn(
               "absolute left-full top-0 ml-2 w-48 rounded-md bg-white dark:bg-[#202024] shadow-lg border border-gray-100 dark:border-gray-800 py-1 z-50",
-              "transform transition-opacity duration-200",
-              isOpen
-                ? "opacity-100"
-                : showTooltip
-                ? "opacity-100"
-                : "opacity-0 pointer-events-none"
+              "origin-left transition-all duration-150 ease-out"
             )}
-            style={{ marginTop: isOpen ? "0" : "-10px" }}
+            onClick={(e) => e.stopPropagation()}
           >
-            {/* Cabeçalho - muda de cor quando menu aberto */}
-            <div
-              className={cn(
-                "flex items-center p-2 rounded-t-md",
-                isOpen
-                  ? "bg-indigo-500 text-white font-medium"
-                  : "border-b border-gray-100 dark:border-gray-800 text-gray-900 dark:text-white"
-              )}
-            >
+            {/* Cabeçalho */}
+            <div className="flex items-center p-2 rounded-t-md bg-indigo-500 text-white font-medium">
               {item.icon && (
                 <Icon name={item.icon} size={16} className="mr-2" />
               )}
@@ -170,12 +94,18 @@ export function MenuItem({
             {/* Items do submenu */}
             <div className="py-1">
               {item.submenu?.map((subItem) => (
-                <div key={subItem.label} className="px-2 py-0.5">
+                <div key={`${itemId}-${subItem.label}`} className="px-2 py-0.5">
                   {subItem.href ? (
                     <Link
                       href={subItem.href}
                       onClick={handleItemNavigation}
-                      className="flex items-center px-2 py-1.5 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-[#2A2A30] text-gray-700 dark:text-gray-300"
+                      className={cn(
+                        "flex items-center px-2 py-1.5 text-sm rounded-md",
+                        "hover:bg-gray-100 dark:hover:bg-[#2A2A30]",
+                        "text-gray-700 dark:text-gray-300",
+                        subItem.active &&
+                          "bg-gray-100 dark:bg-[#2A2A30] font-medium"
+                      )}
                     >
                       {subItem.icon && (
                         <Icon
@@ -249,7 +179,7 @@ export function MenuItem({
           className={cn(
             "flex items-center justify-between w-full px-3 py-2 text-sm rounded-md transition-colors",
             "hover:bg-gray-100 dark:hover:bg-[#1F1F23]",
-            isOpen
+            isSubmenuOpen || isActive
               ? "bg-gray-100 dark:bg-[#1F1F23] text-gray-900 dark:text-white"
               : "text-gray-600 dark:text-gray-300",
             level > 0 && "text-xs"
@@ -263,32 +193,36 @@ export function MenuItem({
           </div>
           {hasSubmenu && (
             <div className="flex items-center">
-              {isOpen ? (
-                <Icon name="ChevronUp" size={16} />
-              ) : (
-                <Icon name="ChevronDown" size={16} />
-              )}
+              <Icon
+                name="ChevronDown"
+                size={16}
+                className={cn(
+                  "transform transition-transform duration-200",
+                  isSubmenuOpen ? "rotate-180" : "rotate-0"
+                )}
+              />
             </div>
           )}
         </button>
       )}
 
       {/* Renderização recursiva de submenu */}
-      {hasSubmenu && isOpen && (
+      {hasSubmenu && (
         <div
-          ref={submenuRef}
           className={cn(
             "mt-1 pl-4 border-l border-gray-200 dark:border-gray-700",
-            "overflow-hidden"
+            "overflow-hidden transition-all duration-300 ease-in-out",
+            isSubmenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
           )}
         >
           {item.submenu?.map((subItem) => (
             <MenuItem
-              key={subItem.label}
+              key={`${itemId}-${subItem.label}`}
               item={subItem}
               isCollapsed={isCollapsed}
               handleNavigation={handleNavigation}
               level={level + 1}
+              parentId={itemId}
             />
           ))}
         </div>

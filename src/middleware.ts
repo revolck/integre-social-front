@@ -54,10 +54,10 @@ export function middleware(request: NextRequest) {
 
   // === SUBDOMÍNIO APP ===
   if (isAppSubdomain) {
-    // Raiz do app -> dashboard/analytics
+    // Raiz do app -> dashboard/overview
     if (pathname === "/") {
       const rewriteResponse = NextResponse.rewrite(
-        new URL("/dashboard/analytics", request.url)
+        new URL("/dashboard/overview", request.url)
       );
       // Copiar os cabeçalhos CORS
       rewriteResponse.headers.set("Access-Control-Allow-Origin", "*");
@@ -74,7 +74,7 @@ export function middleware(request: NextRequest) {
 
     // Mapear rotas simplificadas para as rotas do dashboard
     const dashboardRoutes = [
-      "analytics",
+      "overview",
       "users",
       "settings",
       "beneficiaries",

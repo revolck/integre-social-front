@@ -3,7 +3,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { DashboardHeader, DashboardSidebar } from "@/theme";
+import { DashboardSidebar } from "@/theme";
 import { Icon } from "@/components/ui/custom/Icons";
 
 interface DashboardLayoutProps {
@@ -12,10 +12,6 @@ interface DashboardLayoutProps {
 
 /**
  * Layout específico para a seção de Dashboard
- *
- * Gerencia o estado do sidebar (colapsado/expandido)
- * Implementa responsividade e modo mobile
- * Integração com o sistema de temas
  */
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   // Acesso ao tema atual
@@ -31,18 +27,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   /**
    * Alterna o estado de colapso do sidebar
-   * Apenas funciona em dispositivos não-móveis
    */
   function toggleSidebar() {
     if (!isMobileDevice) {
       setIsCollapsed(!isCollapsed);
     } else {
-      // Em dispositivos móveis, alterna o menu móvel
       setIsMobileMenuOpen(!isMobileMenuOpen);
     }
   }
 
-  // Efeito para manipulação do estado inicial e detecção de montagem
+  // Efeito para manipulação do estado inicial
   useEffect(() => {
     setMounted(true);
 
@@ -50,7 +44,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     if (isMobileDevice && isCollapsed) {
       setIsCollapsed(false);
     }
-  }, [isMobileDevice, isCollapsed]);
+
+    // Adiciona classe ao body quando o menu está aberto em mobile
+    // para evitar scroll
+    if (isMobileMenuOpen && isMobileDevice) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileDevice, isCollapsed, isMobileMenuOpen]);
 
   // Evita problemas de hidratação SSR
   if (!mounted) {
@@ -67,19 +73,23 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       />
 
       {/* Container principal de conteúdo */}
-      <div className="w-full flex flex-1 flex-col">
+      <div className="w-full flex flex-1 flex-col transition-all duration-300 ease-in-out bg-white dark:bg-[#0F0F12]">
         {/* Cabeçalho/barra superior */}
-        <header className="h-16 border-b border-gray-200 dark:border-[#1F1F23] flex items-center px-4">
+        <header className="h-16 border-b border-gray-200 dark:border-[#1F1F23] flex items-center px-4 bg-white dark:bg-[#0F0F12] z-10">
           {/* Botão de toggle do sidebar */}
           <button
             onClick={toggleSidebar}
             className="mr-4 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             aria-label={isCollapsed ? "Expandir sidebar" : "Colapsar sidebar"}
           >
-            <Icon name="Menu" size={20} />
+            <Icon
+              name={isCollapsed ? "PanelLeft" : "PanelLeftClose"}
+              size={20}
+              className="transition-transform duration-300"
+            />
           </button>
 
-          {/* Título da página - pode ser dinâmico baseado na rota atual */}
+          {/* Título da página */}
           <h1 className="text-lg font-semibold">Dashboard</h1>
 
           {/* Espaço flexível */}

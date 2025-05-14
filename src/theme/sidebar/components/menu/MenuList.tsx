@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { MenuSection } from "./MenuSection";
 import { useActiveRoute } from "@/hooks/useActiveRoute";
 import type { MenuSection as MenuSectionType } from "../../types/sidebar.types";
@@ -11,9 +11,6 @@ interface MenuListProps {
 
 /**
  * Componente que renderiza a lista completa de seções do menu
- *
- * Agrupa todas as seções do menu e as renderiza
- * Processa as seções para marcar itens ativos com base na URL
  */
 export function MenuList({
   sections,
@@ -35,7 +32,7 @@ export function MenuList({
   }, [sections, markActiveItems, ready, pathname]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 transition-all duration-200">
       {processedSections.map((section) => (
         <MenuSection
           key={section.title}

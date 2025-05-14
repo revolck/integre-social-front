@@ -1,9 +1,8 @@
-// src/theme/sidebar/components/header/SidebarHeader.tsx
 import React from "react";
 import Image from "next/image";
 import { Icon } from "@/components/ui/custom/Icons";
 import { SidebarHeaderProps } from "../../types/sidebar.types";
-import { toastCustom } from "@/components/ui/custom/toast"; // Importar toastCustom
+import { toastCustom } from "@/components/ui/custom/toast";
 
 /**
  * Componente de cabeçalho para o sidebar
@@ -26,31 +25,8 @@ export function SidebarHeader({
     });
   };
 
-  // Handler para fechar com confirmação em mobile
-  const handleMobileClose = () => {
-    toastCustom.withUndo(
-      "Menu lateral fechado", 
-      () => {
-        // Simula a reabertura do menu
-        setTimeout(() => {
-          // Reabrir menu lateralmente
-          onCloseMobile();
-          
-          // Confirma a operação
-          toastCustom.success({
-            description: "Menu reaberto com sucesso",
-            duration: 2000,
-          });
-        }, 300);
-      }
-    );
-    
-    // Fecha o menu
-    onCloseMobile();
-  };
-
   return (
-    <div className="h-16 px-4 flex items-center justify-between border-b border-gray-200 dark:border-[#1F1F23]">
+    <div className="h-16 px-4 flex items-center justify-between border-b border-gray-200 dark:border-[#1F1F23] transition-all duration-300">
       <div className="flex items-center gap-3">
         <div onClick={handleLogoClick} className="cursor-pointer">
           <Image
@@ -70,7 +46,7 @@ export function SidebarHeader({
         </div>
 
         {!isCollapsed && (
-          <span className="font-semibold text-gray-900 dark:text-white ml-1">
+          <span className="font-semibold text-gray-900 dark:text-white ml-1 transition-opacity duration-300">
             IntegreApp
           </span>
         )}
@@ -78,7 +54,7 @@ export function SidebarHeader({
 
       {/* Botão de fechar para mobile - visível apenas em telas pequenas */}
       <button
-        onClick={handleMobileClose}
+        onClick={onCloseMobile}
         className="md:hidden p-1.5 rounded-md text-gray-500 hover:bg-gray-100 dark:hover:bg-[#1F1F23] transition-colors"
         aria-label="Fechar menu"
       >

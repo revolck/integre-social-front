@@ -36,6 +36,7 @@ export interface MenuItemProps {
   isCollapsed: boolean;
   handleNavigation: () => void;
   level: number;
+  parentId?: string; // ID do menu pai para rastreamento e controle
 }
 
 /**
