@@ -1,14 +1,13 @@
+// src/theme/sidebar/components/menu/MenuItem.tsx
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/custom/Icons";
 import { cn } from "@/lib/utils";
 import { MenuItemProps } from "../../types/sidebar.types";
+import { toastCustom } from "@/components/ui/custom/toast"; // Importar toastCustom
 
 /**
  * Componente que renderiza um item de menu individual
- *
- * Lida com a lógica de estados, submenu e aparência diferente quando colapsado
- * Componente complexo mas com responsabilidade única e bem definida
  */
 export function MenuItem({
   item,
@@ -62,11 +61,35 @@ export function MenuItem({
     };
   }, []);
 
+  // Handler de navegação customizado com toast
+  const handleItemNavigation = () => {
+    // Chama o handler de navegação original
+    handleNavigation();
+
+    // Mostra uma notificação para determinadas seções
+    if (item.href && !item.href.includes("#")) {
+      // Apenas para links reais, não âncoras
+      toastCustom.info({
+        description: `Navegando para ${item.label}`,
+        duration: 2000, // Toast rápido
+        icon: item.icon ? <Icon name={item.icon} size={18} /> : undefined,
+      });
+    }
+  };
+
   // Handlers
   const toggleSubmenu = (e: React.MouseEvent) => {
     if (hasSubmenu) {
       e.preventDefault();
       setIsOpen(!isOpen);
+
+      // Mostra toast quando abre ou fecha um submenu
+      if (!isOpen && level === 0) {
+        toastCustom.default({
+          description: `Menu ${item.label} expandido`,
+          duration: 1500,
+        });
+      }
     }
   };
 
@@ -91,7 +114,7 @@ export function MenuItem({
   if (isCollapsed && level === 0) {
     const menuContent = (
       <button
-        onClick={hasSubmenu ? toggleSubmenu : handleNavigation}
+        onClick={hasSubmenu ? toggleSubmenu : handleItemNavigation}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         className={cn(
@@ -108,7 +131,11 @@ export function MenuItem({
     return (
       <div className="relative">
         {item.href && !hasSubmenu ? (
-          <Link href={item.href} onClick={handleNavigation} className="block">
+          <Link
+            href={item.href}
+            onClick={handleItemNavigation}
+            className="block"
+          >
             {menuContent}
           </Link>
         ) : (
@@ -152,7 +179,7 @@ export function MenuItem({
                   {subItem.href ? (
                     <Link
                       href={subItem.href}
-                      onClick={handleNavigation}
+                      onClick={handleItemNavigation}
                       className="flex items-center px-2 py-1.5 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-[#2A2A30] text-gray-700 dark:text-gray-300"
                     >
                       {subItem.icon && (
@@ -206,7 +233,7 @@ export function MenuItem({
       {item.href && !hasSubmenu ? (
         <Link
           href={item.href}
-          onClick={handleNavigation}
+          onClick={handleItemNavigation}
           className={cn(
             "flex items-center px-3 py-2 text-sm rounded-md transition-colors w-full",
             "hover:bg-gray-100 dark:hover:bg-[#1F1F23]",

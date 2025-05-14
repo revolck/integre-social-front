@@ -8,6 +8,7 @@ import { ProjectSelectorModal } from "./ProjectSelectorModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Icon } from "@/components/ui/custom/Icons";
+import { toastCustom } from "@/components/ui/custom/toast"; // Importar toastCustom
 
 interface ProjectSelectorProps {
   isCollapsed?: boolean;
@@ -41,6 +42,22 @@ export function ProjectSelector({ isCollapsed = false }: ProjectSelectorProps) {
 
   // Handler para abrir seletor de projeto manualmente
   const handleOpenSelector = () => {
+    // Mostra toast informativo quando abre manualmente o seletor
+    if (selectedProject) {
+      toastCustom.info({
+        title: "Trocar projeto",
+        description: "Selecione outro projeto para continuar",
+        icon: <Icon name="Shuffle" size={20} />,
+        duration: 3000,
+      });
+    } else {
+      toastCustom.info({
+        description: "Selecione um projeto para começar",
+        icon: <Icon name="Info" size={20} />,
+        duration: 3000,
+      });
+    }
+
     openProjectSelector(true); // true indica que é uma seleção manual
   };
 

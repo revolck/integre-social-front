@@ -10,6 +10,7 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { Input } from "@/components/ui/input";
 import { ButtonCustom } from "@/components/ui/custom/button";
 import { Icon } from "@/components/ui/custom/Icons";
+import { toastCustom } from "@/components/ui/custom/toast";
 import {
   ModalCustom,
   ModalHeader,
@@ -32,7 +33,7 @@ export function ProjectSelectorModal() {
     isFirstTimeUser,
     isSelectorModalOpen,
     isConfirmingSelection,
-    isManualSelection, // Nova propriedade que indica se é uma seleção manual
+    isManualSelection,
     setTemporarySelectedProject,
     confirmProjectSelection,
     closeProjectSelector,
@@ -67,6 +68,24 @@ export function ProjectSelectorModal() {
     return isManualSelection
       ? "Selecione outro projeto para continuar seu trabalho."
       : "É um novo dia! Por favor, confirme ou altere o projeto que deseja usar hoje.";
+  };
+
+  // Função para confirmar seleção com toast adicional
+  const handleConfirmSelection = () => {
+    if (!temporarySelectedProject) return;
+
+    // Notifica que a seleção está sendo processada
+    if (!isFirstTimeUser) {
+      toastCustom.info({
+        title: "Processando seleção",
+        description: "Carregando dados do projeto...",
+        icon: <Icon name="Loader2" className="animate-spin" />,
+        duration: 2000,
+      });
+    }
+
+    // Chama a função existente
+    confirmProjectSelection();
   };
 
   // Animações
@@ -176,10 +195,22 @@ export function ProjectSelectorModal() {
                         isConfirmingSelection &&
                           "opacity-60 pointer-events-none"
                       )}
-                      onClick={() =>
-                        !isConfirmingSelection &&
-                        setTemporarySelectedProject(project)
-                      }
+                      onClick={() => {
+                        if (!isConfirmingSelection) {
+                          setTemporarySelectedProject(project);
+
+                          // Toast informativo quando seleciona um projeto
+                          if (
+                            !isFirstTimeUser &&
+                            project.id !== temporarySelectedProject?.id
+                          ) {
+                            toastCustom.default({
+                              description: `Projeto ${project.name} selecionado`,
+                              duration: 1500,
+                            });
+                          }
+                        }
+                      }}
                     >
                       <ProjectAvatar project={project} size="md" />
 
@@ -234,7 +265,7 @@ export function ProjectSelectorModal() {
           <div className="w-full flex flex-col gap-3">
             {/* Botão de confirmar */}
             <ButtonCustom
-              onClick={confirmProjectSelection}
+              onClick={handleConfirmSelection}
               disabled={!temporarySelectedProject || isConfirmingSelection}
               variant="primary"
               size="lg"

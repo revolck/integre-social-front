@@ -3,8 +3,8 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { toastCustom } from "@/components/ui/custom";
-import { parseCookies, setCookie, destroyCookie } from "nookies"; // Importar nookies para gerenciar cookies
+import { toastCustom } from "@/components/ui/custom"; // Importação correta sem /toast no final
+import { parseCookies, setCookie } from "nookies";
 import type { Project } from "../types/project.types";
 
 // Constantes para cookies
@@ -166,6 +166,13 @@ export const useProjectStore = create<ProjectState>()(
         const project = state.temporarySelectedProject;
 
         if (!project) return;
+
+        // Mostra toast de processamento antes do início da confirmação
+        toastCustom.info({
+          title: "Processando seleção",
+          description: "Carregando dados do projeto...",
+          duration: 2000,
+        });
 
         // Inicia processo de confirmação
         set({ isConfirmingSelection: true });
