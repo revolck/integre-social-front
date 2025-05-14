@@ -2,7 +2,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { ChevronDown } from "lucide-react";
 import { ProjectAvatar } from "./ProjectAvatar";
 import { useProjectStore } from "../store/projectStore";
 import { ProjectSelectorModal } from "./ProjectSelectorModal";
@@ -25,7 +24,10 @@ export function ProjectSelector({ isCollapsed = false }: ProjectSelectorProps) {
 
   // Verificar necessidade de seleção inicial e atualizar data
   useEffect(() => {
-    checkAndUpdateSelectionDate();
+    // Executar somente no lado do cliente
+    if (typeof window !== "undefined") {
+      checkAndUpdateSelectionDate();
+    }
   }, [checkAndUpdateSelectionDate]);
 
   /**
@@ -37,10 +39,15 @@ export function ProjectSelector({ isCollapsed = false }: ProjectSelectorProps) {
     return name.substring(0, maxLength) + "...";
   };
 
+  // Handler para abrir seletor de projeto manualmente
+  const handleOpenSelector = () => {
+    openProjectSelector(true); // true indica que é uma seleção manual
+  };
+
   return (
     <>
       <button
-        onClick={openProjectSelector}
+        onClick={handleOpenSelector}
         className={cn(
           "w-full flex items-center p-2 rounded-lg transition-all duration-300",
           isCollapsed ? "justify-center" : "justify-between",
@@ -106,7 +113,7 @@ export function ProjectSelector({ isCollapsed = false }: ProjectSelectorProps) {
         </AnimatePresence>
       </button>
 
-      {/* Modal de seleção de projeto - agora gerenciado pelo Zustand */}
+      {/* Modal de seleção de projeto - gerenciado pelo Zustand */}
       <ProjectSelectorModal />
     </>
   );

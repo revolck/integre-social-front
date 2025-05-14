@@ -32,6 +32,7 @@ export function ProjectSelectorModal() {
     isFirstTimeUser,
     isSelectorModalOpen,
     isConfirmingSelection,
+    isManualSelection, // Nova propriedade que indica se é uma seleção manual
     setTemporarySelectedProject,
     confirmProjectSelection,
     closeProjectSelector,
@@ -52,6 +53,21 @@ export function ProjectSelectorModal() {
       setFilteredProjects(filtered);
     }
   }, [searchQuery, projects]);
+
+  // Rótulos dinâmicos baseados no contexto
+  const getModalTitle = () => {
+    if (isFirstTimeUser) return "Bem-vindo! Selecione um projeto";
+    return isManualSelection ? "Trocar projeto" : "Selecione um projeto";
+  };
+
+  const getModalDescription = () => {
+    if (isFirstTimeUser) {
+      return "Selecione o projeto em que deseja trabalhar. Esta seleção determina quais dados e funcionalidades estarão disponíveis.";
+    }
+    return isManualSelection
+      ? "Selecione outro projeto para continuar seu trabalho."
+      : "É um novo dia! Por favor, confirme ou altere o projeto que deseja usar hoje.";
+  };
 
   // Animações
   const containerVariants = {
@@ -84,16 +100,16 @@ export function ProjectSelectorModal() {
         }
       }}
       size={isMobile ? "full" : "md"}
-      isDismissable={!isFirstTimeUser && !isConfirmingSelection}
-      isKeyboardDismissDisabled={isFirstTimeUser || isConfirmingSelection}
+      isDismissable={!isFirstTimeUser || isManualSelection} // Permite fechar se não for primeira vez OU for seleção manual
+      isKeyboardDismissDisabled={isFirstTimeUser && !isManualSelection} // Desabilita fechar com ESC apenas na primeira vez e não for seleção manual
       backdrop="blur"
-      hideCloseButton={isFirstTimeUser || isConfirmingSelection}
+      hideCloseButton={isFirstTimeUser && !isManualSelection} // Esconde botão X apenas na primeira vez E não for seleção manual
     >
       <ModalContentWrapper
         placement={isMobile ? "bottom" : "center"}
-        isDismissable={!isFirstTimeUser && !isConfirmingSelection}
-        isKeyboardDismissDisabled={isFirstTimeUser || isConfirmingSelection}
-        hideCloseButton={isFirstTimeUser || isConfirmingSelection}
+        isDismissable={!isFirstTimeUser || isManualSelection}
+        isKeyboardDismissDisabled={isFirstTimeUser && !isManualSelection}
+        hideCloseButton={isFirstTimeUser && !isManualSelection}
         backdrop="blur"
         className="max-w-lg !overflow-hidden"
         motionProps={{
@@ -108,16 +124,11 @@ export function ProjectSelectorModal() {
       >
         <ModalHeader className="pb-1">
           <ModalTitle className="text-xl font-bold">
-            {isFirstTimeUser
-              ? "Bem-vindo! Selecione um projeto"
-              : "Escolha um projeto"}
+            {getModalTitle()}
           </ModalTitle>
-          {isFirstTimeUser && (
-            <ModalDescription className="text-sm mt-1">
-              Selecione o projeto em que deseja trabalhar. Esta seleção
-              determina quais dados e funcionalidades estarão disponíveis.
-            </ModalDescription>
-          )}
+          <ModalDescription className="text-sm">
+            {getModalDescription()}
+          </ModalDescription>
         </ModalHeader>
 
         <ModalBody className="py-3">
@@ -208,10 +219,10 @@ export function ProjectSelectorModal() {
                 >
                   <Icon name="Info" size={40} className="mb-2 opacity-50" />
                   <p className="text-center">
-                    Nenhum projeto encontrado com este termo
+                    Nenhum projeto encontrado com este nome
                   </p>
                   <p className="text-xs mt-1">
-                    Tente outro termo ou limpe a busca
+                    Tente outro nome ou limpe a busca
                   </p>
                 </motion.div>
               )}
@@ -239,19 +250,6 @@ export function ProjectSelectorModal() {
                 "Confirmar"
               )}
             </ButtonCustom>
-
-            {/* Botão de cancelar */}
-            {!isFirstTimeUser && (
-              <ButtonCustom
-                variant="outline"
-                onClick={closeProjectSelector}
-                disabled={isConfirmingSelection}
-                fullWidth
-                size="md"
-              >
-                Cancelar
-              </ButtonCustom>
-            )}
           </div>
         </ModalFooter>
       </ModalContentWrapper>

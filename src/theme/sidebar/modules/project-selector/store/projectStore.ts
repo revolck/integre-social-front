@@ -4,7 +4,18 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { toastCustom } from "@/components/ui/custom";
+import { parseCookies, setCookie, destroyCookie } from "nookies"; // Importar nookies para gerenciar cookies
 import type { Project } from "../types/project.types";
+
+// Constantes para cookies
+const TENANT_COOKIE_NAME = "tenant_selection";
+const TENANT_SELECTION_DATE = "tenant_selection_date";
+const COOKIE_OPTIONS = {
+  maxAge: 24 * 60 * 60, // 24 horas
+  path: "/",
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict",
+};
 
 // Sample projects data
 const sampleProjects: Project[] = [
@@ -51,12 +62,13 @@ interface ProjectState {
   isSelectorModalOpen: boolean;
   isConfirmingSelection: boolean;
   temporarySelectedProject: Project | null;
+  isManualSelection: boolean; // Flag para indicar se é uma seleção manual (mudança de projeto)
 
   // Ações
   selectProject: (project: Project) => void;
   setTemporarySelectedProject: (project: Project | null) => void;
   confirmProjectSelection: () => Promise<void>;
-  openProjectSelector: () => void;
+  openProjectSelector: (isManual?: boolean) => void;
   closeProjectSelector: () => void;
   addProject: (project: Project) => void;
   updateProject: (project: Project) => void;
@@ -67,6 +79,11 @@ interface ProjectState {
   // Getters
   shouldShowProjectSelector: () => boolean;
   checkAndUpdateSelectionDate: () => void;
+
+  // Cookie operations
+  saveToCookies: (project: Project) => void;
+  loadFromCookies: () => Project | null;
+  isSelectionFromToday: () => boolean;
 }
 
 // Helper para obter a data atual no formato YYYY-MM-DD
@@ -90,19 +107,58 @@ export const useProjectStore = create<ProjectState>()(
       isSelectorModalOpen: false,
       isConfirmingSelection: false,
       temporarySelectedProject: null,
+      isManualSelection: false,
 
       // Seleção temporária de projeto (para a modal)
       setTemporarySelectedProject: (project) =>
         set({ temporarySelectedProject: project }),
 
+      // Salvar dados em cookies
+      saveToCookies: (project) => {
+        // Salvamos o ID do projeto e a data de seleção
+        setCookie(null, TENANT_COOKIE_NAME, project.id, COOKIE_OPTIONS);
+        setCookie(
+          null,
+          TENANT_SELECTION_DATE,
+          getCurrentDate(),
+          COOKIE_OPTIONS
+        );
+      },
+
+      // Carregar dados dos cookies
+      loadFromCookies: () => {
+        const cookies = parseCookies();
+        const tenantId = cookies[TENANT_COOKIE_NAME];
+
+        if (!tenantId) return null;
+
+        // Encontra o projeto pelo ID
+        const project = get().projects.find((p) => p.id === tenantId);
+        return project || null;
+      },
+
+      // Verificar se a seleção foi feita hoje
+      isSelectionFromToday: () => {
+        const cookies = parseCookies();
+        const selectionDate = cookies[TENANT_SELECTION_DATE];
+
+        if (!selectionDate) return false;
+
+        return selectionDate === getCurrentDate();
+      },
+
       // Ações
-      selectProject: (project) =>
+      selectProject: (project) => {
+        // Salva em cookies para persistência entre sessões
+        get().saveToCookies(project);
+
         set({
           selectedProject: project,
           hasSelectedProject: true,
           lastSelectionDate: getCurrentDate(),
           isLoading: true,
-        }),
+        });
+      },
 
       // Confirmação de seleção - processo completo
       confirmProjectSelection: async () => {
@@ -125,6 +181,8 @@ export const useProjectStore = create<ProjectState>()(
           set({
             isSelectorModalOpen: false,
             isConfirmingSelection: false,
+            isManualSelection: false,
+            isFirstTimeUser: false, // Marca que não é mais a primeira vez após confirmação
           });
 
           // Aguarda um pouco para garantir que o modal fechou
@@ -152,12 +210,13 @@ export const useProjectStore = create<ProjectState>()(
         }
       },
 
-      // Abrir o seletor de projetos
-      openProjectSelector: () => {
+      // Abrir o seletor de projetos (com flag para identificar se é seleção manual)
+      openProjectSelector: (isManual = false) => {
         const state = get();
         set({
           isSelectorModalOpen: true,
           temporarySelectedProject: state.selectedProject,
+          isManualSelection: isManual, // Define se é uma abertura manual (troca) ou automática
         });
       },
 
@@ -171,6 +230,7 @@ export const useProjectStore = create<ProjectState>()(
         set({
           isSelectorModalOpen: false,
           temporarySelectedProject: null,
+          isManualSelection: false,
         });
       },
 
@@ -215,14 +275,27 @@ export const useProjectStore = create<ProjectState>()(
           return false;
         }
 
-        // Se a data da última seleção for diferente de hoje, mostra o seletor
-        const today = getCurrentDate();
-        return state.lastSelectionDate !== today;
+        // Verifica se a seleção já foi feita hoje
+        return !state.isSelectionFromToday();
       },
 
       checkAndUpdateSelectionDate: () => {
         const state = get();
-        const today = getCurrentDate();
+
+        // Primeiro tentamos carregar do cookie
+        const savedProject = state.loadFromCookies();
+
+        // Se encontramos um projeto nos cookies e a seleção foi feita hoje
+        if (savedProject && state.isSelectionFromToday()) {
+          // Atualizamos o estado sem abrir a modal
+          set({
+            selectedProject: savedProject,
+            hasSelectedProject: true,
+            lastSelectionDate: getCurrentDate(),
+            isFirstTimeUser: false,
+          });
+          return;
+        }
 
         // Verificar se precisa mostrar seletor hoje
         if (state.shouldShowProjectSelector()) {
@@ -232,7 +305,10 @@ export const useProjectStore = create<ProjectState>()(
         // Se tem só um projeto, seleciona automaticamente
         if (state.projects.length === 1 && !state.selectedProject) {
           get().selectProject(state.projects[0]);
-          set({ isLoading: false });
+          set({
+            isLoading: false,
+            isFirstTimeUser: false,
+          });
         }
       },
     }),
