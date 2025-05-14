@@ -1,8 +1,11 @@
+// src/theme/sidebar/config/menuConfig.ts
 import { MenuSection } from "../types/sidebar.types";
 
 /**
  * Configuração centralizada do menu do sidebar
  * Facilita a manutenção e extensão futura
+ *
+ * Removida a propriedade 'active' estática para que possa ser definida dinamicamente
  */
 export const menuSections: MenuSection[] = [
   {
@@ -12,9 +15,13 @@ export const menuSections: MenuSection[] = [
         icon: "Home",
         label: "Dashboard",
         href: "/dashboard/home",
-        active: true,
+        // active removido daqui
       },
-      { icon: "BarChart2", label: "Analytics", href: "/dashboard/analytics" },
+      {
+        icon: "BarChart2",
+        label: "Analytics",
+        href: "/dashboard/analytics",
+      },
     ],
   },
   {

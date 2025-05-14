@@ -1,4 +1,3 @@
-// src/theme/sidebar/modules/project-selector/components/ProjectSelectorModal.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -198,17 +197,7 @@ export function ProjectSelectorModal() {
                       onClick={() => {
                         if (!isConfirmingSelection) {
                           setTemporarySelectedProject(project);
-
-                          // Toast informativo quando seleciona um projeto
-                          if (
-                            !isFirstTimeUser &&
-                            project.id !== temporarySelectedProject?.id
-                          ) {
-                            toastCustom.default({
-                              description: `Projeto ${project.name} selecionado`,
-                              duration: 1500,
-                            });
-                          }
+                          // Toast removido aqui - não notificar a cada clique na lista
                         }
                       }}
                     >

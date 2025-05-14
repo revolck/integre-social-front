@@ -1,9 +1,8 @@
-// src/theme/sidebar/modules/project-selector/store/projectStore.ts
 "use client";
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { toastCustom } from "@/components/ui/custom"; // Importação correta sem /toast no final
+import { toastCustom } from "@/components/ui/custom";
 import { parseCookies, setCookie } from "nookies";
 import type { Project } from "../types/project.types";
 
@@ -63,6 +62,7 @@ interface ProjectState {
   isConfirmingSelection: boolean;
   temporarySelectedProject: Project | null;
   isManualSelection: boolean; // Flag para indicar se é uma seleção manual (mudança de projeto)
+  isNavigating: boolean; // Novo estado para controlar se está em navegação
 
   // Ações
   selectProject: (project: Project) => void;
@@ -75,6 +75,7 @@ interface ProjectState {
   removeProject: (id: string) => void;
   setIsLoading: (loading: boolean) => void;
   resetFirstTimeUser: () => void;
+  setNavigating: (navigating: boolean) => void; // Nova ação para controlar navegação
 
   // Getters
   shouldShowProjectSelector: () => boolean;
@@ -108,6 +109,10 @@ export const useProjectStore = create<ProjectState>()(
       isConfirmingSelection: false,
       temporarySelectedProject: null,
       isManualSelection: false,
+      isNavigating: false, // Novo estado
+
+      // Controlador de navegação
+      setNavigating: (navigating) => set({ isNavigating: navigating }),
 
       // Seleção temporária de projeto (para a modal)
       setTemporarySelectedProject: (project) =>
@@ -166,13 +171,6 @@ export const useProjectStore = create<ProjectState>()(
         const project = state.temporarySelectedProject;
 
         if (!project) return;
-
-        // Mostra toast de processamento antes do início da confirmação
-        toastCustom.info({
-          title: "Processando seleção",
-          description: "Carregando dados do projeto...",
-          duration: 2000,
-        });
 
         // Inicia processo de confirmação
         set({ isConfirmingSelection: true });
@@ -289,6 +287,9 @@ export const useProjectStore = create<ProjectState>()(
       checkAndUpdateSelectionDate: () => {
         const state = get();
 
+        // Se estiver navegando, não abra o seletor de projetos
+        if (state.isNavigating) return;
+
         // Primeiro tentamos carregar do cookie
         const savedProject = state.loadFromCookies();
 
@@ -305,7 +306,7 @@ export const useProjectStore = create<ProjectState>()(
         }
 
         // Verificar se precisa mostrar seletor hoje
-        if (state.shouldShowProjectSelector()) {
+        if (state.shouldShowProjectSelector() && !state.isNavigating) {
           set({ isSelectorModalOpen: true });
         }
 
@@ -327,6 +328,7 @@ export const useProjectStore = create<ProjectState>()(
         hasSelectedProject: state.hasSelectedProject,
         lastSelectionDate: state.lastSelectionDate,
         isFirstTimeUser: state.isFirstTimeUser,
+        // Não persistimos o estado de navegação
       }),
     }
   )

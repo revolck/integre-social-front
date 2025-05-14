@@ -1,13 +1,12 @@
-// src/theme/sidebar/components/menu/MenuItem.tsx
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/custom/Icons";
 import { cn } from "@/lib/utils";
 import { MenuItemProps } from "../../types/sidebar.types";
-import { toastCustom } from "@/components/ui/custom/toast"; // Importar toastCustom
+import { useProjectStore } from "../../modules/project-selector/store/projectStore";
 
 /**
- * Componente que renderiza um item de menu individual
+ * Componente otimizado que renderiza um item de menu individual
  */
 export function MenuItem({
   item,
@@ -18,6 +17,12 @@ export function MenuItem({
   // Estados locais
   const [isOpen, setIsOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+
+  // Estados globais do projectStore
+  const { setNavigating } = useProjectStore();
+
+  // A propriedade active agora vem do processamento no MenuList
+  const isActive = item.active || false;
 
   // Propriedades derivadas
   const hasSubmenu = item.submenu && item.submenu.length > 0;
@@ -61,20 +66,18 @@ export function MenuItem({
     };
   }, []);
 
-  // Handler de navegação customizado com toast
+  // Handler de navegação customizado sem toast
   const handleItemNavigation = () => {
+    // Marca como navegando para evitar que a modal de projetos seja aberta
+    setNavigating(true);
+
     // Chama o handler de navegação original
     handleNavigation();
 
-    // Mostra uma notificação para determinadas seções
-    if (item.href && !item.href.includes("#")) {
-      // Apenas para links reais, não âncoras
-      toastCustom.info({
-        description: `Navegando para ${item.label}`,
-        duration: 2000, // Toast rápido
-        icon: item.icon ? <Icon name={item.icon} size={18} /> : undefined,
-      });
-    }
+    // Reseta o estado de navegação após um curto intervalo
+    setTimeout(() => {
+      setNavigating(false);
+    }, 300);
   };
 
   // Handlers
@@ -82,14 +85,6 @@ export function MenuItem({
     if (hasSubmenu) {
       e.preventDefault();
       setIsOpen(!isOpen);
-
-      // Mostra toast quando abre ou fecha um submenu
-      if (!isOpen && level === 0) {
-        toastCustom.default({
-          description: `Menu ${item.label} expandido`,
-          duration: 1500,
-        });
-      }
     }
   };
 
@@ -119,7 +114,7 @@ export function MenuItem({
         onMouseLeave={handleMouseLeave}
         className={cn(
           "relative w-10 h-10 mx-auto my-1 flex items-center justify-center rounded-md transition-colors",
-          item.active || isOpen
+          isActive || isOpen
             ? "bg-primary/90 text-primary-foreground dark:bg-primary/90 dark:text-primary-foreground"
             : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#1F1F23]"
         )}
@@ -237,7 +232,7 @@ export function MenuItem({
           className={cn(
             "flex items-center px-3 py-2 text-sm rounded-md transition-colors w-full",
             "hover:bg-gray-100 dark:hover:bg-[#1F1F23]",
-            item.active
+            isActive
               ? "bg-gray-100 dark:bg-[#1F1F23] text-gray-900 dark:text-white font-medium"
               : "text-gray-600 dark:text-gray-300",
             level > 0 && "text-xs"

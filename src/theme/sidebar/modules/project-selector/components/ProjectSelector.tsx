@@ -1,14 +1,12 @@
-// src/theme/sidebar/modules/project-selector/components/ProjectSelector.tsx
 "use client";
 
 import { useEffect } from "react";
 import { ProjectAvatar } from "./ProjectAvatar";
 import { useProjectStore } from "../store/projectStore";
 import { ProjectSelectorModal } from "./ProjectSelectorModal";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, animateVisualElement } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Icon } from "@/components/ui/custom/Icons";
-import { toastCustom } from "@/components/ui/custom/toast"; // Importar toastCustom
 
 interface ProjectSelectorProps {
   isCollapsed?: boolean;
@@ -40,24 +38,9 @@ export function ProjectSelector({ isCollapsed = false }: ProjectSelectorProps) {
     return name.substring(0, maxLength) + "...";
   };
 
-  // Handler para abrir seletor de projeto manualmente
+  // Handler para abrir seletor de projeto manualmente sem toast
   const handleOpenSelector = () => {
-    // Mostra toast informativo quando abre manualmente o seletor
-    if (selectedProject) {
-      toastCustom.info({
-        title: "Trocar projeto",
-        description: "Selecione outro projeto para continuar",
-        icon: <Icon name="Shuffle" size={20} />,
-        duration: 3000,
-      });
-    } else {
-      toastCustom.info({
-        description: "Selecione um projeto para começar",
-        icon: <Icon name="Info" size={20} />,
-        duration: 3000,
-      });
-    }
-
+    // Abre o seletor de projeto sem mostrar toasts desnecessários
     openProjectSelector(true); // true indica que é uma seleção manual
   };
 
