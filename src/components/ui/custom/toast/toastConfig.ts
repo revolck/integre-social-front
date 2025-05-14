@@ -25,6 +25,7 @@ export const DEFAULT_TOAST_CONFIG: CustomToasterProps = {
       warning: "group toast-custom-warning",
       info: "group toast-custom-info",
       loading: "group toast-custom-loading",
+      closeButton: "!hidden", // Esconde o botão de fechar padrão pois usamos nosso próprio
     },
   },
 };

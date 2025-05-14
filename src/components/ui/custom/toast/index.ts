@@ -3,6 +3,7 @@ export {
   toastCustom,
   ToastActionButton,
   ToastLink,
+  ToastCloseButton,
 } from "./CustomToast";
 export type {
   ToastOptions,

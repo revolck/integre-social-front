@@ -59,6 +59,45 @@ export default function ToastShowcase() {
     }, delays[3]);
   };
 
+  // Exemplos de uso de promise para demonstração
+  const showPromiseExample = () => {
+    // Simulação de um carregamento de dados
+    const mockPromise = new Promise<string>((resolve, reject) => {
+      // 50% chance de sucesso ou erro para demonstração
+      setTimeout(() => {
+        if (Math.random() > 0.5) {
+          resolve("Dados carregados com sucesso!");
+        } else {
+          reject(new Error("Falha ao carregar dados"));
+        }
+      }, 2000);
+    });
+
+    // Usar o toast.promise para exibir status
+    toastCustom.promise(mockPromise, {
+      loading: {
+        title: "Carregando dados",
+        description: "Por favor, aguarde enquanto carregamos os dados...",
+        icon: <Icon name="Loader" size={20} className="animate-spin" />,
+      },
+      success: (data) => ({
+        title: "Sucesso!",
+        description: data,
+        icon: (
+          <Icon name="CheckCircle" size={20} className="text-emerald-500" />
+        ),
+      }),
+      error: (err) => ({
+        title: "Erro",
+        description:
+          err instanceof Error ? err.message : "Ocorreu um erro desconhecido",
+        icon: (
+          <Icon name="AlertCircle" size={20} className="text-destructive" />
+        ),
+      }),
+    });
+  };
+
   // Configurações comuns para os toasts para evitar redundância
   const toastDuration = 5000;
 
@@ -175,17 +214,7 @@ export default function ToastShowcase() {
     },
     {
       label: "Promise Toast",
-      action: () => {
-        const promise = new Promise((resolve) => {
-          setTimeout(() => resolve("Data loaded!"), 2000);
-        });
-
-        toastCustom.promise(promise, {
-          loading: "Loading data...",
-          success: (data) => `${data}`,
-          error: (err) => "Error loading data!",
-        });
-      },
+      action: showPromiseExample,
     },
   ];
 

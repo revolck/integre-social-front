@@ -1,6 +1,6 @@
 "use client";
 
-import React, { forwardRef } from "react";
+import React, { forwardRef, type ForwardedRef } from "react";
 import { useTheme } from "next-themes";
 import { Toaster as SonnerToaster, toast as sonnerToast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -18,66 +18,65 @@ import type {
   ToastActionButtonProps,
   ToastLinkProps,
 } from "./types";
+import styles from "./toast.module.css";
 
 /**
  * Componente ToastActionButton
- * Botão estilizado para ações em toasts
  */
 export const ToastActionButton = forwardRef<
   HTMLButtonElement,
   ToastActionButtonProps
->(
-  (
-    {
-      children,
-      onClick,
-      className,
-      variant = "default",
-      size = "sm",
-      disabled,
-      isLoading,
-      icon,
-      ariaLabel,
-    },
-    ref
-  ) => {
-    return (
-      <button
-        ref={ref}
-        onClick={onClick}
-        disabled={disabled || isLoading}
-        aria-label={
-          ariaLabel || (typeof children === "string" ? children : undefined)
-        }
-        className={cn(
-          toastActionVariants({ variant, size }),
-          isLoading && "opacity-70 cursor-wait",
-          className
-        )}
-      >
-        {isLoading && (
-          <span className="mr-2">
-            <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
-          </span>
-        )}
-        {icon && <span className="mr-1.5">{icon}</span>}
-        {children}
-      </button>
-    );
-  }
-);
-
-ToastActionButton.displayName = "ToastActionButton";
+>(function ToastActionButton(
+  {
+    children,
+    onClick,
+    className,
+    variant = "default",
+    size = "sm",
+    disabled,
+    isLoading,
+    icon,
+    ariaLabel,
+  }: ToastActionButtonProps,
+  ref: ForwardedRef<HTMLButtonElement>
+) {
+  return (
+    <button
+      ref={ref}
+      onClick={onClick}
+      disabled={disabled || isLoading}
+      aria-label={
+        ariaLabel || (typeof children === "string" ? children : undefined)
+      }
+      className={cn(
+        toastActionVariants({
+          variant: variant as any,
+          size: size as any,
+        }),
+        isLoading && "opacity-70 cursor-wait",
+        className
+      )}
+    >
+      {isLoading && (
+        <span className="mr-2">
+          <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
+        </span>
+      )}
+      {icon && <span className="mr-1.5">{icon}</span>}
+      {children}
+    </button>
+  );
+});
 
 /**
  * Componente ToastLink
  * Link estilizado para ações em toasts
  */
 export const ToastLink = forwardRef<HTMLAnchorElement, ToastLinkProps>(
-  (
+  function ToastLink(
     { children, href, onClick, className, variant = "default", external, icon },
     ref
-  ) => {
+  ) {
     const externalProps = external
       ? { target: "_blank", rel: "noopener noreferrer" }
       : {};
@@ -87,7 +86,10 @@ export const ToastLink = forwardRef<HTMLAnchorElement, ToastLinkProps>(
         ref={ref}
         href={href}
         onClick={onClick}
-        className={cn(toastLinkVariants({ variant }), className)}
+        className={cn(
+          toastLinkVariants({ variant: variant as any }),
+          className
+        )}
         {...externalProps}
       >
         {children}
@@ -97,14 +99,26 @@ export const ToastLink = forwardRef<HTMLAnchorElement, ToastLinkProps>(
   }
 );
 
-ToastLink.displayName = "ToastLink";
+/**
+ * Componente personalizado para botão de fechar
+ */
+export const ToastCloseButton = ({ onClick }: { onClick?: () => void }) => (
+  <button
+    onClick={onClick}
+    className={styles.closeButton}
+    aria-label="Fechar notificação"
+  >
+    <Icon name="X" size={14} className="text-muted-foreground/80" />
+  </button>
+);
 
 /**
  * Componente ToasterCustom
  * Contêiner de toasts personalizado com tema e estilos
  */
 export function ToasterCustom(props: CustomToasterProps) {
-  const { theme = "system" } = useTheme();
+  const { resolvedTheme } = useTheme();
+  const currentTheme = props.theme || resolvedTheme || "system";
 
   // Mesclar as configurações padrão com as props fornecidas
   const mergedProps = {
@@ -122,8 +136,8 @@ export function ToasterCustom(props: CustomToasterProps) {
 
   return (
     <SonnerToaster
-      theme={mergedProps.theme as "light" | "dark" | "system"}
-      className={cn("toaster-custom", mergedProps.className)}
+      theme={currentTheme as "light" | "dark" | "system"}
+      className={cn(styles.toasterContainer, mergedProps.className)}
       position={mergedProps.position}
       expand={mergedProps.expand}
       richColors={mergedProps.richColors}
@@ -204,7 +218,7 @@ function createToast(
   // Determina o ícone com base na variante
   let icon = customIcon;
   if (!icon) {
-    // Escolha do ícone baseado na variante e no contexto mostrado na imagem
+    // Escolha do ícone baseado na variante
     switch (variant) {
       case "success":
         icon = (
@@ -252,20 +266,21 @@ function createToast(
   // Cria o botão de cancelamento se especificado
   const cancelAction =
     cancelText && onCancel ? (
-      <ToastActionButton
-        variant="outline"
-        size="sm"
+      <button
         onClick={onCancel}
-        className="ml-2"
+        className={cn(
+          toastActionVariants({ variant: "outline" as any, size: "sm" as any }),
+          "ml-2"
+        )}
       >
         {cancelText}
-      </ToastActionButton>
+      </button>
     ) : null;
 
   // Configuração de ações combinadas
   const combinedAction =
     action || cancelAction || link ? (
-      <div className="flex items-center gap-2 mt-2">
+      <div className={styles.toastActions}>
         {action}
         {cancelAction}
         {link && <div className="ml-auto">{link}</div>}
@@ -289,6 +304,7 @@ function createToast(
         density,
         prominence,
       }),
+      styles.toast,
       className
     ),
     onDismiss,
@@ -296,10 +312,39 @@ function createToast(
       ? (toastId) => onAutoClose && onAutoClose(String(toastId))
       : undefined,
     closeButton: true,
-    // Opções de interatividade
     dismissible: !disableSwipe,
   });
 }
+
+// Wrapper para o botão de ação que resolve problemas de tipagem
+const ActionButtonWrapper = (props: ToastActionButtonProps) => {
+  return (
+    <button
+      onClick={props.onClick}
+      disabled={props.disabled || props.isLoading}
+      aria-label={
+        props.ariaLabel ||
+        (typeof props.children === "string" ? props.children : undefined)
+      }
+      className={cn(
+        toastActionVariants({
+          variant: props.variant as any,
+          size: props.size as any,
+        }),
+        props.isLoading && "opacity-70 cursor-wait",
+        props.className
+      )}
+    >
+      {props.isLoading && (
+        <span className="mr-2">
+          <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
+        </span>
+      )}
+      {props.icon && <span className="mr-1.5">{props.icon}</span>}
+      {props.children}
+    </button>
+  );
+};
 
 /**
  * API pública para o toast
@@ -370,7 +415,7 @@ export const toastCustom = {
       });
   },
 
-  // Método especializado para toasts de créditos (baseado na imagem)
+  // Método especializado para toasts de créditos
   credits: (options: ToastOptions | string) => {
     const opts =
       typeof options === "string"
@@ -387,7 +432,7 @@ export const toastCustom = {
     );
   },
 
-  // Método especializado para toasts de imagem gerada (baseado na imagem)
+  // Método especializado para toasts de imagem gerada
   imageGenerated: (timeInSecs: number, options?: Partial<ToastOptions>) => {
     return createToast(
       {
@@ -401,7 +446,7 @@ export const toastCustom = {
     );
   },
 
-  // Método especializado para confirmação de exclusão (baseado na imagem)
+  // Método especializado para confirmação de exclusão
   confirmDelete: (
     entityName: string,
     onDelete: () => void,
@@ -415,9 +460,13 @@ export const toastCustom = {
         cancelText: "Cancel",
         onCancel,
         action: (
-          <ToastActionButton variant="destructive" size="sm" onClick={onDelete}>
+          <ActionButtonWrapper
+            variant="destructive"
+            size="sm"
+            onClick={onDelete}
+          >
             Delete
-          </ToastActionButton>
+          </ActionButtonWrapper>
         ),
         duration: 10000, // Longer duration for confirmations
         prominence: "high",
@@ -428,7 +477,7 @@ export const toastCustom = {
     );
   },
 
-  // Método especializado para toasts com ações de desfazer (baseado na imagem)
+  // Método especializado para toasts com ações de desfazer
   withUndo: (
     message: string,
     onUndo: () => void,
@@ -438,9 +487,9 @@ export const toastCustom = {
       {
         description: message,
         action: (
-          <ToastActionButton variant="outline" size="sm" onClick={onUndo}>
+          <ActionButtonWrapper variant="outline" size="sm" onClick={onUndo}>
             Undo
-          </ToastActionButton>
+          </ActionButtonWrapper>
         ),
         ...options,
       },
@@ -448,7 +497,7 @@ export const toastCustom = {
     );
   },
 
-  // Método especializado para toasts com link (baseado na imagem)
+  // Método especializado para toasts com link
   withLink: (
     message: string,
     linkText: string,
@@ -467,11 +516,7 @@ export const toastCustom = {
   },
 
   // Componentes exportados para uso personalizado
-  ActionButton: ToastActionButton,
+  ActionButton: ActionButtonWrapper,
   Link: ToastLink,
-
-  // Componente para o botão de fechar
-  CloseButton: () => (
-    <Icon name="X" size={16} className="text-muted-foreground/80" />
-  ),
+  CloseButton: ToastCloseButton,
 };

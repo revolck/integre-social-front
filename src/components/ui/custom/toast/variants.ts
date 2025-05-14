@@ -14,7 +14,6 @@ export const toastVariants = cva(
     "data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)]",
     "data-[state=open]:animate-in data-[state=closed]:animate-out",
     "data-[state=closed]:fade-out-80 data-[state=open]:fade-in-0",
-    "data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full",
   ],
   {
     variants: {
@@ -58,13 +57,13 @@ export const toastVariants = cva(
         ],
       },
 
-      // Novo: variante de densidade (compact ou normal)
+      // Variante de densidade (compact ou normal)
       density: {
         compact: "py-2.5 px-3",
         normal: "py-4 px-4",
       },
 
-      // Novo: variante de importância/proeminência
+      // Variante de importância/proeminência
       prominence: {
         low: "border-opacity-30 bg-opacity-90",
         high: "border-opacity-50 bg-opacity-95 shadow-lg",

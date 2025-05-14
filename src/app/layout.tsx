@@ -40,7 +40,7 @@ export default function RootLayout({
             position="top-right"
             theme="system"
             richColors={true}
-            closeButton={true}
+            closeButton={false}
             maxToasts={5}
             gap={8}
             defaultDuration={5000}
