@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/providers/theme-provider";
-import { Toaster } from "@/components/ui/sonner";
+import { ToasterCustom } from "@/components/ui/custom/toast"; // Substituir importação
 import "@/styles/globals.css";
 import "@/styles/theme.css";
 
@@ -35,8 +35,16 @@ export default function RootLayout({
         >
           <main className="flex-1 flex flex-col">{children}</main>
 
-          {/* Notificações do sistema */}
-          <Toaster position="top-right" />
+          {/* Container centralizado de notificações do sistema */}
+          <ToasterCustom
+            position="top-right"
+            theme="system"
+            richColors={true}
+            closeButton={true}
+            maxToasts={5}
+            gap={8}
+            defaultDuration={5000}
+          />
         </ThemeProvider>
       </body>
     </html>

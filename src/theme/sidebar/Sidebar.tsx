@@ -1,4 +1,3 @@
-// src/theme/sidebar/Sidebar.tsx
 import { cn } from "@/lib/utils";
 import { SidebarHeader } from "./components/header/SidebarHeader";
 import { ProjectSelector } from "./modules/project-selector";
@@ -6,7 +5,7 @@ import { MenuList } from "./components/menu/MenuList";
 import { useSidebarNavigation } from "./hooks/useSidebarNavigation";
 import { menuSections } from "./config/menuConfig";
 import type { SidebarProps } from "./types/sidebar.types";
-import { ToasterCustom } from "@/components/ui/custom/toast"; // Importação do ToasterCustom
+// Remover importação: import { ToasterCustom } from "@/components/ui/custom/toast";
 
 /**
  * Componente principal do Sidebar
@@ -64,16 +63,6 @@ export function Sidebar({
           aria-hidden="true"
         />
       )}
-
-      {/* Renderização do ToasterCustom para notificações */}
-      <ToasterCustom
-        position="bottom-right"
-        theme="system"
-        richColors={true}
-        closeButton={true}
-        maxToasts={3}
-        gap={8}
-      />
     </>
   );
 }

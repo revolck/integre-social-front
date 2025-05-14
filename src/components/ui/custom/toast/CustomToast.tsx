@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { Toaster as SonnerToaster, toast as sonnerToast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Icon } from "@/components/ui/custom/Icons";
+import { DEFAULT_TOAST_CONFIG } from "./toastConfig";
 import {
   toastVariants,
   toastActionVariants,
@@ -102,52 +103,40 @@ ToastLink.displayName = "ToastLink";
  * Componente ToasterCustom
  * Contêiner de toasts personalizado com tema e estilos
  */
-export function ToasterCustom({
-  containerClassName,
-  className,
-  position = "top-right",
-  expand = false,
-  richColors = true,
-  closeButton = true,
-  theme: themeProp,
-  offset,
-  gap = "0.5rem",
-  maxToasts = 5,
-  defaultDuration = 5000,
-  ...props
-}: CustomToasterProps) {
-  const { theme = themeProp || "system" } = useTheme();
+export function ToasterCustom(props: CustomToasterProps) {
+  const { theme = "system" } = useTheme();
+
+  // Mesclar as configurações padrão com as props fornecidas
+  const mergedProps = {
+    ...DEFAULT_TOAST_CONFIG,
+    ...props,
+    toastOptions: {
+      ...DEFAULT_TOAST_CONFIG.toastOptions,
+      ...(props.toastOptions || {}),
+      classNames: {
+        ...(DEFAULT_TOAST_CONFIG.toastOptions?.classNames || {}),
+        ...(props.toastOptions?.classNames || {}),
+      },
+    },
+  };
 
   return (
     <SonnerToaster
-      theme={theme as "light" | "dark" | "system"}
-      className={cn("toaster-custom", className)}
-      position={position}
-      expand={expand}
-      richColors={richColors}
-      closeButton={closeButton}
-      offset={offset}
-      gap={typeof gap === "string" ? parseInt(gap) : gap}
-      duration={defaultDuration}
-      visibleToasts={maxToasts}
-      toastOptions={{
-        classNames: {
-          toast: "group toast-custom-item",
-          title: "text-base font-semibold",
-          description:
-            "text-sm opacity-90 group-[.toast-custom-item]:text-muted-foreground",
-          actionButton:
-            "bg-primary text-primary-foreground hover:bg-primary/90",
-          cancelButton: "bg-muted text-muted-foreground hover:bg-muted/80",
-          error: "group toast-custom-error",
-          success: "group toast-custom-success",
-          warning: "group toast-custom-warning",
-          info: "group toast-custom-info",
-          loading: "group toast-custom-loading",
-          ...props.toastOptions?.classNames,
-        },
-        ...props.toastOptions,
-      }}
+      theme={mergedProps.theme as "light" | "dark" | "system"}
+      className={cn("toaster-custom", mergedProps.className)}
+      position={mergedProps.position}
+      expand={mergedProps.expand}
+      richColors={mergedProps.richColors}
+      closeButton={mergedProps.closeButton}
+      offset={mergedProps.offset}
+      gap={
+        typeof mergedProps.gap === "string"
+          ? parseInt(mergedProps.gap)
+          : mergedProps.gap
+      }
+      duration={mergedProps.defaultDuration}
+      visibleToasts={mergedProps.maxToasts}
+      toastOptions={mergedProps.toastOptions}
       style={
         {
           "--normal-bg": "var(--background)",
@@ -167,7 +156,6 @@ export function ToasterCustom({
           "--info-border": "hsl(var(--info) / 0.2)",
         } as React.CSSProperties
       }
-      {...props}
     />
   );
 }
