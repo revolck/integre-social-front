@@ -3,8 +3,7 @@
 import { useState, FormEvent, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { CheckboxCustom } from "@/components/ui/custom/checkbox";
 import { InputCustom } from "@/components/ui/custom/input";
 import { ButtonCustom } from "@/components/ui/custom/button";
 import { DarkTheme } from "@/components/partials/darkTheme/darkTheme";
@@ -172,15 +171,12 @@ export default function LoginPage() {
               {/* Opções adicionais */}
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
                 <div className="flex items-center gap-2">
-                  <Checkbox id="remember" disabled={loading} />
-                  <Label
-                    htmlFor="remember"
-                    className={`font-normal text-muted-foreground cursor-pointer text-sm transition-colors duration-300 ${
-                      loading ? "opacity-50" : ""
-                    }`}
-                  >
-                    Me mantenha na conta
-                  </Label>
+                  {/* <CheckboxCustom
+                    label="Me mantenha na conta"
+                    size="md"
+                    variant="filled"
+                    withAnimation={true}
+                  /> */}
                 </div>
                 <Link
                   href="/auth/recuperar-senha"
@@ -204,6 +200,7 @@ export default function LoginPage() {
                 withAnimation={true}
                 loadingText="Entrando..."
                 iconPosition="right"
+                icon="ArrowRight"
               >
                 Entrar
               </ButtonCustom>

@@ -12,3 +12,6 @@ export * from "./modal";
 
 // Toast
 export * from "./toast";
+
+// Checkbox
+export * from "./checkbox";

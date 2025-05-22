@@ -158,7 +158,7 @@ export function ProjectSelectorModal() {
             />
             <Input
               placeholder="Pesquise por um projeto..."
-              className="pl-9 h-10"
+              className="pl-9 h-10 focus-visible:ring-0"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               disabled={isConfirmingSelection}
@@ -216,11 +216,11 @@ export function ProjectSelectorModal() {
                       {/* Indicador de seleção */}
                       {temporarySelectedProject?.id === project.id && (
                         <div className="flex-shrink-0">
-                          <div className="size-6 rounded-full bg-[#1D2E22] flex items-center justify-center">
+                          <div className="size-6 rounded-full bg-[#2d984d] flex items-center justify-center">
                             <Icon
                               name="Check"
                               size={14}
-                              className="text-[#4ADE80]"
+                              className="text-white"
                             />
                           </div>
                         </div>
@@ -259,7 +259,7 @@ export function ProjectSelectorModal() {
               variant="primary"
               size="lg"
               fullWidth
-              className="h-12 text-base font-medium bg-green-600 hover:bg-green-700"
+              className="h-12 text-base font-medium bg__royal-blue hover:bg__royal-blue--d20"
             >
               {isConfirmingSelection ? (
                 <>

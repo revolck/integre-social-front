@@ -20,13 +20,6 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -58,6 +51,8 @@ import {
   Legend,
   CartesianGrid,
 } from "recharts";
+import Saudation from "@/theme/dashboard/overview/saudation";
+import Facilits from "@/theme/dashboard/overview/facilits";
 
 // Time period options
 const TIME_PERIODS = [
@@ -330,7 +325,9 @@ export default function DashboardPage() {
     <div className="min-h-screen">
       <div className="container mx-auto py-6">
         {/* Dashboard Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+        <Saudation name="Filipe Reis" />
+        <Facilits />
+        {/* <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">
               Seja bem vindo(a) Filipe Reis
@@ -352,7 +349,7 @@ export default function DashboardPage() {
               </SelectContent>
             </Select>
           </div>
-        </div>
+        </div> */}
 
         {/* Main Content */}
         <AnimatePresence>
@@ -371,18 +368,6 @@ export default function DashboardPage() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="mb-8">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                  {quickActions.map((action, index) => (
-                    <ActionButton
-                      key={index}
-                      icon={action.icon}
-                      label={action.label}
-                    />
-                  ))}
-                </div>
-              </div>
-
               {/* Main Charts Section */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 {/* Services Chart - Enhanced */}
