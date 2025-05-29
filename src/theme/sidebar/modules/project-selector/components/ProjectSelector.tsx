@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { ProjectAvatar } from "./ProjectAvatar";
 import { useProjectStore } from "../store/projectStore";
 import { ProjectSelectorModal } from "./ProjectSelectorModal";
-import { motion, AnimatePresence, animateVisualElement } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Icon } from "@/components/ui/custom/Icons";
 
@@ -49,14 +49,14 @@ export function ProjectSelector({ isCollapsed = false }: ProjectSelectorProps) {
       <button
         onClick={handleOpenSelector}
         className={cn(
-          "w-full flex items-center p-2 rounded-lg transition-all duration-300",
+          "w-full flex items-center p-2 rounded-sm transition-all duration-300",
           isCollapsed ? "justify-center" : "justify-between",
           "hover:bg-slate-100 dark:hover:bg-slate-800",
           "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
         )}
         aria-label="Selecionar projeto"
       >
-        <motion.div className="flex items-center gap-3" layout>
+        <motion.div className="flex items-center gap-1" layout>
           {selectedProject ? (
             <ProjectAvatar
               project={selectedProject}

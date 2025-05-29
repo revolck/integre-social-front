@@ -38,7 +38,7 @@ export function Sidebar({
         />
 
         {/* Seletor de Projetos */}
-        <div className="px-4 py-4 border-b border-gray-200 dark:border-[#1F1F23]">
+        <div className="px-5 py-4 border-b border-gray-200 dark:border-[#1F1F23]">
           <ProjectSelector isCollapsed={isCollapsed} />
         </div>
 

@@ -1,4 +1,3 @@
-// src/theme/sidebar/modules/project-selector/components/ProjectAvatar.tsx
 "use client";
 
 import React from "react";
@@ -18,7 +17,6 @@ export function ProjectAvatar({
   project,
   size = "md",
   className = "",
-  isSelected = false, // Mantemos o prop, mas não usaremos para estilos visuais
   showInitials = true,
 }: ProjectAvatarProps) {
   // Configuração de tamanhos

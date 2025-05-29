@@ -259,7 +259,6 @@ export function ProjectSelectorModal() {
               variant="primary"
               size="lg"
               fullWidth
-              className="h-12 text-base font-medium bg__royal-blue hover:bg__royal-blue--d20"
             >
               {isConfirmingSelection ? (
                 <>

@@ -21,20 +21,11 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import {
   Area,
   AreaChart,
@@ -127,132 +118,6 @@ const agendaItems = [
   },
 ];
 
-// Stat Card Component
-const StatCard = ({
-  icon,
-  title,
-  value,
-  change,
-  period = "hoje",
-  color = "bg-blue-500",
-  onClick,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  value: string;
-  change?: string;
-  period?: string;
-  color?: string;
-  onClick?: () => void;
-}) => {
-  return (
-    <Card
-      className="overflow-hidden border-none shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-      onClick={onClick}
-    >
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div className={`${color} text-white p-3 rounded-xl`}>{icon}</div>
-          {change && (
-            <span
-              className={`text-xs font-medium ${
-                change.startsWith("+") ? "text-emerald-500" : "text-rose-500"
-              }`}
-            >
-              {change}
-            </span>
-          )}
-        </div>
-        <h3 className="mt-4 text-sm font-medium text-gray-500">{title}</h3>
-        <div className="flex items-baseline mt-1">
-          <p className="text-2xl font-semibold">{value}</p>
-          <span className="ml-2 text-xs text-gray-400">{period}</span>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-// Action Button Component
-const ActionButton = ({
-  icon,
-  label,
-  onClick,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  onClick?: () => void;
-}) => {
-  return (
-    <Button
-      variant="outline"
-      className="h-auto py-4 px-4 flex flex-col items-center justify-center gap-2 border-2 hover:border-blue-500 hover:bg-blue-50 transition-all group"
-      onClick={onClick}
-    >
-      <div className="bg-blue-100 text-blue-600 p-3 rounded-full group-hover:bg-blue-600 group-hover:text-white transition-colors">
-        {icon}
-      </div>
-      <span className="text-sm font-medium">{label}</span>
-    </Button>
-  );
-};
-
-// Agenda Item Component
-const AgendaItem = ({
-  time,
-  title,
-  location,
-  type,
-}: {
-  time: string;
-  title: string;
-  location: string;
-  type: string;
-}) => {
-  const getTypeColor = () => {
-    switch (type) {
-      case "meeting":
-        return "bg-blue-100 text-blue-800";
-      case "visit":
-        return "bg-emerald-100 text-emerald-800";
-      case "event":
-        return "bg-amber-100 text-amber-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  return (
-    <div className="flex py-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 rounded-md px-2 transition-colors">
-      <div className="w-16 text-sm font-medium text-gray-900">{time}</div>
-      <div className="ml-4 flex-1">
-        <div className="font-medium text-gray-800">{title}</div>
-        <div className="flex items-center text-xs text-gray-500 mt-1">
-          <MapPin className="h-3 w-3 mr-1" />
-          {location}
-        </div>
-      </div>
-      <div className="ml-2">
-        <Badge variant="outline" className={`${getTypeColor()} border-0`}>
-          {type === "meeting"
-            ? "Reunião"
-            : type === "visit"
-            ? "Visita"
-            : "Evento"}
-        </Badge>
-      </div>
-    </div>
-  );
-};
-
-// Improve Quick Actions - Remove Export Data option
-const quickActions = [
-  { icon: <Users className="h-5 w-5" />, label: "Novo Cadastro" },
-  { icon: <LineChart className="h-5 w-5" />, label: "Indicadores" },
-  { icon: <LineChart className="h-5 w-5" />, label: "Relatórios" },
-  { icon: <MapPin className="h-5 w-5" />, label: "Mapa Social" },
-];
-
 // Main Dashboard Component
 export default function DashboardPage() {
   const [timePeriod, setTimePeriod] = useState("day");
@@ -327,29 +192,6 @@ export default function DashboardPage() {
         {/* Dashboard Header */}
         <Saudation name="Filipe Reis" />
         <Facilits />
-        {/* <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900">
-              Seja bem vindo(a) Filipe Reis
-            </h1>
-            <p className="text-gray-500 text-sm mt-1">Hoje é {formatDate()}</p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Select value={timePeriod} onValueChange={setTimePeriod}>
-              <SelectTrigger className="w-[180px] h-9 bg-white">
-                <SelectValue placeholder="Selecione o período" />
-              </SelectTrigger>
-              <SelectContent>
-                {TIME_PERIODS.map((period) => (
-                  <SelectItem key={period.value} value={period.value}>
-                    {period.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div> */}
 
         {/* Main Content */}
         <AnimatePresence>

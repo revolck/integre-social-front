@@ -2,14 +2,15 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Users, MapPin, LineChart } from "lucide-react";
+import { Users, MapPin, LineChart, Search } from "lucide-react";
 
 // Improve Quick Actions - Remove Export Data option
 const quickActions = [
-  { icon: <Users className="h-5 w-5" />, label: "Novo Cadastro" },
-  { icon: <LineChart className="h-5 w-5" />, label: "Indicadores" },
-  { icon: <LineChart className="h-5 w-5" />, label: "Relatórios" },
-  { icon: <MapPin className="h-5 w-5" />, label: "Mapa Social" },
+  { icon: <Users className="h-5 w-5" />, label: "Cadastrar beneficiado" },
+  { icon: <Search className="h-5 w-5" />, label: "Pesquisar beneficiado" },
+  { icon: <LineChart className="h-5 w-5" />, label: "Visualizar indicadores" },
+  { icon: <LineChart className="h-5 w-5" />, label: "Gerar relatórios" },
+  { icon: <MapPin className="h-5 w-5" />, label: "Visualizar mapa social" },
 ];
 
 export default function Facilits() {
@@ -37,10 +38,10 @@ const ActionButton = ({
   return (
     <Button
       variant="outline"
-      className="h-auto py-4 px-4 flex flex-col items-center justify-center gap-2 border-2 hover:border-blue-500 hover:bg-blue-50 transition-all group"
+      className="h-auto py-4 px-4 shadow-none border border-[var(--global-terciary)] flex flex-col items-center justify-center gap-2 bg-[var(--global-secondary)] hover:bg-[var(--global-secondary-hover)] transition-all duration-200 group disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive cursor-pointer"
       onClick={onClick}
     >
-      <div className="bg-blue-100 text-blue-600 p-3 rounded-full group-hover:bg-blue-600 group-hover:text-white transition-colors">
+      <div className="bg-[var(--global-terciary)] text-[var(--global-title)] p-3 rounded-full group-hover:bg-[var(--global-terciary-hover)] group-hover:text-white transition-colors">
         {icon}
       </div>
       <span className="text-sm font-medium">{label}</span>

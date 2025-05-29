@@ -10,9 +10,9 @@ export const buttonCustomVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-[var(--global-button)] hover:bg-[var(--global-button-hover)] text-[var(--global-cor-cinza-ardosia)] border-2 border-[var(--global-button-border)] !rounded-full relative pr-12 pl-4 font-semibold dark:text-[var(--global-bg-dark)] dark:hover:bg-[var(--global-button-hover-dark)]",
+          "bg-[var(--global-button)] text-[var(--global-button-text)] rounded-md font-semibold",
         primary:
-          "bg-[var(--global-button)] text-[var(--global-cor-cinza-ardosia)] rounded-md",
+          "bg-[var(--global-button)] text-[var(--global-button-text)] rounded-md font-semibold",
         secondary: "bg-[var(--global-cor-roxo-medio)] text-white rounded-md",
         outline:
           "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 rounded-md",
