@@ -49,9 +49,9 @@ export function ProjectSelector({ isCollapsed = false }: ProjectSelectorProps) {
       <button
         onClick={handleOpenSelector}
         className={cn(
-          "w-full flex items-center p-2 rounded-sm transition-all duration-300",
+          "w-full flex items-center p-3 rounded-sm transition-all duration-300 border border-[var(--sidebar-primary-border)] bg-[var(--sidebar-primary-project)] cursor-pointer",
           isCollapsed ? "justify-center" : "justify-between",
-          "hover:bg-slate-100 dark:hover:bg-slate-800",
+          "hover:bg-[var(--sidebar-primary-project-hover)]",
           "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
         )}
         aria-label="Selecionar projeto"
@@ -64,9 +64,7 @@ export function ProjectSelector({ isCollapsed = false }: ProjectSelectorProps) {
             />
           ) : (
             <div className="w-8 h-8 rounded-md bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                ?
-              </span>
+              <span className="text-xs font-medium text-white">?</span>
             </div>
           )}
 
@@ -81,13 +79,11 @@ export function ProjectSelector({ isCollapsed = false }: ProjectSelectorProps) {
                 transition={{ duration: 0.2 }}
                 className="text-left overflow-hidden"
               >
-                <p className="text-sm font-medium text-slate-900 dark:text-white truncate max-w-[160px]">
+                <p className="text-sm font-medium text-white p-2 truncate max-w-[160px]">
                   {truncateName(selectedProject.name)}
                 </p>
                 {isLoading && (
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Carregando dados...
-                  </p>
+                  <p className="text-xs text-white">Carregando dados...</p>
                 )}
               </motion.div>
             )}

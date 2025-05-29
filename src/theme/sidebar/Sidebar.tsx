@@ -23,8 +23,8 @@ export function Sidebar({
       {/* Container principal do sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 bg-white dark:bg-[#0F0F12] z-50",
-          "lg:translate-x-0 lg:static border-r border-gray-200 dark:border-[#1F1F23]",
+          "fixed inset-y-0 left-0 bg-[var(--sidebar-primary)] z-50",
+          "lg:translate-x-0 lg:static border-r border-[var(--sidebar-primary-border)]",
           "h-full flex flex-col overflow-hidden",
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full",
           "transition-all duration-300 ease-in-out",
@@ -38,7 +38,7 @@ export function Sidebar({
         />
 
         {/* Seletor de Projetos */}
-        <div className="px-5 py-4 border-b border-gray-200 dark:border-[#1F1F23]">
+        <div className="px-3 py-3 border-b border-[var(--sidebar-primary-border)]">
           <ProjectSelector isCollapsed={isCollapsed} />
         </div>
 

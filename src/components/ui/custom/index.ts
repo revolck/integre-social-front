@@ -4,6 +4,9 @@ export { Icon, type IconName } from "./Icons";
 // Button
 export * from "./button";
 
+// Card Button
+export * from "./card-button";
+
 // Input
 export * from "./input";
 

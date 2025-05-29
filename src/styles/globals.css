@@ -43,11 +43,6 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-
-  /* ––––––––––––––––––––––––––––––––––––––––––––––––––––––––– */
-  /* ––––––––––––––– COLORS PRODUCT SYSTEM ––––––––––––––––––– */
-  /* ––––––––––––––––––––––––––––––––––––––––––––––––––––––––– */
-  /* Sistema de cores com variações */
 }
 
 :root {
@@ -92,14 +87,23 @@
   /* Background  */
   --global-background: #f5f8fa;
 
-  /* Global Button */
+  /* Global Colors */
   --global-primary: #1d2c34;
   --global-text: #c8dbe3;
-  --global-secondary: #eff6ff;
-  --global-secondary-hover: #c0d8f8;
-  --global-terciary: #dbeafe;
-  --global-terciary-hover: #4778b8;
-  --background-body: #f5f8fa;
+  --global-secondary: rgba(70, 178, 119, 0.1);
+  --global-secondary-hover: rgba(58, 161, 105, 0.1);
+  --global-terciary: rgba(40, 138, 85, 0.1);
+  --global-terciary-hover: rgb(26, 114, 67);
+  --background-body: #f5f7f9;
+
+  --sidebar-primary: #0c211f;
+  --sidebar-primary-border: #163c38;
+  --sidebar-primary-hover: #012b27;
+  --sidebar-primary-project: #00322d;
+  --sidebar-primary-project-hover: #023933;
+  --sidebar-primary-active: #a6ed69;
+  --sidebar-primary-icon: #24655e;
+  --menuTitle: #49807a;
 
   h1,
   h2 {
@@ -139,6 +143,15 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* Titulos */
+  --global-title: #ffff;
+
+  /* Global Colors */
+  --global-secondary: #1d1d1d;
+  --global-secondary-hover: #171717;
+  --global-terciary: #313131;
+  --global-terciary-hover: #3d3d3d;
 
   h1,
   h2 {

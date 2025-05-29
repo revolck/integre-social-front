@@ -50,10 +50,10 @@ export function MenuItem({
       <button
         onClick={hasSubmenu ? toggleSubmenu : handleItemNavigation}
         className={cn(
-          "relative w-10 h-10 mx-auto my-1 flex items-center justify-center rounded-md transition-colors",
+          "relative w-10 h-10 mx-auto my-1 flex items-center justify-center rounded-md transition-colors cursor-pointer",
           isActive || isSubmenuOpen
-            ? "bg-primary/90 text-primary-foreground dark:bg-primary/90 dark:text-primary-foreground"
-            : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#1F1F23]"
+            ? "bg-[var(--sidebar-primary-active)] text-gray-900"
+            : "text-gray-300 hover:bg-[var(--sidebar-primary-active)] hover:text-gray-900"
         )}
       >
         {item.icon && <Icon name={item.icon} size={20} />}
@@ -161,15 +161,19 @@ export function MenuItem({
           onClick={handleItemNavigation}
           className={cn(
             "flex items-center px-3 py-2 text-sm rounded-md transition-colors w-full",
-            "hover:bg-gray-100 dark:hover:bg-[#1F1F23]",
+            "hover:bg-[var(--sidebar-primary-active)]",
             isActive
-              ? "bg-gray-100 dark:bg-[#1F1F23] text-gray-900 dark:text-white font-medium"
-              : "text-gray-600 dark:text-gray-300",
+              ? "bg-[var(--sidebar-primary-active)] text-gray-900 font-bold"
+              : "text-gray-300 hover:text-gray-900",
             level > 0 && "text-xs"
           )}
         >
           {item.icon && (
-            <Icon name={item.icon} size={16} className="mr-3 flex-shrink-0" />
+            <Icon
+              name={item.icon}
+              size={16}
+              className="mr-3 flex-shrink-0 text-[var(--sidebar-primary-icon)] hover:text-gray-900"
+            />
           )}
           <span className={level > 0 ? "ml-1" : ""}>{item.label}</span>
         </Link>
@@ -178,16 +182,20 @@ export function MenuItem({
           onClick={toggleSubmenu}
           className={cn(
             "flex items-center justify-between w-full px-3 py-2 text-sm rounded-md transition-colors",
-            "hover:bg-gray-100 dark:hover:bg-[#1F1F23]",
+            "hover:bg-[var(--sidebar-primary-active)] hover:text-gray-900",
             isSubmenuOpen || isActive
-              ? "bg-gray-100 dark:bg-[#1F1F23] text-gray-900 dark:text-white"
-              : "text-gray-600 dark:text-gray-300",
+              ? "text-gray-300"
+              : "text-gray-300 hover:text-gray-900",
             level > 0 && "text-xs"
           )}
         >
           <div className="flex items-center">
             {item.icon && (
-              <Icon name={item.icon} size={16} className="mr-3 flex-shrink-0" />
+              <Icon
+                name={item.icon}
+                size={16}
+                className="mr-3 flex-shrink-0 text-[var(--sidebar-primary-icon)] hover:text-gray-900"
+              />
             )}
             <span className={level > 0 ? "ml-1" : ""}>{item.label}</span>
           </div>
@@ -210,7 +218,7 @@ export function MenuItem({
       {hasSubmenu && (
         <div
           className={cn(
-            "mt-1 pl-4 border-l border-gray-200 dark:border-gray-700",
+            "mt-1 pl-4 border-l border-[var(--sidebar-primary-border)]",
             "overflow-hidden transition-all duration-300 ease-in-out",
             isSubmenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
           )}
