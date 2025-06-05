@@ -2,22 +2,22 @@ import type { Metadata } from "next";
 import { AppProvider } from "@/providers";
 import { SecurityHeaders } from "@/components/security/SecurityHeaders";
 import { ErrorBoundary } from "@/components/error/ErrorBoundary";
-import { siteConfig } from "@/config/site";
+import { systemConfig } from "@/config/system";
 import { generateCSP } from "@/lib/security/csp";
 import { fonts } from "@/lib/fonts";
 import "@/styles/globals.css";
 import "@/styles/theme.css";
 
 export const metadata: Metadata = {
-  title: siteConfig.name,
-  description: siteConfig.description,
+  title: systemConfig.name,
+  description: systemConfig.description,
   viewport: "width=device-width, initial-scale=1",
-  keywords: siteConfig.keywords,
-  authors: siteConfig.authors,
-  creator: siteConfig.creator,
-  openGraph: siteConfig.openGraph,
-  twitter: siteConfig.twitter,
-  robots: siteConfig.robots,
+  keywords: systemConfig.keywords,
+  authors: systemConfig.authors,
+  creator: systemConfig.creator,
+  openGraph: systemConfig.openGraph,
+  twitter: systemConfig.twitter,
+  robots: systemConfig.robots,
 };
 
 /**
