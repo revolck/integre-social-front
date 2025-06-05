@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ThemeProvider } from "@/providers/theme-provider";
+import { AppProvider } from "@/providers";
 import "@/styles/globals.css";
 import "@/styles/theme.css";
 
@@ -12,13 +12,7 @@ export default function AuthLayout({
 }>) {
   return (
     <section className="min-h-screen">
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="light"
-        disableTransitionOnChange
-      >
-        {children}
-      </ThemeProvider>
+      <AppProvider defaultTheme="light">{children}</AppProvider>
     </section>
   );
 }

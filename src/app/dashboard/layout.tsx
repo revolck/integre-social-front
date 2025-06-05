@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { DashboardSidebar } from "@/theme";
 import { Icon } from "@/components/ui/custom/Icons";
+import { ErrorBoundary } from "@/components/error/ErrorBoundary";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -64,13 +65,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className={`flex h-screen ${theme === "dark" ? "dark" : ""}`}>
-      {/* Sidebar principal do dashboard */}
-      <DashboardSidebar
-        isMobileMenuOpen={isMobileMenuOpen}
-        setIsMobileMenuOpen={setIsMobileMenuOpen}
-        isCollapsed={isCollapsed}
-      />
+    <ErrorBoundary>
+      <div className={`flex h-screen ${theme === "dark" ? "dark" : ""}`}>
+        {/* Sidebar principal do dashboard */}
+        <DashboardSidebar
+          isMobileMenuOpen={isMobileMenuOpen}
+          setIsMobileMenuOpen={setIsMobileMenuOpen}
+          isCollapsed={isCollapsed}
+        />
 
       {/* Container principal de conteúdo */}
       <div className="w-full flex flex-1 flex-col transition-all duration-300 ease-in-out bg-[var(--sidebar-primary)]">
@@ -111,5 +113,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </main>
       </div>
     </div>
+    </ErrorBoundary>
   );
 }
