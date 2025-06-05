@@ -2,21 +2,33 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+Install the dependencies and create your local environment file:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+cp .env.example .env
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Edit `.env` to configure values such as `NEXT_PUBLIC_API_BASE_URL` which defines
+the backend API endpoint.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Run the linter to catch common issues:
+
+```bash
+pnpm lint
+```
+
+Start the development server:
+
+```bash
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the
+result.
+
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates
+as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
@@ -39,3 +51,14 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 Outgoing requests made with the custom `apiClient` automatically include the tenant identifier.
 The value is read from the `tenant_selection` cookie using `nookies` and attached as the `X-Tenant-ID` header if present.
+
+## API Client & Role-based Guards
+
+Use the Axios-based `apiClient` in `src/services/api/client.ts` for all backend
+requests. It reads `NEXT_PUBLIC_API_BASE_URL` from your environment file and
+automatically attaches authentication tokens.
+
+Page access can be restricted using the `ProtectedRoute` component or the
+`withAuth` higher-order component located in `src/components/auth`. The dashboard
+middleware (`src/app/dashboard/middleware.ts`) also enforces role permissions on
+server-side routes.
