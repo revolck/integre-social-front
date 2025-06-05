@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { ThemeProvider } from "./theme-provider";
+import { AuthProvider } from "./auth-provider";
 import { ToasterCustom } from "@/components/ui/custom/toast";
 
 interface Props {
@@ -15,16 +16,18 @@ export function AppProvider({ children, defaultTheme = "system" }: Props) {
       enableSystem
       disableTransitionOnChange
     >
-      {children}
-      <ToasterCustom
-        position="top-right"
-        theme="system"
-        richColors={true}
-        closeButton={false}
-        maxToasts={5}
-        gap={8}
-        defaultDuration={5000}
-      />
+      <AuthProvider>
+        {children}
+        <ToasterCustom
+          position="top-right"
+          theme="system"
+          richColors={true}
+          closeButton={false}
+          maxToasts={5}
+          gap={8}
+          defaultDuration={5000}
+        />
+      </AuthProvider>
     </ThemeProvider>
   );
 }

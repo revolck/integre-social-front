@@ -54,6 +54,15 @@ export function middleware(request: NextRequest) {
 
   // === SUBDOMÍNIO APP ===
   if (isAppSubdomain) {
+    // Verifica a presença do JWT
+    const hasJwt = request.cookies.get("access_token");
+    if (!hasJwt) {
+      const redirectUrl = new URL(request.url);
+      redirectUrl.hostname = redirectUrl.hostname.replace(/^app\./, "auth.");
+      redirectUrl.pathname = "/auth/login";
+      return NextResponse.redirect(redirectUrl);
+    }
+
     // Raiz do app -> dashboard/overview
     if (pathname === "/") {
       const rewriteResponse = NextResponse.rewrite(
