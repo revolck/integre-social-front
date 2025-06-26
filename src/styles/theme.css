@@ -6,3 +6,19 @@ h1,
 h2 {
   font-family: var(--font-nunito-sans);
 }
+
+/* WebKit Scrollbar futurista */
+::-webkit-scrollbar {
+  width: 8px;
+  background: #19322f;
+}
+* ::-webkit-scrollbar-thumb {
+  background: #3dae2b;
+  cursor: pointer;
+}
+* ::-webkit-scrollbar-thumb:hover {
+  background: #c2ffb8;
+}
+* ::-webkit-scrollbar-track {
+  -webkit-box-shadow: none;
+}

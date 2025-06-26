@@ -56,7 +56,7 @@ export function ProjectSelectorModal() {
 
   // Rótulos dinâmicos baseados no contexto
   const getModalTitle = () => {
-    if (isFirstTimeUser) return "Bem-vindo! Selecione um projeto";
+    if (isFirstTimeUser) return "Selecione um projeto";
     return isManualSelection ? "Trocar projeto" : "Selecione um projeto";
   };
 
@@ -66,7 +66,7 @@ export function ProjectSelectorModal() {
     }
     return isManualSelection
       ? "Selecione outro projeto para continuar seu trabalho."
-      : "É um novo dia! Por favor, confirme ou altere o projeto que deseja usar hoje.";
+      : "Por favor, confirme ou altere o projeto que deseja usar hoje.";
   };
 
   // Função para confirmar seleção com toast adicional
@@ -149,9 +149,9 @@ export function ProjectSelectorModal() {
           </ModalDescription>
         </ModalHeader>
 
-        <ModalBody className="py-3">
+        <ModalBody className="py-1">
           {/* Campo de busca */}
-          <div className="relative mb-4">
+          <div className="relative mb-6">
             <Icon
               name="Search"
               className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
@@ -189,7 +189,7 @@ export function ProjectSelectorModal() {
                       className={cn(
                         "flex items-center gap-3 p-3 rounded-lg cursor-pointer border transition-all",
                         temporarySelectedProject?.id === project.id
-                          ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700"
+                          ? "bg-[var(--global-modal-projects-select)] dark:bg-blue-900/20 border-[var(--global-modal-projects-border)] dark:border-blue-700"
                           : "hover:bg-gray-50 dark:hover:bg-gray-800/50 border-gray-200 dark:border-gray-700",
                         isConfirmingSelection &&
                           "opacity-60 pointer-events-none"
@@ -256,7 +256,7 @@ export function ProjectSelectorModal() {
             <ButtonCustom
               onClick={handleConfirmSelection}
               disabled={!temporarySelectedProject || isConfirmingSelection}
-              variant="primary"
+              variant="default"
               size="lg"
               fullWidth
             >

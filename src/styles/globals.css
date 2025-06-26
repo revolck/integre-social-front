@@ -96,14 +96,27 @@
   --global-terciary-hover: rgb(26, 114, 67);
   --background-body: #f5f7f9;
 
-  --sidebar-primary: #0c211f;
-  --sidebar-primary-border: #163c38;
+  --sidebar-primary: #19322f;
+  --sidebar-primary-border: rgba(248, 248, 248, 0.1);
   --sidebar-primary-hover: #012b27;
   --sidebar-primary-project: #00322d;
   --sidebar-primary-project-hover: #023933;
-  --sidebar-primary-active: #a6ed69;
+  --sidebar-primary-active: #3dae2b;
   --sidebar-primary-icon: #24655e;
-  --menuTitle: #49807a;
+  --menuTitle: #e6ffe2;
+  --sidebar-text: #e6ffe2;
+  --sidebar-text-gray: #19322f;
+
+  /* Botoes */
+  --global-button: #19322f;
+  --global-button-text: #e6ffe2;
+  --global-button-primary: #1f8229;
+  --global-button-secondary: #f8f8f8;
+  --global-button-secondary-text: #19322f;
+
+  /* Modal Projects Selection */
+  --global-modal-projects-select: rgba(64, 160, 98, 0.088);
+  --global-modal-projects-border: rgba(64, 160, 98, 0.498);
 
   h1,
   h2 {

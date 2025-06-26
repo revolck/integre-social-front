@@ -1,23 +1,13 @@
 import type { Metadata } from "next";
-import { AppProvider } from "@/providers";
-import { SecurityHeaders } from "@/components/security/SecurityHeaders";
-import { ErrorBoundary } from "@/components/error/ErrorBoundary";
-import { systemConfig } from "@/config/system";
-import { generateCSP } from "@/lib/security/csp";
-import { fonts } from "@/lib/fonts";
+import { ThemeProvider } from "@/providers/theme-provider";
+import { ToasterCustom } from "@/components/ui/custom/toast"; // Substituir importação
 import "@/styles/globals.css";
 import "@/styles/theme.css";
 
 export const metadata: Metadata = {
-  title: systemConfig.name,
-  description: systemConfig.description,
+  title: "IntegreApp - Plataforma de Gestão Integrada",
+  description: "Solução completa para gestão empresarial e social",
   viewport: "width=device-width, initial-scale=1",
-  keywords: systemConfig.keywords,
-  authors: systemConfig.authors,
-  creator: systemConfig.creator,
-  openGraph: systemConfig.openGraph,
-  twitter: systemConfig.twitter,
-  robots: systemConfig.robots,
 };
 
 /**
@@ -32,21 +22,30 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="pt-BR"
-      suppressHydrationWarning
-      className={`${fonts.sans.variable} ${fonts.mono.variable}`}
-    >
+    <html lang="pt-BR" suppressHydrationWarning>
       <head>
-        <meta httpEquiv="Content-Security-Policy" content={generateCSP()} />
+        {/* Meta tags e outros elementos de cabeçalho são gerenciados pelo Next.js */}
       </head>
       <body className="min-h-screen font-sans antialiased">
-        <SecurityHeaders />
-        <ErrorBoundary>
-          <AppProvider>
-            <main className="flex-1 flex flex-col">{children}</main>
-          </AppProvider>
-        </ErrorBoundary>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <main className="flex-1 flex flex-col">{children}</main>
+
+          {/* Container centralizado de notificações do sistema */}
+          <ToasterCustom
+            position="top-right"
+            theme="system"
+            richColors={true}
+            closeButton={false}
+            maxToasts={5}
+            gap={8}
+            defaultDuration={5000}
+          />
+        </ThemeProvider>
       </body>
     </html>
   );

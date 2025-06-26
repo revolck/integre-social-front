@@ -52,8 +52,8 @@ export function MenuItem({
         className={cn(
           "relative w-10 h-10 mx-auto my-1 flex items-center justify-center rounded-md transition-colors cursor-pointer",
           isActive || isSubmenuOpen
-            ? "bg-[var(--sidebar-primary-active)] text-gray-900"
-            : "text-gray-300 hover:bg-[var(--sidebar-primary-active)] hover:text-gray-900"
+            ? "bg-[var(--sidebar-primary-active)] text-[var(--sidebar-text-gray)]"
+            : "text-[var(--sidebar-text)] hover:bg-[var(--sidebar-primary-active)] hover:text-[var(--sidebar-text-gray)]"
         )}
       >
         {item.icon && <Icon name={item.icon} size={20} />}
@@ -102,7 +102,7 @@ export function MenuItem({
                       className={cn(
                         "flex items-center px-2 py-1.5 text-sm rounded-md",
                         "hover:bg-gray-100 dark:hover:bg-[#2A2A30]",
-                        "text-gray-700 dark:text-gray-300",
+                        "text-gray-700 dark:text-[var(--sidebar-text)]",
                         subItem.active &&
                           "bg-gray-100 dark:bg-[#2A2A30] font-medium"
                       )}
@@ -122,7 +122,7 @@ export function MenuItem({
                         e.stopPropagation();
                         toggleSubmenu(e);
                       }}
-                      className="flex items-center justify-between w-full px-2 py-1.5 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-[#2A2A30] text-gray-700 dark:text-gray-300"
+                      className="flex items-center justify-between w-full px-2 py-1.5 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-[#2A2A30] text-gray-700 dark:text-[var(--sidebar-text)]"
                     >
                       <div className="flex items-center">
                         {subItem.icon && (
@@ -163,8 +163,8 @@ export function MenuItem({
             "flex items-center px-3 py-2 text-sm rounded-md transition-colors w-full",
             "hover:bg-[var(--sidebar-primary-active)]",
             isActive
-              ? "bg-[var(--sidebar-primary-active)] text-gray-900 font-bold"
-              : "text-gray-300 hover:text-gray-900",
+              ? "bg-[var(--sidebar-primary-active)] text-[var(--sidebar-text-gray)] font-bold"
+              : "text-[var(--sidebar-text)] hover:text-[var(--sidebar-text-gray)]",
             level > 0 && "text-xs"
           )}
         >
@@ -172,7 +172,7 @@ export function MenuItem({
             <Icon
               name={item.icon}
               size={16}
-              className="mr-3 flex-shrink-0 text-[var(--sidebar-primary-icon)] hover:text-gray-900"
+              className="mr-3 flex-shrink-0 text-[var(--sidebar-primary-icon)] hover:text-[var(--sidebar-text-gray)]"
             />
           )}
           <span className={level > 0 ? "ml-1" : ""}>{item.label}</span>
@@ -182,10 +182,10 @@ export function MenuItem({
           onClick={toggleSubmenu}
           className={cn(
             "flex items-center justify-between w-full px-3 py-2 text-sm rounded-md transition-colors",
-            "hover:bg-[var(--sidebar-primary-active)] hover:text-gray-900",
+            "hover:bg-[var(--sidebar-primary-active)] hover:text-[var(--sidebar-text-gray)]",
             isSubmenuOpen || isActive
-              ? "text-gray-300"
-              : "text-gray-300 hover:text-gray-900",
+              ? "text-[var(--sidebar-text)]"
+              : "text-[var(--sidebar-text)] hover:text-[var(--sidebar-text-gray)]",
             level > 0 && "text-xs"
           )}
         >
@@ -194,7 +194,7 @@ export function MenuItem({
               <Icon
                 name={item.icon}
                 size={16}
-                className="mr-3 flex-shrink-0 text-[var(--sidebar-primary-icon)] hover:text-gray-900"
+                className="mr-3 flex-shrink-0 text-[var(--sidebar-primary-icon)] hover:text-[var(--sidebar-text-gray)]"
               />
             )}
             <span className={level > 0 ? "ml-1" : ""}>{item.label}</span>
