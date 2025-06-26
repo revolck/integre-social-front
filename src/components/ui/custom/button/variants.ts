@@ -12,8 +12,9 @@ export const buttonCustomVariants = cva(
         default:
           "bg-[var(--global-button)] text-[var(--global-button-text)] rounded-md font-semibold",
         primary:
-          "bg-[var(--global-button)] text-[var(--global-button-text)] rounded-md font-semibold",
-        secondary: "bg-[var(--global-cor-roxo-medio)] text-white rounded-md",
+          "bg-[var(--global-button-primary)] text-[var(--global-button-text)] rounded-md font-semibold",
+        secondary:
+          "bg-[var(--global-button-secondary)] text-white rounded-md font-semibold",
         outline:
           "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 rounded-md",
         ghost:

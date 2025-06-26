@@ -28,87 +28,87 @@ export function middleware(request: NextRequest) {
   }
 
   // === SUBDOMÍNIO AUTH ===
-  if (isAuthSubdomain) {
-    // Apenas reescreva para auth/login se estiver na raiz do subdomínio auth
-    if (pathname === "/" || pathname === "") {
-      const rewriteResponse = NextResponse.rewrite(
-        new URL("/auth/login", request.url)
-      );
+  // if (isAuthSubdomain) {
+  //   // Apenas reescreva para auth/login se estiver na raiz do subdomínio auth
+  //   if (pathname === "/" || pathname === "") {
+  //     const rewriteResponse = NextResponse.rewrite(
+  //       new URL("/auth/login", request.url)
+  //     );
 
-      // Copiar os cabeçalhos CORS para a resposta de reescrita
-      rewriteResponse.headers.set("Access-Control-Allow-Origin", "*");
-      rewriteResponse.headers.set(
-        "Access-Control-Allow-Methods",
-        "GET, POST, PUT, DELETE, OPTIONS"
-      );
-      rewriteResponse.headers.set(
-        "Access-Control-Allow-Headers",
-        "Content-Type, Authorization"
-      );
-      return rewriteResponse;
-    }
+  //     // Copiar os cabeçalhos CORS para a resposta de reescrita
+  //     rewriteResponse.headers.set("Access-Control-Allow-Origin", "*");
+  //     rewriteResponse.headers.set(
+  //       "Access-Control-Allow-Methods",
+  //       "GET, POST, PUT, DELETE, OPTIONS"
+  //     );
+  //     rewriteResponse.headers.set(
+  //       "Access-Control-Allow-Headers",
+  //       "Content-Type, Authorization"
+  //     );
+  //     return rewriteResponse;
+  //   }
 
-    // Para qualquer outro caminho no auth subdomain, apenas passar adiante
-    return response;
-  }
+  //   // Para qualquer outro caminho no auth subdomain, apenas passar adiante
+  //   return response;
+  // }
 
   // === SUBDOMÍNIO APP ===
-  if (isAppSubdomain) {
-    // Verifica a presença do JWT
-    const hasJwt = request.cookies.get("access_token");
-    if (!hasJwt) {
-      const redirectUrl = new URL(request.url);
-      redirectUrl.hostname = redirectUrl.hostname.replace(/^app\./, "auth.");
-      redirectUrl.pathname = "/auth/login";
-      return NextResponse.redirect(redirectUrl);
-    }
+  // if (isAppSubdomain) {
+  //   // Verifica a presença do JWT
+  //   const hasJwt = request.cookies.get("access_token");
+  //   if (!hasJwt) {
+  //     const redirectUrl = new URL(request.url);
+  //     redirectUrl.hostname = redirectUrl.hostname.replace(/^app\./, "auth.");
+  //     redirectUrl.pathname = "/auth/login";
+  //     return NextResponse.redirect(redirectUrl);
+  //   }
 
-    // Raiz do app -> dashboard/overview
-    if (pathname === "/") {
-      const rewriteResponse = NextResponse.rewrite(
-        new URL("/dashboard/overview", request.url)
-      );
-      // Copiar os cabeçalhos CORS
-      rewriteResponse.headers.set("Access-Control-Allow-Origin", "*");
-      rewriteResponse.headers.set(
-        "Access-Control-Allow-Methods",
-        "GET, POST, PUT, DELETE, OPTIONS"
-      );
-      rewriteResponse.headers.set(
-        "Access-Control-Allow-Headers",
-        "Content-Type, Authorization"
-      );
-      return rewriteResponse;
-    }
+  //   // Raiz do app -> dashboard/overview
+  //   if (pathname === "/") {
+  //     const rewriteResponse = NextResponse.rewrite(
+  //       new URL("/dashboard/overview", request.url)
+  //     );
+  //     // Copiar os cabeçalhos CORS
+  //     rewriteResponse.headers.set("Access-Control-Allow-Origin", "*");
+  //     rewriteResponse.headers.set(
+  //       "Access-Control-Allow-Methods",
+  //       "GET, POST, PUT, DELETE, OPTIONS"
+  //     );
+  //     rewriteResponse.headers.set(
+  //       "Access-Control-Allow-Headers",
+  //       "Content-Type, Authorization"
+  //     );
+  //     return rewriteResponse;
+  //   }
 
-    // Mapear rotas simplificadas para as rotas do dashboard
-    const dashboardRoutes = [
-      "overview",
-      "users",
-      "settings",
-      "beneficiaries",
-      "projects",
-    ];
+  //   // Mapear rotas simplificadas para as rotas do dashboard
+  //   const dashboardRoutes = [
+  //     "overview",
+  //     "users",
+  //     "settings",
+  //     "beneficiaries",
+  //     "projects",
+  //   ];
 
-    const pathSegment = pathname.split("/")[1];
+  //   const pathSegment = pathname.split("/")[1];
 
-    if (pathSegment && dashboardRoutes.includes(pathSegment)) {
-      const rewriteResponse = NextResponse.rewrite(
-        new URL(`/dashboard/${pathSegment}`, request.url)
-      );
-      // Copiar os cabeçalhos CORS
-      rewriteResponse.headers.set("Access-Control-Allow-Origin", "*");
-      rewriteResponse.headers.set(
-        "Access-Control-Allow-Methods",
-        "GET, POST, PUT, DELETE, OPTIONS"
-      );
-      rewriteResponse.headers.set(
-        "Access-Control-Allow-Headers",
-        "Content-Type, Authorization"
-      );
-      return rewriteResponse;
-    }
-  }
+  //   if (pathSegment && dashboardRoutes.includes(pathSegment)) {
+  //     const rewriteResponse = NextResponse.rewrite(
+  //       new URL(`/dashboard/${pathSegment}`, request.url)
+  //     );
+  //     // Copiar os cabeçalhos CORS
+  //     rewriteResponse.headers.set("Access-Control-Allow-Origin", "*");
+  //     rewriteResponse.headers.set(
+  //       "Access-Control-Allow-Methods",
+  //       "GET, POST, PUT, DELETE, OPTIONS"
+  //     );
+  //     rewriteResponse.headers.set(
+  //       "Access-Control-Allow-Headers",
+  //       "Content-Type, Authorization"
+  //     );
+  //     return rewriteResponse;
+  //   }
+  // }
 
   return response;
 }

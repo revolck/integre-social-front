@@ -25,14 +25,6 @@ export function dashboardMiddleware(request: NextRequest) {
 
   if (!isAppSubdomain) return NextResponse.next();
 
-  // Verifica a presença do JWT
-  if (!request.cookies.get("access_token")) {
-    const redirectUrl = new URL(request.url);
-    redirectUrl.hostname = redirectUrl.hostname.replace(/^app\./, "auth.");
-    redirectUrl.pathname = "/auth/login";
-    return NextResponse.redirect(redirectUrl);
-  }
-
   // Se estamos na raiz do app, redirecionar para analytics
   if (pathname === "/") {
     return NextResponse.rewrite(new URL("/dashboard/overview", request.url));
