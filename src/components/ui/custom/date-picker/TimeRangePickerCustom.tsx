@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Clock } from "lucide-react";
 import {
   Popover,
   PopoverContent,

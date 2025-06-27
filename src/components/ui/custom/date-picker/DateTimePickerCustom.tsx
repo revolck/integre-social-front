@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Calendar, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import {
   format,
   parse,

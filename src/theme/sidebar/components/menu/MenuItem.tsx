@@ -52,8 +52,8 @@ export function MenuItem({
         className={cn(
           "relative w-10 h-10 mx-auto my-1 flex items-center justify-center rounded-md transition-colors cursor-pointer",
           isActive || isSubmenuOpen
-            ? "bg-[var(--sidebar-primary-active)] text-[var(--sidebar-text-gray)]"
-            : "text-[var(--sidebar-text)] hover:bg-[var(--sidebar-primary-active)] hover:text-[var(--sidebar-text-gray)]"
+            ? "bg-[var(--sidebar-primary-active)] text-white"
+            : "text-[var(--sidebar-text)] hover:bg-[var(--sidebar-primary-active)] hover:text-white"
         )}
       >
         {item.icon && <Icon name={item.icon} size={20} />}
@@ -163,8 +163,8 @@ export function MenuItem({
             "flex items-center px-3 py-2 text-sm rounded-md transition-colors w-full",
             "hover:bg-[var(--sidebar-primary-active)]",
             isActive
-              ? "bg-[var(--sidebar-primary-active)] text-[var(--sidebar-text-gray)] font-bold"
-              : "text-[var(--sidebar-text)] hover:text-[var(--sidebar-text-gray)]",
+              ? "bg-[var(--sidebar-primary-active)] text-white font-bold"
+              : "text-[var(--sidebar-text)] hover:text-white",
             level > 0 && "text-xs"
           )}
         >
@@ -172,7 +172,7 @@ export function MenuItem({
             <Icon
               name={item.icon}
               size={16}
-              className="mr-3 flex-shrink-0 text-[var(--sidebar-primary-icon)] hover:text-[var(--sidebar-text-gray)]"
+              className="mr-3 flex-shrink-0 text-[var(--sidebar-primary-icon)] hover:text-[var(--sidebar-primary-icon)]"
             />
           )}
           <span className={level > 0 ? "ml-1" : ""}>{item.label}</span>
@@ -182,10 +182,10 @@ export function MenuItem({
           onClick={toggleSubmenu}
           className={cn(
             "flex items-center justify-between w-full px-3 py-2 text-sm rounded-md transition-colors",
-            "hover:bg-[var(--sidebar-primary-active)] hover:text-[var(--sidebar-text-gray)]",
+            "hover:bg-[var(--sidebar-primary-active)] hover:text-white",
             isSubmenuOpen || isActive
               ? "text-[var(--sidebar-text)]"
-              : "text-[var(--sidebar-text)] hover:text-[var(--sidebar-text-gray)]",
+              : "text-white hover:text-white",
             level > 0 && "text-xs"
           )}
         >
@@ -194,7 +194,7 @@ export function MenuItem({
               <Icon
                 name={item.icon}
                 size={16}
-                className="mr-3 flex-shrink-0 text-[var(--sidebar-primary-icon)] hover:text-[var(--sidebar-text-gray)]"
+                className="mr-3 flex-shrink-0 text-[var(--sidebar-primary-icon)] hover:text-[var(--sidebar-primary-icon)]"
               />
             )}
             <span className={level > 0 ? "ml-1" : ""}>{item.label}</span>

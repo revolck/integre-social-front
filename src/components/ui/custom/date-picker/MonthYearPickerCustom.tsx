@@ -1,4 +1,3 @@
-// src/components/ui/custom/date-picker/MonthYearPickerCustom.tsx
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
@@ -21,22 +20,7 @@ import {
 import { InputCustom } from "@/components/ui/custom/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-interface MonthYearPickerCustomProps {
-  label: string;
-  value?: Date;
-  onChange?: (date: Date | undefined) => void;
-  placeholder?: string;
-  helperText?: string;
-  error?: string;
-  required?: boolean;
-  disabled?: boolean;
-  minYear?: number;
-  maxYear?: number;
-  className?: string;
-  size?: "sm" | "md" | "lg";
-  fullWidth?: boolean;
-}
+import type { MonthYearPickerCustomProps } from "./types";
 
 export function MonthYearPickerCustom({
   label,
@@ -221,6 +205,25 @@ export function MonthYearPickerCustom({
     }
   };
 
+  // Handler para botão "Hoje"
+  const handleTodayClick = () => {
+    const today = new Date();
+    const todayYear = getYear(today);
+    const todayMonth = getMonth(today);
+
+    // Verificar se hoje está dentro dos limites
+    if (todayYear >= minYear && todayYear <= maxYear) {
+      setInputValue(format(today, "MM/yyyy"));
+      setSelectedMonth(todayMonth);
+      setSelectedYear(todayYear);
+      setCurrentYear(todayYear);
+      setInternalError("");
+      onChange?.(today);
+      setIsOpen(false);
+      inputRef.current?.focus();
+    }
+  };
+
   const displayError = error || internalError;
 
   return (
@@ -262,17 +265,21 @@ export function MonthYearPickerCustom({
                 size="sm"
                 onClick={handlePreviousYear}
                 disabled={currentYear <= minYear}
+                className="h-8 w-8 p-0"
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
 
-              <div className="text-lg font-semibold">{currentYear}</div>
+              <div className="text-lg font-semibold min-w-[80px] text-center">
+                {currentYear}
+              </div>
 
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleNextYear}
                 disabled={currentYear >= maxYear}
+                className="h-8 w-8 p-0"
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -289,7 +296,7 @@ export function MonthYearPickerCustom({
                       : "outline"
                   }
                   size="sm"
-                  className="h-10 text-xs"
+                  className="h-10 text-xs font-medium"
                   onClick={() => handleMonthSelect(index)}
                 >
                   {monthName.slice(0, 3)}
@@ -309,8 +316,9 @@ export function MonthYearPickerCustom({
                   setInternalError("");
                   onChange?.(undefined);
                   setIsOpen(false);
+                  inputRef.current?.focus();
                 }}
-                className="flex-1"
+                className="flex-1 text-xs"
               >
                 Limpar
               </Button>
@@ -318,21 +326,20 @@ export function MonthYearPickerCustom({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  const today = new Date();
-                  const thisMonth = getMonth(today);
-                  const thisYear = getYear(today);
-
-                  if (thisYear >= minYear && thisYear <= maxYear) {
-                    handleMonthSelect(thisMonth);
-                    setCurrentYear(thisYear);
-                    setSelectedYear(thisYear);
-                  }
-                }}
-                className="flex-1"
+                onClick={handleTodayClick}
+                disabled={
+                  new Date().getFullYear() < minYear ||
+                  new Date().getFullYear() > maxYear
+                }
+                className="flex-1 text-xs"
               >
                 Hoje
               </Button>
+            </div>
+
+            {/* Indicador de range permitido */}
+            <div className="text-xs text-gray-500 text-center pt-1 border-t border-gray-100 dark:border-gray-800">
+              Anos permitidos: {minYear} - {maxYear}
             </div>
           </div>
         </PopoverContent>

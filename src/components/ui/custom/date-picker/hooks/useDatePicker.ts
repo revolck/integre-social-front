@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
-import { format, isValid, parse, isAfter, isBefore } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { format, isValid, isAfter, isBefore } from "date-fns";
 
 interface UseDatePickerOptions {
   initialValue?: Date;

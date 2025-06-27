@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/providers/theme-provider";
-import { ToasterCustom } from "@/components/ui/custom/toast"; // Substituir importação
+import { ToasterCustom } from "@/components/ui/custom/toast";
 import "@/styles/globals.css";
-import "@/styles/theme.css";
 
 export const metadata: Metadata = {
   title: "IntegreApp - Plataforma de Gestão Integrada",
