@@ -1,192 +1,342 @@
+// src/components/ui/custom/date-picker/MonthYearPickerCustom.tsx
 "use client";
 
-import * as React from "react";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import React, { useState, useRef, useEffect } from "react";
+import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  format,
+  parse,
+  isValid,
+  getYear,
+  getMonth,
+  setMonth,
+  setYear,
+} from "date-fns";
+import { ptBR } from "date-fns/locale";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  datePickerContainerVariants,
-  datePickerTriggerVariants,
-} from "./variants";
-import type { MonthYearPickerCustomProps } from "./types";
+import { InputCustom } from "@/components/ui/custom/input";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-/**
- * Componente MonthYearPickerCustom - Seletor de mês e ano customizado
- */
-export const MonthYearPickerCustom = React.forwardRef<
-  HTMLButtonElement,
-  MonthYearPickerCustomProps
->(
-  (
-    {
-      label,
-      error,
-      helperText,
-      placeholder = "Selecione mês e ano",
-      disabled = false,
-      required = false,
-      className,
-      dateFormat = "MMMM yyyy",
-      locale = ptBR,
-      value,
-      onChange,
-      minYear = 1900,
-      maxYear = 2100,
-    },
-    ref
-  ) => {
-    const [open, setOpen] = React.useState(false);
-    const [selectedMonth, setSelectedMonth] = React.useState(
-      value ? value.getMonth() : new Date().getMonth()
-    );
-    const [selectedYear, setSelectedYear] = React.useState(
-      value ? value.getFullYear() : new Date().getFullYear()
-    );
+interface MonthYearPickerCustomProps {
+  label: string;
+  value?: Date;
+  onChange?: (date: Date | undefined) => void;
+  placeholder?: string;
+  helperText?: string;
+  error?: string;
+  required?: boolean;
+  disabled?: boolean;
+  minYear?: number;
+  maxYear?: number;
+  className?: string;
+  size?: "sm" | "md" | "lg";
+  fullWidth?: boolean;
+}
 
-    const months = React.useMemo(
-      () => [
-        "Janeiro",
-        "Fevereiro",
-        "Março",
-        "Abril",
-        "Maio",
-        "Junho",
-        "Julho",
-        "Agosto",
-        "Setembro",
-        "Outubro",
-        "Novembro",
-        "Dezembro",
-      ],
-      []
-    );
+export function MonthYearPickerCustom({
+  label,
+  value,
+  onChange,
+  placeholder = "MM/AAAA",
+  helperText,
+  error,
+  required = false,
+  disabled = false,
+  minYear = 1900,
+  maxYear = 2100,
+  className,
+  size = "md",
+  fullWidth = true,
+}: MonthYearPickerCustomProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [internalError, setInternalError] = useState<string>("");
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState<number | undefined>();
+  const [selectedYear, setSelectedYear] = useState<number | undefined>();
+  const inputRef = useRef<HTMLInputElement>(null);
 
-    const years = React.useMemo(() => {
-      const yearList = [];
-      for (let year = maxYear; year >= minYear; year--) {
-        yearList.push(year);
+  // Nomes dos meses
+  const monthNames = [
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro",
+  ];
+
+  // Sincronizar valor externo com input
+  useEffect(() => {
+    if (value && isValid(value)) {
+      setInputValue(format(value, "MM/yyyy"));
+      setSelectedMonth(getMonth(value));
+      setSelectedYear(getYear(value));
+      setCurrentYear(getYear(value));
+      setInternalError("");
+    } else if (!value) {
+      setInputValue("");
+      setSelectedMonth(undefined);
+      setSelectedYear(undefined);
+      setInternalError("");
+    }
+  }, [value]);
+
+  // Função para aplicar máscara de mês/ano
+  const applyMonthYearMask = (value: string): string => {
+    // Remove tudo que não é número
+    const numbers = value.replace(/\D/g, "");
+
+    // Aplica a máscara MM/AAAA
+    if (numbers.length <= 2) {
+      return numbers;
+    } else {
+      return `${numbers.slice(0, 2)}/${numbers.slice(2, 6)}`;
+    }
+  };
+
+  // Função para validar mês/ano
+  const validateMonthYear = (
+    monthYearString: string
+  ): { isValid: boolean; date?: Date; error?: string } => {
+    if (!monthYearString || monthYearString.length < 7) {
+      return { isValid: false };
+    }
+
+    try {
+      const parsedDate = parse(monthYearString, "MM/yyyy", new Date());
+
+      if (!isValid(parsedDate)) {
+        return { isValid: false, error: "Mês/ano inválido" };
       }
-      return yearList;
-    }, [minYear, maxYear]);
 
-    const handleMonthChange = (month: string) => {
-      const monthIndex = parseInt(month);
-      setSelectedMonth(monthIndex);
-      const newDate = new Date(selectedYear, monthIndex, 1);
+      const year = getYear(parsedDate);
+      const month = getMonth(parsedDate) + 1; // getMonth retorna 0-11
+
+      // Validar mês
+      if (month < 1 || month > 12) {
+        return { isValid: false, error: "Mês deve estar entre 01 e 12" };
+      }
+
+      // Verificar limites de ano
+      if (year < minYear) {
+        return {
+          isValid: false,
+          error: `Ano deve ser maior ou igual a ${minYear}`,
+        };
+      }
+
+      if (year > maxYear) {
+        return {
+          isValid: false,
+          error: `Ano deve ser menor ou igual a ${maxYear}`,
+        };
+      }
+
+      return { isValid: true, date: parsedDate };
+    } catch {
+      return { isValid: false, error: "Formato de mês/ano inválido" };
+    }
+  };
+
+  // Handler para mudanças no input
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const maskedValue = applyMonthYearMask(e.target.value);
+    setInputValue(maskedValue);
+
+    // Validar apenas quando tiver formato completo
+    if (maskedValue.length === 7) {
+      const validation = validateMonthYear(maskedValue);
+
+      if (validation.isValid && validation.date) {
+        setInternalError("");
+        setSelectedMonth(getMonth(validation.date));
+        setSelectedYear(getYear(validation.date));
+        setCurrentYear(getYear(validation.date));
+        onChange?.(validation.date);
+      } else {
+        setInternalError(validation.error || "Mês/ano inválido");
+        onChange?.(undefined);
+      }
+    } else {
+      setInternalError("");
+      if (maskedValue === "") {
+        onChange?.(undefined);
+        setSelectedMonth(undefined);
+        setSelectedYear(undefined);
+      }
+    }
+  };
+
+  // Handler para seleção de mês
+  const handleMonthSelect = (month: number) => {
+    setSelectedMonth(month);
+
+    if (selectedYear !== undefined) {
+      const newDate = setMonth(setYear(new Date(), selectedYear), month);
+      setInputValue(format(newDate, "MM/yyyy"));
+      setInternalError("");
       onChange?.(newDate);
-    };
+      setIsOpen(false);
+      inputRef.current?.focus();
+    }
+  };
 
-    const handleYearChange = (year: string) => {
-      const yearValue = parseInt(year);
-      setSelectedYear(yearValue);
-      const newDate = new Date(yearValue, selectedMonth, 1);
+  // Handler para seleção de ano
+  const handleYearSelect = (year: number) => {
+    setSelectedYear(year);
+    setCurrentYear(year);
+
+    if (selectedMonth !== undefined) {
+      const newDate = setMonth(setYear(new Date(), year), selectedMonth);
+      setInputValue(format(newDate, "MM/yyyy"));
+      setInternalError("");
       onChange?.(newDate);
-    };
+      setIsOpen(false);
+      inputRef.current?.focus();
+    }
+  };
 
-    const containerClasses = cn(
-      datePickerContainerVariants({
-        hasError: !!error,
-        disabled,
-      }),
-      className
-    );
+  // Navegação de anos
+  const handlePreviousYear = () => {
+    if (currentYear > minYear) {
+      setCurrentYear(currentYear - 1);
+    }
+  };
 
-    const triggerClasses = cn(
-      datePickerTriggerVariants({
-        hasValue: !!value,
-        hasError: !!error,
-      })
-    );
+  const handleNextYear = () => {
+    if (currentYear < maxYear) {
+      setCurrentYear(currentYear + 1);
+    }
+  };
 
-    return (
-      <div className={containerClasses}>
-        {label && (
-          <Label className="mb-2 block">
-            {label}
-            {required && <span className="ml-1 text-destructive">*</span>}
-          </Label>
-        )}
+  const displayError = error || internalError;
 
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              ref={ref}
-              variant="outline"
-              className={triggerClasses}
+  return (
+    <div className={cn("relative", className)}>
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <PopoverTrigger asChild>
+          <div className="relative">
+            <InputCustom
+              ref={inputRef}
+              label={label}
+              value={inputValue}
+              onChange={handleInputChange}
+              placeholder={placeholder}
+              helperText={helperText}
+              error={displayError}
+              required={required}
               disabled={disabled}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {value ? format(value, dateFormat, { locale }) : placeholder}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-3" align="start">
-            <div className="space-y-3">
-              <Select
-                value={selectedMonth.toString()}
-                onValueChange={handleMonthChange}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecione o mês" />
-                </SelectTrigger>
-                <SelectContent>
-                  {months.map((month, index) => (
-                    <SelectItem key={index} value={index.toString()}>
-                      {month}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              size={size}
+              fullWidth={fullWidth}
+              rightIcon="Calendar"
+              onRightIconClick={() => !disabled && setIsOpen(!isOpen)}
+              maxLength={7}
+              className="pr-10"
+            />
+          </div>
+        </PopoverTrigger>
 
-              <Select
-                value={selectedYear.toString()}
-                onValueChange={handleYearChange}
+        <PopoverContent
+          className="w-auto p-0"
+          align="start"
+          side="bottom"
+          sideOffset={4}
+        >
+          <div className="p-4 space-y-4">
+            {/* Seletor de ano */}
+            <div className="flex items-center justify-between">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePreviousYear}
+                disabled={currentYear <= minYear}
               >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecione o ano" />
-                </SelectTrigger>
-                <SelectContent>
-                  {years.map((year) => (
-                    <SelectItem key={year} value={year.toString()}>
-                      {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+
+              <div className="text-lg font-semibold">{currentYear}</div>
 
               <Button
-                className="w-full"
-                onClick={() => setOpen(false)}
-                disabled={!value}
+                variant="outline"
+                size="sm"
+                onClick={handleNextYear}
+                disabled={currentYear >= maxYear}
               >
-                Confirmar
+                <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
-          </PopoverContent>
-        </Popover>
 
-        {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
+            {/* Grid de meses */}
+            <div className="grid grid-cols-3 gap-2">
+              {monthNames.map((monthName, index) => (
+                <Button
+                  key={index}
+                  variant={
+                    selectedMonth === index && selectedYear === currentYear
+                      ? "default"
+                      : "outline"
+                  }
+                  size="sm"
+                  className="h-10 text-xs"
+                  onClick={() => handleMonthSelect(index)}
+                >
+                  {monthName.slice(0, 3)}
+                </Button>
+              ))}
+            </div>
 
-        {!error && helperText && (
-          <p className="mt-2 text-xs text-muted-foreground">{helperText}</p>
-        )}
-      </div>
-    );
-  }
-);
+            {/* Botões de ação */}
+            <div className="flex gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setInputValue("");
+                  setSelectedMonth(undefined);
+                  setSelectedYear(undefined);
+                  setInternalError("");
+                  onChange?.(undefined);
+                  setIsOpen(false);
+                }}
+                className="flex-1"
+              >
+                Limpar
+              </Button>
 
-MonthYearPickerCustom.displayName = "MonthYearPickerCustom";
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const today = new Date();
+                  const thisMonth = getMonth(today);
+                  const thisYear = getYear(today);
+
+                  if (thisYear >= minYear && thisYear <= maxYear) {
+                    handleMonthSelect(thisMonth);
+                    setCurrentYear(thisYear);
+                    setSelectedYear(thisYear);
+                  }
+                }}
+                className="flex-1"
+              >
+                Hoje
+              </Button>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}

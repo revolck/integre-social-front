@@ -1,152 +1,245 @@
 "use client";
 
-import * as React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Clock } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  datePickerContainerVariants,
-  datePickerTriggerVariants,
-  timeSlotVariants,
-} from "./variants";
+import { InputCustom } from "@/components/ui/custom/input";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 import type { TimePickerCustomProps } from "./types";
 
-/**
- * Componente TimePickerCustom - Seletor de hora customizado
- */
-export const TimePickerCustom = React.forwardRef<
-  HTMLButtonElement,
-  TimePickerCustomProps
->(
-  (
-    {
-      label,
-      error,
-      helperText,
-      placeholder = "Selecione a hora",
-      disabled = false,
-      required = false,
-      className,
-      value,
-      onChange,
-      interval = 30,
-      minTime = "00:00",
-      maxTime = "23:30",
-      format = "24h",
-    },
-    ref
-  ) => {
-    const [open, setOpen] = React.useState(false);
+export function TimePickerCustom({
+  label,
+  value,
+  onChange,
+  placeholder = "HH:mm",
+  helperText,
+  error,
+  required = false,
+  disabled = false,
+  minTime,
+  maxTime,
+  interval = 15,
+  className,
+  size = "md",
+  fullWidth = true,
+}: TimePickerCustomProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [internalError, setInternalError] = useState<string>("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
-    // Função para formatar hora no formato 12h ou 24h
-    const formatTime = (time: string) => {
-      if (format === "24h") return time;
-      const [hour, minute] = time.split(":").map(Number);
-      const period = hour >= 12 ? "PM" : "AM";
-      const formattedHour = hour % 12 || 12;
-      return `${formattedHour}:${minute.toString().padStart(2, "0")} ${period}`;
-    };
+  // Gerar opções de horário
+  const generateTimeOptions = (): string[] => {
+    const times: string[] = [];
+    for (let hour = 0; hour < 24; hour++) {
+      for (let minute = 0; minute < 60; minute += interval) {
+        const timeString = `${hour.toString().padStart(2, "0")}:${minute
+          .toString()
+          .padStart(2, "0")}`;
 
-    // Gerar slots de tempo
-    const timeSlots = React.useMemo(() => {
-      const slots: string[] = [];
-      const [minHour, minMinute] = minTime.split(":").map(Number);
-      const [maxHour, maxMinute] = maxTime.split(":").map(Number);
+        // Verificar limites de horário
+        if (minTime && timeString < minTime) continue;
+        if (maxTime && timeString > maxTime) continue;
 
-      for (let hour = minHour; hour <= maxHour; hour++) {
-        for (let minute = 0; minute < 60; minute += interval) {
-          if (hour === minHour && minute < minMinute) continue;
-          if (hour === maxHour && minute > maxMinute) break;
-
-          const time = `${hour.toString().padStart(2, "0")}:${minute
-            .toString()
-            .padStart(2, "0")}`;
-          slots.push(time);
-        }
+        times.push(timeString);
       }
-      return slots;
-    }, [minTime, maxTime, interval]);
+    }
+    return times;
+  };
 
-    const handleSelect = (time: string) => {
-      onChange?.(time);
-      setOpen(false);
-    };
+  const timeOptions = generateTimeOptions();
 
-    const containerClasses = cn(
-      datePickerContainerVariants({
-        hasError: !!error,
-        disabled,
-      }),
-      className
-    );
+  // Sincronizar valor externo com input
+  useEffect(() => {
+    if (value) {
+      setInputValue(value);
+      setInternalError("");
+    } else {
+      setInputValue("");
+      setInternalError("");
+    }
+  }, [value]);
 
-    const triggerClasses = cn(
-      datePickerTriggerVariants({
-        hasValue: !!value,
-        hasError: !!error,
-      })
-    );
+  // Função para aplicar máscara de horário
+  const applyTimeMask = (value: string): string => {
+    // Remove tudo que não é número
+    const numbers = value.replace(/\D/g, "");
 
-    return (
-      <div className={containerClasses}>
-        {label && (
-          <Label className="mb-2 block">
-            {label}
-            {required && <span className="ml-1 text-destructive">*</span>}
-          </Label>
-        )}
+    // Aplica a máscara HH:mm
+    if (numbers.length <= 2) {
+      return numbers;
+    } else {
+      return `${numbers.slice(0, 2)}:${numbers.slice(2, 4)}`;
+    }
+  };
 
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              ref={ref}
-              variant="outline"
-              className={triggerClasses}
+  // Função para validar horário
+  const validateTime = (
+    timeString: string
+  ): { isValid: boolean; error?: string } => {
+    if (!timeString || timeString.length < 5) {
+      return { isValid: false };
+    }
+
+    const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+
+    if (!timeRegex.test(timeString)) {
+      return { isValid: false, error: "Horário inválido" };
+    }
+
+    // Verificar limites de horário
+    if (minTime && timeString < minTime) {
+      return {
+        isValid: false,
+        error: `Horário deve ser posterior a ${minTime}`,
+      };
+    }
+
+    if (maxTime && timeString > maxTime) {
+      return {
+        isValid: false,
+        error: `Horário deve ser anterior a ${maxTime}`,
+      };
+    }
+
+    return { isValid: true };
+  };
+
+  // Handler para mudanças no input
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const maskedValue = applyTimeMask(e.target.value);
+    setInputValue(maskedValue);
+
+    // Validar apenas quando tiver formato completo
+    if (maskedValue.length === 5) {
+      const validation = validateTime(maskedValue);
+
+      if (validation.isValid) {
+        setInternalError("");
+        onChange?.(maskedValue);
+      } else {
+        setInternalError(validation.error || "Horário inválido");
+        onChange?.(undefined);
+      }
+    } else {
+      setInternalError("");
+      if (maskedValue === "") {
+        onChange?.(undefined);
+      }
+    }
+  };
+
+  // Handler para seleção de horário
+  const handleTimeSelect = (time: string) => {
+    setInputValue(time);
+    setInternalError("");
+    onChange?.(time);
+    setIsOpen(false);
+    inputRef.current?.focus();
+  };
+
+  // Handler para horário atual
+  const handleCurrentTime = () => {
+    const now = new Date();
+    const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}`;
+
+    const validation = validateTime(currentTime);
+    if (validation.isValid) {
+      handleTimeSelect(currentTime);
+    }
+  };
+
+  const displayError = error || internalError;
+
+  return (
+    <div className={cn("relative", className)}>
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <PopoverTrigger asChild>
+          <div className="relative">
+            <InputCustom
+              ref={inputRef}
+              label={label}
+              value={inputValue}
+              onChange={handleInputChange}
+              placeholder={placeholder}
+              helperText={helperText}
+              error={displayError}
+              required={required}
               disabled={disabled}
+              size={size}
+              fullWidth={fullWidth}
+              rightIcon="Clock"
+              onRightIconClick={() => !disabled && setIsOpen(!isOpen)}
+              maxLength={5}
+              className="pr-10"
+            />
+          </div>
+        </PopoverTrigger>
+
+        <PopoverContent
+          className="w-[200px] p-0"
+          align="start"
+          side="bottom"
+          sideOffset={4}
+        >
+          <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+            <h4 className="text-sm font-medium flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              Selecionar Horário
+            </h4>
+          </div>
+
+          <ScrollArea className="h-[200px]">
+            <div className="p-2 space-y-1">
+              {timeOptions.map((time) => (
+                <Button
+                  key={time}
+                  variant={inputValue === time ? "default" : "ghost"}
+                  size="sm"
+                  className="w-full justify-center text-sm"
+                  onClick={() => handleTimeSelect(time)}
+                >
+                  {time}
+                </Button>
+              ))}
+            </div>
+          </ScrollArea>
+
+          <div className="p-2 border-t border-gray-200 dark:border-gray-700 space-y-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={handleCurrentTime}
             >
-              <Clock className="mr-2 h-4 w-4" />
-              {value ? formatTime(value) : placeholder}
+              Agora
             </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[150px] p-0" align="start">
-            <ScrollArea className="h-[250px]">
-              <div className="p-2 space-y-1">
-                {timeSlots.map((time) => (
-                  <Button
-                    key={time}
-                    variant={value === time ? "default" : "outline"}
-                    size="sm"
-                    className={cn(
-                      "w-full",
-                      timeSlotVariants({
-                        selected: value === time,
-                      })
-                    )}
-                    onClick={() => handleSelect(time)}
-                  >
-                    {formatTime(time)}
-                  </Button>
-                ))}
-              </div>
-            </ScrollArea>
-          </PopoverContent>
-        </Popover>
 
-        {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
-
-        {!error && helperText && (
-          <p className="mt-2 text-xs text-muted-foreground">{helperText}</p>
-        )}
-      </div>
-    );
-  }
-);
-
-TimePickerCustom.displayName = "TimePickerCustom";
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => {
+                setInputValue("");
+                setInternalError("");
+                onChange?.(undefined);
+                setIsOpen(false);
+              }}
+            >
+              Limpar
+            </Button>
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}

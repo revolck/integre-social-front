@@ -1,111 +1,194 @@
 "use client";
 
-import * as React from "react";
-import { format } from "date-fns";
+import React, { useState, useRef, useEffect } from "react";
+import { Calendar } from "lucide-react";
+import { format, parse, isValid, isAfter, isBefore } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Label } from "@/components/ui/label";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  datePickerContainerVariants,
-  datePickerTriggerVariants,
-  datePickerPopoverVariants,
-} from "./variants";
+import { InputCustom } from "@/components/ui/custom/input";
+import { cn } from "@/lib/utils";
 import type { DatePickerCustomProps } from "./types";
 
-export const DatePickerCustom = React.forwardRef<
-  HTMLButtonElement,
-  DatePickerCustomProps
->(
-  (
-    {
-      label,
-      error,
-      helperText,
-      placeholder = "Selecione uma data",
-      disabled = false,
-      required = false,
-      className,
-      dateFormat = "dd/MM/yyyy",
-      locale = ptBR,
-      value,
-      onChange,
-      calendarProps,
-      buttonProps,
-    },
-    ref
-  ) => {
-    const [open, setOpen] = React.useState(false);
+export function DatePickerCustom({
+  label,
+  value,
+  onChange,
+  placeholder = "DD/MM/AAAA",
+  helperText,
+  error,
+  required = false,
+  disabled = false,
+  minDate,
+  maxDate,
+  className,
+  size = "md",
+  fullWidth = true,
+}: DatePickerCustomProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [internalError, setInternalError] = useState<string>("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
-    const handleSelect = (date: Date | undefined) => {
-      onChange?.(date);
-      setOpen(false);
-    };
+  // Sincronizar valor externo com input
+  useEffect(() => {
+    if (value && isValid(value)) {
+      setInputValue(format(value, "dd/MM/yyyy"));
+      setInternalError("");
+    } else if (!value) {
+      setInputValue("");
+      setInternalError("");
+    }
+  }, [value]);
 
-    const containerClasses = cn(
-      datePickerContainerVariants({
-        hasError: !!error,
-        disabled,
-      }),
-      className
-    );
+  // Função para aplicar máscara de data
+  const applyDateMask = (value: string): string => {
+    // Remove tudo que não é número
+    const numbers = value.replace(/\D/g, "");
 
-    const triggerClasses = cn(
-      datePickerTriggerVariants({
-        hasValue: !!value,
-        hasError: !!error,
-      })
-    );
+    // Aplica a máscara DD/MM/AAAA
+    if (numbers.length <= 2) {
+      return numbers;
+    } else if (numbers.length <= 4) {
+      return `${numbers.slice(0, 2)}/${numbers.slice(2)}`;
+    } else {
+      return `${numbers.slice(0, 2)}/${numbers.slice(2, 4)}/${numbers.slice(
+        4,
+        8
+      )}`;
+    }
+  };
 
-    return (
-      <div className={containerClasses}>
-        {label && (
-          <Label className="mb-2 block">
-            {label}
-            {required && <span className="ml-1 text-destructive">*</span>}
-          </Label>
-        )}
+  // Função para validar data
+  const validateDate = (
+    dateString: string
+  ): { isValid: boolean; date?: Date; error?: string } => {
+    if (!dateString || dateString.length < 10) {
+      return { isValid: false };
+    }
 
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              ref={ref}
-              variant="outline"
-              className={triggerClasses}
+    try {
+      const parsedDate = parse(dateString, "dd/MM/yyyy", new Date());
+
+      if (!isValid(parsedDate)) {
+        return { isValid: false, error: "Data inválida" };
+      }
+
+      // Verificar limites de data
+      if (minDate && isBefore(parsedDate, minDate)) {
+        return {
+          isValid: false,
+          error: `Data deve ser posterior a ${format(minDate, "dd/MM/yyyy")}`,
+        };
+      }
+
+      if (maxDate && isAfter(parsedDate, maxDate)) {
+        return {
+          isValid: false,
+          error: `Data deve ser anterior a ${format(maxDate, "dd/MM/yyyy")}`,
+        };
+      }
+
+      return { isValid: true, date: parsedDate };
+    } catch {
+      return { isValid: false, error: "Formato de data inválido" };
+    }
+  };
+
+  // Handler para mudanças no input
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const maskedValue = applyDateMask(e.target.value);
+    setInputValue(maskedValue);
+
+    // Validar apenas quando tiver formato completo
+    if (maskedValue.length === 10) {
+      const validation = validateDate(maskedValue);
+
+      if (validation.isValid && validation.date) {
+        setInternalError("");
+        onChange?.(validation.date);
+      } else {
+        setInternalError(validation.error || "Data inválida");
+        onChange?.(undefined);
+      }
+    } else {
+      setInternalError("");
+      if (maskedValue === "") {
+        onChange?.(undefined);
+      }
+    }
+  };
+
+  // Handler para seleção no calendário
+  const handleCalendarSelect = (selectedDate: Date | undefined) => {
+    if (selectedDate) {
+      setInputValue(format(selectedDate, "dd/MM/yyyy"));
+      setInternalError("");
+      onChange?.(selectedDate);
+    }
+    setIsOpen(false);
+    inputRef.current?.focus();
+  };
+
+  // Handler para abrir/fechar popover
+  const handleTogglePopover = () => {
+    if (!disabled) {
+      setIsOpen(!isOpen);
+    }
+  };
+
+  const displayError = error || internalError;
+
+  return (
+    <div className={cn("relative", className)}>
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <PopoverTrigger asChild>
+          <div className="relative">
+            <InputCustom
+              ref={inputRef}
+              label={label}
+              value={inputValue}
+              onChange={handleInputChange}
+              placeholder={placeholder}
+              helperText={helperText}
+              error={displayError}
+              required={required}
               disabled={disabled}
-              {...buttonProps}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {value ? format(value, dateFormat, { locale }) : placeholder}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className={datePickerPopoverVariants()} align="start">
-            <Calendar
-              {...calendarProps}
-              mode="single"
-              selected={value}
-              onSelect={handleSelect}
-              initialFocus
-              locale={locale}
+              size={size}
+              fullWidth={fullWidth}
+              rightIcon="Calendar"
+              onRightIconClick={handleTogglePopover}
+              maxLength={10}
+              className="pr-10"
             />
-          </PopoverContent>
-        </Popover>
+          </div>
+        </PopoverTrigger>
 
-        {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
-
-        {!error && helperText && (
-          <p className="mt-2 text-xs text-muted-foreground">{helperText}</p>
-        )}
-      </div>
-    );
-  }
-);
-
-DatePickerCustom.displayName = "DatePickerCustom";
+        <PopoverContent
+          className="w-auto p-0"
+          align="start"
+          side="bottom"
+          sideOffset={4}
+        >
+          <CalendarComponent
+            mode="single"
+            selected={value}
+            onSelect={handleCalendarSelect}
+            disabled={(date) => {
+              if (minDate && isBefore(date, minDate)) return true;
+              if (maxDate && isAfter(date, maxDate)) return true;
+              return false;
+            }}
+            initialFocus
+            locale={ptBR}
+            className="rounded-md border-0"
+          />
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}

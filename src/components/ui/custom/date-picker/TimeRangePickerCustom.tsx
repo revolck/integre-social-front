@@ -1,186 +1,367 @@
 "use client";
 
-import * as React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Clock } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  datePickerContainerVariants,
-  datePickerTriggerVariants,
-  timeSlotVariants,
-} from "./variants";
+import { InputCustom } from "@/components/ui/custom/input";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 import type { TimeRangePickerCustomProps } from "./types";
 
-/**
- * Componente TimeRangePickerCustom - Seletor de intervalo de hora customizado
- */
-export const TimeRangePickerCustom = React.forwardRef<
-  HTMLButtonElement,
-  TimeRangePickerCustomProps
->(
-  (
-    {
-      label,
-      error,
-      helperText,
-      placeholder = "Selecione o período",
-      disabled = false,
-      required = false,
-      className,
-      startTime,
-      endTime,
-      onChange,
-      interval = 30,
-      // format = "24h", // Comentado para evitar aviso ts(6133), descomente se for implementar formatação
-    },
-    ref
-  ) => {
-    const [open, setOpen] = React.useState(false);
-    const [selectingEnd, setSelectingEnd] = React.useState(false);
+export function TimeRangePickerCustom({
+  label,
+  startTime,
+  endTime,
+  onChange,
+  placeholder = "HH:mm - HH:mm",
+  helperText,
+  error,
+  required = false,
+  disabled = false,
+  minTime,
+  maxTime,
+  interval = 15,
+  className,
+  size = "md",
+  fullWidth = true,
+}: TimeRangePickerCustomProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [internalError, setInternalError] = useState<string>("");
+  const [selectedStartTime, setSelectedStartTime] = useState<string>("");
+  const [selectedEndTime, setSelectedEndTime] = useState<string>("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
-    // Gerar slots de tempo
-    const timeSlots = React.useMemo(() => {
-      const slots: string[] = [];
+  // Gerar opções de horário
+  const generateTimeOptions = (): string[] => {
+    const times: string[] = [];
+    for (let hour = 0; hour < 24; hour++) {
+      for (let minute = 0; minute < 60; minute += interval) {
+        const timeString = `${hour.toString().padStart(2, "0")}:${minute
+          .toString()
+          .padStart(2, "0")}`;
 
-      for (let hour = 0; hour <= 23; hour++) {
-        for (let minute = 0; minute < 60; minute += interval) {
-          const time = `${hour.toString().padStart(2, "0")}:${minute
-            .toString()
-            .padStart(2, "0")}`;
-          slots.push(time);
-        }
+        // Verificar limites de horário
+        if (minTime && timeString < minTime) continue;
+        if (maxTime && timeString > maxTime) continue;
+
+        times.push(timeString);
       }
-      return slots;
-    }, [interval]);
+    }
+    return times;
+  };
 
-    const handleStartSelect = (time: string) => {
-      onChange?.({ startTime: time, endTime });
-      setSelectingEnd(true);
-    };
+  const timeOptions = generateTimeOptions();
 
-    const handleEndSelect = (time: string) => {
-      onChange?.({ startTime, endTime: time });
-      setOpen(false);
-      setSelectingEnd(false);
-    };
+  // Sincronizar valores externos com input
+  useEffect(() => {
+    if (startTime && endTime) {
+      const rangeText = `${startTime} - ${endTime}`;
+      setInputValue(rangeText);
+      setSelectedStartTime(startTime);
+      setSelectedEndTime(endTime);
+      setInternalError("");
+    } else if (startTime && !endTime) {
+      setInputValue(startTime);
+      setSelectedStartTime(startTime);
+      setSelectedEndTime("");
+    } else if (!startTime && !endTime) {
+      setInputValue("");
+      setSelectedStartTime("");
+      setSelectedEndTime("");
+      setInternalError("");
+    }
+  }, [startTime, endTime]);
 
-    const containerClasses = cn(
-      datePickerContainerVariants({
-        hasError: !!error,
-        disabled,
-      }),
-      className
-    );
+  // Função para aplicar máscara de intervalo de horário
+  const applyTimeRangeMask = (value: string): string => {
+    // Remove tudo que não é número
+    const numbers = value.replace(/\D/g, "");
 
-    const triggerClasses = cn(
-      datePickerTriggerVariants({
-        hasValue: !!startTime || !!endTime,
-        hasError: !!error,
-      })
-    );
+    // Aplica a máscara HH:mm - HH:mm
+    if (numbers.length <= 2) {
+      return numbers;
+    } else if (numbers.length <= 4) {
+      return `${numbers.slice(0, 2)}:${numbers.slice(2, 4)}`;
+    } else if (numbers.length <= 6) {
+      return `${numbers.slice(0, 2)}:${numbers.slice(2, 4)} - ${numbers.slice(
+        4,
+        6
+      )}`;
+    } else {
+      return `${numbers.slice(0, 2)}:${numbers.slice(2, 4)} - ${numbers.slice(
+        4,
+        6
+      )}:${numbers.slice(6, 8)}`;
+    }
+  };
 
-    const displayValue = React.useMemo(() => {
-      if (startTime && endTime) {
-        return `${startTime} - ${endTime}`;
+  // Função para validar intervalo de horário
+  const validateTimeRange = (
+    rangeString: string
+  ): {
+    isValid: boolean;
+    startTime?: string;
+    endTime?: string;
+    error?: string;
+  } => {
+    const parts = rangeString.split(" - ");
+
+    // Validar horário único (ainda digitando)
+    if (parts.length === 1 && parts[0].length === 5) {
+      const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+
+      if (!timeRegex.test(parts[0])) {
+        return { isValid: false, error: "Horário inicial inválido" };
       }
-      if (startTime) {
-        return `${startTime} - ...`;
+
+      // Verificar limites
+      if (minTime && parts[0] < minTime) {
+        return {
+          isValid: false,
+          error: `Horário inicial deve ser posterior a ${minTime}`,
+        };
       }
-      return placeholder;
-    }, [startTime, endTime, placeholder]);
 
-    return (
-      <div className={containerClasses}>
-        {label && (
-          <Label className="mb-2 block">
-            {label}
-            {required && <span className="ml-1 text-destructive">*</span>}
-          </Label>
-        )}
+      if (maxTime && parts[0] > maxTime) {
+        return {
+          isValid: false,
+          error: `Horário inicial deve ser anterior a ${maxTime}`,
+        };
+      }
 
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              ref={ref}
-              variant="outline"
-              className={triggerClasses}
+      return { isValid: true, startTime: parts[0] };
+    }
+
+    // Validar intervalo completo
+    if (parts.length === 2 && parts[0].length === 5 && parts[1].length === 5) {
+      const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+
+      if (!timeRegex.test(parts[0]) || !timeRegex.test(parts[1])) {
+        return {
+          isValid: false,
+          error: "Um ou ambos os horários são inválidos",
+        };
+      }
+
+      if (parts[0] >= parts[1]) {
+        return {
+          isValid: false,
+          error: "Horário inicial deve ser anterior ao horário final",
+        };
+      }
+
+      // Verificar limites
+      if (minTime && (parts[0] < minTime || parts[1] < minTime)) {
+        return {
+          isValid: false,
+          error: `Horários devem ser posteriores a ${minTime}`,
+        };
+      }
+
+      if (maxTime && (parts[0] > maxTime || parts[1] > maxTime)) {
+        return {
+          isValid: false,
+          error: `Horários devem ser anteriores a ${maxTime}`,
+        };
+      }
+
+      return { isValid: true, startTime: parts[0], endTime: parts[1] };
+    }
+
+    return { isValid: false };
+  };
+
+  // Handler para mudanças no input
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const maskedValue = applyTimeRangeMask(e.target.value);
+    setInputValue(maskedValue);
+
+    const validation = validateTimeRange(maskedValue);
+
+    if (validation.isValid) {
+      setInternalError("");
+      if (validation.startTime && validation.endTime) {
+        // Intervalo completo
+        setSelectedStartTime(validation.startTime);
+        setSelectedEndTime(validation.endTime);
+        onChange?.({
+          startTime: validation.startTime,
+          endTime: validation.endTime,
+        });
+      } else if (validation.startTime) {
+        // Apenas horário inicial
+        setSelectedStartTime(validation.startTime);
+        setSelectedEndTime("");
+        onChange?.({ startTime: validation.startTime, endTime: undefined });
+      }
+    } else {
+      if (validation.error) {
+        setInternalError(validation.error);
+      }
+      if (maskedValue === "") {
+        onChange?.({ startTime: undefined, endTime: undefined });
+        setSelectedStartTime("");
+        setSelectedEndTime("");
+        setInternalError("");
+      }
+    }
+  };
+
+  // Handler para seleção de horário inicial
+  const handleStartTimeSelect = (time: string) => {
+    setSelectedStartTime(time);
+
+    if (selectedEndTime) {
+      if (time < selectedEndTime) {
+        const rangeText = `${time} - ${selectedEndTime}`;
+        setInputValue(rangeText);
+        setInternalError("");
+        onChange?.({ startTime: time, endTime: selectedEndTime });
+      } else {
+        setInternalError("Horário inicial deve ser anterior ao horário final");
+      }
+    } else {
+      setInputValue(time);
+      onChange?.({ startTime: time, endTime: undefined });
+    }
+  };
+
+  // Handler para seleção de horário final
+  const handleEndTimeSelect = (time: string) => {
+    setSelectedEndTime(time);
+
+    if (selectedStartTime) {
+      if (selectedStartTime < time) {
+        const rangeText = `${selectedStartTime} - ${time}`;
+        setInputValue(rangeText);
+        setInternalError("");
+        onChange?.({ startTime: selectedStartTime, endTime: time });
+        setIsOpen(false);
+        inputRef.current?.focus();
+      } else {
+        setInternalError("Horário final deve ser posterior ao horário inicial");
+      }
+    }
+  };
+
+  // Handler para limpar seleção
+  const handleClear = () => {
+    setInputValue("");
+    setSelectedStartTime("");
+    setSelectedEndTime("");
+    setInternalError("");
+    onChange?.({ startTime: undefined, endTime: undefined });
+    setIsOpen(false);
+  };
+
+  const displayError = error || internalError;
+
+  return (
+    <div className={cn("relative", className)}>
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <PopoverTrigger asChild>
+          <div className="relative">
+            <InputCustom
+              ref={inputRef}
+              label={label}
+              value={inputValue}
+              onChange={handleInputChange}
+              placeholder={placeholder}
+              helperText={helperText}
+              error={displayError}
+              required={required}
               disabled={disabled}
-            >
-              <Clock className="mr-2 h-4 w-4" />
-              {displayValue}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[320px] p-0" align="start">
-            <div className="flex">
-              <div className="flex-1 border-r">
-                <div className="p-3 text-center text-sm font-medium">
-                  {selectingEnd ? "✓" : ""} Início
+              size={size}
+              fullWidth={fullWidth}
+              rightIcon="Clock"
+              onRightIconClick={() => !disabled && setIsOpen(!isOpen)}
+              maxLength={13}
+              className="pr-10"
+            />
+          </div>
+        </PopoverTrigger>
+
+        <PopoverContent
+          className="w-auto p-0"
+          align="start"
+          side="bottom"
+          sideOffset={4}
+        >
+          <div className="flex">
+            {/* Horário inicial */}
+            <div className="border-r border-gray-200 dark:border-gray-700">
+              <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+                <h4 className="text-sm font-medium">Horário Inicial</h4>
+              </div>
+
+              <ScrollArea className="h-[200px] w-[120px]">
+                <div className="p-2 space-y-1">
+                  {timeOptions.map((time) => (
+                    <Button
+                      key={time}
+                      variant={selectedStartTime === time ? "default" : "ghost"}
+                      size="sm"
+                      className="w-full justify-center text-xs"
+                      onClick={() => handleStartTimeSelect(time)}
+                    >
+                      {time}
+                    </Button>
+                  ))}
                 </div>
-                <ScrollArea className="h-[250px]">
-                  <div className="p-2 space-y-1">
-                    {timeSlots.map((time) => (
-                      <Button
-                        key={time}
-                        variant={startTime === time ? "default" : "outline"}
-                        size="sm"
-                        className={cn(
-                          "w-full",
-                          timeSlotVariants({
-                            selected: startTime === time,
-                          })
-                        )}
-                        onClick={() => handleStartSelect(time)}
-                      >
-                        {time}
-                      </Button>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </div>
-              <div className="flex-1">
-                <div className="p-3 text-center text-sm font-medium">Fim</div>
-                <ScrollArea className="h-[250px]">
-                  <div className="p-2 space-y-1">
-                    {timeSlots.map((time) => (
-                      <Button
-                        key={time}
-                        variant={endTime === time ? "default" : "outline"}
-                        size="sm"
-                        className={cn(
-                          "w-full",
-                          timeSlotVariants({
-                            selected: endTime === time,
-                            available: !startTime || time > startTime,
-                          })
-                        )}
-                        onClick={() => handleEndSelect(time)}
-                        disabled={!startTime || time <= startTime}
-                      >
-                        {time}
-                      </Button>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </div>
+              </ScrollArea>
             </div>
-          </PopoverContent>
-        </Popover>
 
-        {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
+            {/* Horário final */}
+            <div>
+              <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+                <h4 className="text-sm font-medium">Horário Final</h4>
+              </div>
 
-        {!error && helperText && (
-          <p className="mt-2 text-xs text-muted-foreground">{helperText}</p>
-        )}
-      </div>
-    );
-  }
-);
+              <ScrollArea className="h-[200px] w-[120px]">
+                <div className="p-2 space-y-1">
+                  {timeOptions.map((time) => (
+                    <Button
+                      key={time}
+                      variant={selectedEndTime === time ? "default" : "ghost"}
+                      size="sm"
+                      className="w-full justify-center text-xs"
+                      onClick={() => handleEndTimeSelect(time)}
+                      disabled={!selectedStartTime || time <= selectedStartTime}
+                    >
+                      {time}
+                    </Button>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+          </div>
 
-TimeRangePickerCustom.displayName = "TimeRangePickerCustom";
+          <div className="flex gap-2 p-2 border-t border-gray-200 dark:border-gray-700">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleClear}
+              className="flex-1"
+            >
+              Limpar
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => setIsOpen(false)}
+              className="flex-1"
+              disabled={!selectedStartTime || !selectedEndTime}
+            >
+              Confirmar
+            </Button>
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}

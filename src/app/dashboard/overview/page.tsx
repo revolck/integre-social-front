@@ -188,7 +188,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto py-6">
+      <div className="container max-w-7xl py-6">
         {/* Dashboard Header */}
         <Saudation name="Filipe Reis" />
         <Facilits />

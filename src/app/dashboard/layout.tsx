@@ -4,6 +4,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { DashboardSidebar } from "@/theme";
+import { DarkTheme } from "@/components/partials/darkTheme/darkTheme";
 import { Icon } from "@/components/ui/custom/Icons";
 
 interface DashboardLayoutProps {
@@ -102,6 +103,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <button className="p-2 rounded-md hover:bg-gray-100 text-white hover:text-[var(--sidebar-primary)] cursor-pointer transition-colors">
               <Icon name="User" size={20} />
             </button>
+
+            <DarkTheme />
           </div>
         </header>
 

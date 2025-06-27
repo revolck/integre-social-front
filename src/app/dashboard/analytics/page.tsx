@@ -19,7 +19,7 @@ interface HeaderProps {
 
 export default function Header({ name }: HeaderProps) {
   return (
-    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+    <div className="flex p-6 flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
       <div>
         <h1 className="text-2xl font-semibold text-gray-900">Olá, {name}</h1>
         <p className="text-gray-500 text-sm mt-1">
