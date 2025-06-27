@@ -1,12 +1,9 @@
-// src/components/ui/custom/modal/ModalCustom.tsx
-
 "use client";
 
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { motion } from "framer-motion";
+import { motion, type HTMLMotionProps } from "framer-motion";
 import { XIcon } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 import type {
   ModalProps,
@@ -15,7 +12,6 @@ import type {
   ModalPlacement,
 } from "./types";
 
-// Mapeamento de tamanhos para classes
 const sizeClasses: Record<ModalSize, string> = {
   xs: "max-w-xs",
   sm: "max-w-sm",
@@ -29,7 +25,6 @@ const sizeClasses: Record<ModalSize, string> = {
   full: "max-w-full",
 };
 
-// Mapeamento de raios para classes
 const radiusClasses: Record<string, string> = {
   none: "rounded-none",
   sm: "rounded-sm",
@@ -37,7 +32,6 @@ const radiusClasses: Record<string, string> = {
   lg: "rounded-lg",
 };
 
-// Mapeamento de sombras para classes
 const shadowClasses: Record<string, string> = {
   none: "shadow-none",
   sm: "shadow-sm",
@@ -45,14 +39,12 @@ const shadowClasses: Record<string, string> = {
   lg: "shadow-lg",
 };
 
-// Mapeamento de comportamentos de scroll para classes
 const scrollBehaviorClasses: Record<string, string> = {
   normal: "overflow-auto",
   inside: "overflow-y-auto",
   outside: "overflow-y-visible",
 };
 
-// Mapeamento de posições para classes
 const placementClasses: Record<ModalPlacement, string> = {
   auto: "top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]",
   top: "top-4 left-[50%] translate-x-[-50%]",
@@ -60,7 +52,6 @@ const placementClasses: Record<ModalPlacement, string> = {
   bottom: "bottom-4 left-[50%] translate-x-[-50%]",
 };
 
-// Mapeamento de backdrops para classes
 const backdropClasses: Record<ModalBackdrop, string> = {
   transparent: "bg-transparent",
   opaque: "bg-black/75",
@@ -78,9 +69,6 @@ type ModalContextProps = {
 
 const ModalContext = React.createContext<ModalContextProps | null>(null);
 
-/**
- * Hook para acessar o contexto da modal
- */
 export const useModalContext = () => {
   const context = React.useContext(ModalContext);
   if (!context) {
@@ -91,9 +79,6 @@ export const useModalContext = () => {
   return context;
 };
 
-/**
- * Componente principal Modal
- */
 export function ModalCustom({
   children,
   isOpen,
@@ -101,40 +86,26 @@ export function ModalCustom({
   onOpenChange,
   onClose,
   isDismissable = true,
-  isKeyboardDismissDisabled = false,
   size = "md",
   radius = "lg",
-  shadow = "lg",
-  backdrop = "opaque",
   scrollBehavior = "normal",
-  placement = "center",
-  shouldBlockScroll = true,
-  hideCloseButton = false,
-  closeButton,
-  motionProps,
-  portalContainer,
-  disableAnimation = false,
   classNames = {},
+  shouldBlockScroll = true,
   ...props
 }: ModalProps) {
-  // Função para fechar a modal
   const handleClose = React.useCallback(() => {
     onClose?.();
     onOpenChange?.(false);
   }, [onClose, onOpenChange]);
 
-  // Efeito para bloquear o scroll quando a modal está aberta
   React.useEffect(() => {
     if (!shouldBlockScroll) return;
-
     if (isOpen) {
-      // Salva a posição atual do scroll
       const scrollY = window.scrollY;
       document.body.style.position = "fixed";
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = "100%";
     } else {
-      // Restaura a posição do scroll
       const scrollY = document.body.style.top;
       document.body.style.position = "";
       document.body.style.top = "";
@@ -143,7 +114,6 @@ export function ModalCustom({
     }
   }, [isOpen, shouldBlockScroll]);
 
-  // Contexto para ser passado para os componentes filhos
   const modalContext = React.useMemo(() => {
     return {
       isOpen: isOpen ?? false,
@@ -174,9 +144,6 @@ export function ModalCustom({
   );
 }
 
-/**
- * Componente de gatilho para a modal
- */
 export function ModalTrigger({
   className,
   children,
@@ -193,18 +160,15 @@ export function ModalTrigger({
   );
 }
 
-// Interface estendida para as props do ModalPortal
 interface ModalPortalProps
   extends React.ComponentProps<typeof DialogPrimitive.Portal> {
   container?: HTMLElement;
-  className?: string;
 }
 
 /**
- * Componente que serve como portal para renderizar a modal
+ * Portal para renderizar a modal
  */
 export function ModalPortal({
-  className,
   children,
   container,
   ...props
@@ -220,9 +184,6 @@ export function ModalPortal({
   );
 }
 
-/**
- * Componente para fechar a modal
- */
 export function ModalClose({
   className,
   ...props
@@ -236,9 +197,6 @@ export function ModalClose({
   );
 }
 
-/**
- * Componente de overlay (fundo escuro) da modal
- */
 export function ModalOverlay({
   className,
   backdrop = "opaque",
@@ -267,7 +225,6 @@ export function ModalOverlay({
   );
 }
 
-// Interface para estender as props do DialogPrimitive.Content
 interface ModalContentProps
   extends React.ComponentProps<typeof DialogPrimitive.Content> {
   isKeyboardDismissDisabled?: boolean;
@@ -279,7 +236,7 @@ interface ModalContentProps
 }
 
 /**
- * Componente principal de conteúdo da modal
+ * Conteúdo principal da modal
  */
 export function ModalContent({
   className,
@@ -296,14 +253,12 @@ export function ModalContent({
   ...props
 }: ModalContentProps) {
   const {
-    onClose,
     size = "md",
     radius = "lg",
     scrollBehavior = "normal",
     classNames = {},
   } = useModalContext();
 
-  // Renderização do conteúdo da modal
   return (
     <DialogPrimitive.Content
       data-slot="modal-content"
@@ -311,7 +266,6 @@ export function ModalContent({
         if (onEscapeKeyDown) {
           onEscapeKeyDown(e);
         }
-        // Não propaga evento se isKeyboardDismissDisabled for true
         if (isKeyboardDismissDisabled) {
           e.preventDefault();
         }
@@ -320,7 +274,6 @@ export function ModalContent({
         if (onPointerDownOutside) {
           onPointerDownOutside(e);
         }
-        // Não propaga evento se isDismissable for false
         if (isDismissable === false) {
           e.preventDefault();
         }
@@ -329,7 +282,6 @@ export function ModalContent({
         if (onInteractOutside) {
           onInteractOutside(e);
         }
-        // Não propaga evento se isDismissable for false
         if (isDismissable === false) {
           e.preventDefault();
         }
@@ -347,8 +299,6 @@ export function ModalContent({
       {...props}
     >
       {children}
-
-      {/* Botão de fechar (pode ser personalizado ou escondido) */}
       {!hideCloseButton &&
         (closeButton || (
           <ModalClose
@@ -367,11 +317,10 @@ export function ModalContent({
   );
 }
 
-// Interface para as props do ModalContentWrapper
 interface ModalContentWrapperProps extends ModalContentProps {
   backdrop?: ModalBackdrop;
   container?: HTMLElement;
-  motionProps?: any;
+  motionProps?: HTMLMotionProps<"div">;
   disableAnimation?: boolean;
 }
 
@@ -393,18 +342,16 @@ export function ModalContentWrapper({
   disableAnimation = false,
   ...props
 }: ModalContentWrapperProps) {
-  // Definições de animações padrão
-  const defaultMotionProps = {
+  const defaultMotionProps: HTMLMotionProps<"div"> = {
     initial: { opacity: 0, scale: 0.95, y: 10 },
     animate: { opacity: 1, scale: 1, y: 0 },
     exit: { opacity: 0, scale: 0.98, y: 5 },
     transition: {
       duration: 0.2,
-      ease: [0.16, 1, 0.3, 1], // Easing personalizado para animações mais suaves
+      ease: [0.16, 1, 0.3, 1],
     },
   };
 
-  // Combina props padrão com personalizadas
   const combinedMotionProps = {
     ...defaultMotionProps,
     ...motionProps,
@@ -449,15 +396,11 @@ export function ModalContentWrapper({
   );
 }
 
-/**
- * Componente para o cabeçalho da modal
- */
 export function ModalHeader({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const { classNames = {} } = useModalContext();
-
   return (
     <div
       data-slot="modal-header"
@@ -471,15 +414,11 @@ export function ModalHeader({
   );
 }
 
-/**
- * Componente para o rodapé da modal
- */
 export function ModalFooter({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const { classNames = {} } = useModalContext();
-
   return (
     <div
       data-slot="modal-footer"
@@ -493,9 +432,6 @@ export function ModalFooter({
   );
 }
 
-/**
- * Componente para o título da modal
- */
 export function ModalTitle({
   className,
   ...props
@@ -509,9 +445,6 @@ export function ModalTitle({
   );
 }
 
-/**
- * Componente para a descrição da modal
- */
 export function ModalDescription({
   className,
   ...props
@@ -525,15 +458,11 @@ export function ModalDescription({
   );
 }
 
-/**
- * Componente para o corpo da modal
- */
 export function ModalBody({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const { scrollBehavior = "normal", classNames } = useModalContext();
-
   return (
     <div
       data-slot="modal-body"

@@ -18,7 +18,7 @@ export function MenuList({
   handleNavigation,
 }: MenuListProps) {
   // Utiliza o hook de rota ativa
-  const { markActiveItems, pathname, ready } = useActiveRoute();
+  const { markActiveItems, ready } = useActiveRoute();
 
   // Processa as seções do menu com useMemo para evitar recálculos desnecessários
   const processedSections = useMemo(() => {
@@ -29,7 +29,7 @@ export function MenuList({
       ...section,
       items: markActiveItems(section.items),
     }));
-  }, [sections, markActiveItems, ready, pathname]);
+  }, [sections, markActiveItems, ready]);
 
   return (
     <div className="space-y-6 transition-all duration-200">

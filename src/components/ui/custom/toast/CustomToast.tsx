@@ -50,8 +50,8 @@ export const ToastActionButton = forwardRef<
       }
       className={cn(
         toastActionVariants({
-          variant: variant as any,
-          size: size as any,
+          variant: variant as NonNullable<ToastActionButtonProps["variant"]>,
+          size: size as NonNullable<ToastActionButtonProps["size"]>,
         }),
         isLoading && "opacity-70 cursor-wait",
         className
@@ -87,7 +87,9 @@ export const ToastLink = forwardRef<HTMLAnchorElement, ToastLinkProps>(
         href={href}
         onClick={onClick}
         className={cn(
-          toastLinkVariants({ variant: variant as any }),
+          toastLinkVariants({
+            variant: variant as NonNullable<ToastLinkProps["variant"]>,
+          }),
           className
         )}
         {...externalProps}
@@ -269,7 +271,7 @@ function createToast(
       <button
         onClick={onCancel}
         className={cn(
-          toastActionVariants({ variant: "outline" as any, size: "sm" as any }),
+          toastActionVariants({ variant: "outline", size: "sm" }),
           "ml-2"
         )}
       >
@@ -328,8 +330,10 @@ const ActionButtonWrapper = (props: ToastActionButtonProps) => {
       }
       className={cn(
         toastActionVariants({
-          variant: props.variant as any,
-          size: props.size as any,
+          variant: props.variant as NonNullable<
+            ToastActionButtonProps["variant"]
+          >,
+          size: props.size as NonNullable<ToastActionButtonProps["size"]>,
         }),
         props.isLoading && "opacity-70 cursor-wait",
         props.className

@@ -94,7 +94,7 @@ export interface ModalProps extends Omit<DialogProps, "modal"> {
   /**
    * Props de animação
    */
-  motionProps?: any;
+  motionProps?: unknown;
 
   /**
    * Container do portal

@@ -205,7 +205,9 @@ export const useProjectStore = create<ProjectState>()(
           // Em caso de erro
           toastCustom.error({
             title: "Erro ao selecionar projeto",
-            description: "Ocorreu um erro ao carregar os dados do projeto.",
+            description: `Ocorreu um erro ao carregar os dados do projeto. Detalhes: ${String(
+              error
+            )}`,
           });
 
           set({

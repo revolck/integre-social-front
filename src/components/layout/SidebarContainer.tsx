@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import React, { useEffect } from "react";
 import { Sidebar } from "@/theme/sidebar";
 import { useSidebarStore } from "@/theme/sidebar/store/sidebarStore";
 import { Button } from "@/components/ui/button";

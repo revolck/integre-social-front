@@ -35,7 +35,7 @@ export const InputCustom = React.forwardRef<HTMLInputElement, InputCustomProps>(
       showPasswordToggle = false,
       size = "md",
       fullWidth = true,
-      isFloatingLabel = false, // Mantemos essa prop para compatibilidade, mas ignoramos
+      // isFloatingLabel removido por não ser usado
       helperText,
       maxLength,
       successMessage,
@@ -47,8 +47,7 @@ export const InputCustom = React.forwardRef<HTMLInputElement, InputCustomProps>(
   ) => {
     // Refs e serviços
     const inputRef = useRef<HTMLInputElement>(null);
-    const maskService = InputMaskService.getInstance();
-    const [isFocused, setIsFocused] = useState(false);
+    // const [isFocused, setIsFocused] = useState(false); // removido, não utilizado
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const [innerValue, setInnerValue] = useState<string>(value as string);
     const [touched, setTouched] = useState(false);
@@ -69,6 +68,7 @@ export const InputCustom = React.forwardRef<HTMLInputElement, InputCustomProps>(
     // Handler para mudança de valor
     const handleChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
+        const maskService = InputMaskService.getInstance(); // garantir sempre instância fresh por causa do hook warning
         const newValue = e.target.value;
 
         // Se tivermos uma máscara, aplicamos o processamento
@@ -100,7 +100,7 @@ export const InputCustom = React.forwardRef<HTMLInputElement, InputCustomProps>(
     // Handler para foco no input
     const handleFocus = useCallback(
       (e: React.FocusEvent<HTMLInputElement>) => {
-        setIsFocused(true);
+        // setIsFocused(true); // removido
         if (onFocus) onFocus(e);
       },
       [onFocus]
@@ -109,7 +109,7 @@ export const InputCustom = React.forwardRef<HTMLInputElement, InputCustomProps>(
     // Handler para perda de foco no input
     const handleBlur = useCallback(
       (e: React.FocusEvent<HTMLInputElement>) => {
-        setIsFocused(false);
+        // setIsFocused(false); // removido
         setTouched(true);
 
         if (onBlur) onBlur(e);
@@ -201,7 +201,6 @@ export const InputCustom = React.forwardRef<HTMLInputElement, InputCustomProps>(
             aria-invalid={!!error}
             aria-describedby={error ? `${inputId}-error` : undefined}
             style={{
-              // Garantir que o texto tenha alta prioridade de cor
               caretColor: error
                 ? "var(--destructive)"
                 : "var(--blue-500, #3b82f6)",

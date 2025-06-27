@@ -19,6 +19,18 @@ export function DashboardHeader({
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-background px-4">
       <div className="flex items-center gap-2">
         {/* Toggle Sidebar Button à esquerda do logo */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleCollapse}
+          aria-label={collapsed ? "Expandir sidebar" : "Colapsar sidebar"}
+          className="mr-2"
+        >
+          {/* Aqui você pode trocar o ícone se quiser, por exemplo: */}
+          <span className="material-icons">
+            {collapsed ? "menu_open" : "menu"}
+          </span>
+        </Button>
 
         {/* Logo */}
         <div className="flex items-center">
