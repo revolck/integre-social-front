@@ -57,7 +57,7 @@
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  --popover-foreground: #19322f;
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
@@ -86,6 +86,12 @@
 
   /* Titulos */
   --global-title: #2c434e;
+
+  /* Descrição */
+  --global-description: #19322f;
+
+  /* Texto Secundario */
+  --global-title-secondary: #3dae2b;
 
   /* Background  */
   --global-background: #f8f8f8;
