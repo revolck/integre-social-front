@@ -42,16 +42,8 @@ import {
   Legend,
   CartesianGrid,
 } from "recharts";
-import Saudation from "@/theme/dashboard/overview/saudation";
-import Facilits from "@/theme/dashboard/overview/facilits";
-
-// Time period options
-const TIME_PERIODS = [
-  { value: "day", label: "Hoje" },
-  { value: "week", label: "Esta Semana" },
-  { value: "month", label: "Este Mês" },
-  { value: "year", label: "Este Ano" },
-];
+import Saudation from "@/theme/components/dashboard/overview/saudation";
+import Facilits from "@/theme/components/dashboard/overview/facilits";
 
 // Sample data for charts
 const serviceData = [
@@ -84,40 +76,6 @@ const incomeData = [
   { name: "Alta Renda", value: 50, color: "#10b981" },
 ];
 
-// Agenda items
-const agendaItems = [
-  {
-    time: "9:00",
-    title: "Reunião Plano mensal ações de junho",
-    location: "CRAS - Pato Branco",
-    type: "meeting",
-  },
-  {
-    time: "13:30",
-    title: "Visitar família Rosa 09123",
-    location: "Rua João Gaudino, Bairro Renova, 32",
-    type: "visit",
-  },
-  {
-    time: "16:00",
-    title: "Família Silva Rocha 09823",
-    location: "Rua João Gaudino, Bairro Renova, 837",
-    type: "visit",
-  },
-  {
-    time: "16:30",
-    title: "Família Barros 09842",
-    location: "Rua João Gaudino, Bairro Renova, 733",
-    type: "visit",
-  },
-  {
-    time: "19:00",
-    title: "Confraternização",
-    location: "CRAS - Pato Branco",
-    type: "event",
-  },
-];
-
 // Main Dashboard Component
 export default function DashboardPage() {
   const [timePeriod, setTimePeriod] = useState("day");
@@ -132,16 +90,6 @@ export default function DashboardPage() {
 
     return () => clearTimeout(timer);
   }, []);
-
-  // Format date based on time period
-  const formatDate = () => {
-    const options: Intl.DateTimeFormatOptions = {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    };
-    return currentDate.toLocaleDateString("pt-BR", options);
-  };
 
   // Get stats based on time period
   const getStats = () => {
@@ -189,10 +137,6 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen">
       <div className="container max-w-7xl py-6">
-        {/* Dashboard Header */}
-        <Saudation name="Filipe Reis" />
-        <Facilits />
-
         {/* Main Content */}
         <AnimatePresence>
           {isLoading ? (

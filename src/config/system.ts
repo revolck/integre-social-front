@@ -36,7 +36,8 @@ export const systemConfig = {
     },
   },
   api: {
-    baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.integreapp.com/v1",
+    baseUrl:
+      process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.integreapp.com/v1",
     timeout: process.env.NEXT_PUBLIC_API_TIMEOUT || "30000",
   },
   features: {
