@@ -1,68 +1,114 @@
 "use client";
 
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { DarkTheme } from "@/components/partials/darkTheme/darkTheme";
-import Image from "next/image";
-import { Bell } from "lucide-react";
+import { ReactNode, useEffect, useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { DashboardSidebar } from "@/theme";
+import { Icon } from "@/components/ui/custom/Icons";
 
-interface DashboardHeaderProps {
-  collapsed: boolean;
-  toggleCollapse: () => void;
+interface DashboardLayoutProps {
+  children: ReactNode;
 }
 
-export function DashboardHeader({
-  collapsed,
-  toggleCollapse,
-}: DashboardHeaderProps) {
+/**
+ * Layout específico para a seção de Dashboard
+ * Removido suporte ao dark mode - aplicação apenas em modo claro
+ */
+export default function DashboardLayout({ children }: DashboardLayoutProps) {
+  // Hook personalizado para detectar dispositivos móveis
+  const isMobileDevice = useIsMobile();
+
+  // Estados locais
+  const [mounted, setMounted] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  /**
+   * Alterna o estado de colapso do sidebar
+   */
+  function toggleSidebar() {
+    if (!isMobileDevice) {
+      setIsCollapsed(!isCollapsed);
+    } else {
+      setIsMobileMenuOpen(!isMobileMenuOpen);
+    }
+  }
+
+  // Efeito para manipulação do estado inicial
+  useEffect(() => {
+    setMounted(true);
+
+    // Reset collapsed state when switching to mobile
+    if (isMobileDevice && isCollapsed) {
+      setIsCollapsed(false);
+    }
+
+    // Adiciona classe ao body quando o menu está aberto em mobile
+    // para evitar scroll
+    if (isMobileMenuOpen && isMobileDevice) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileDevice, isCollapsed, isMobileMenuOpen]);
+
+  // Evita problemas de hidratação SSR
+  if (!mounted) {
+    return null;
+  }
+
   return (
-    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-background px-4">
-      <div className="flex items-center gap-2">
-        {/* Toggle Sidebar Button à esquerda do logo */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleCollapse}
-          aria-label={collapsed ? "Expandir sidebar" : "Colapsar sidebar"}
-          className="mr-2"
-        >
-          {/* Aqui você pode trocar o ícone se quiser, por exemplo: */}
-          <span className="material-icons">
-            {collapsed ? "menu_open" : "menu"}
-          </span>
-        </Button>
+    <div className="flex h-screen">
+      {/* Sidebar principal do dashboard */}
+      <DashboardSidebar
+        isMobileMenuOpen={isMobileMenuOpen}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
+        isCollapsed={isCollapsed}
+      />
 
-        {/* Logo */}
-        <div className="flex items-center">
-          <Image
-            src="/logo-white.svg"
-            alt="DashCode"
-            width={130}
-            height={45}
-            className="dark:invert transition-all duration-300"
-          />
-        </div>
+      {/* Container principal de conteúdo */}
+      <div className="w-full flex flex-1 flex-col transition-all duration-300 ease-in-out bg-[var(--sidebar-primary)]">
+        {/* Cabeçalho/barra superior */}
+        <header className="h-16 border-b border-[var(--sidebar-primary-border)] flex items-center px-4 bg-[var(--sidebar-primary)] z-10">
+          {/* Botão de toggle do sidebar */}
+          <button
+            onClick={toggleSidebar}
+            className="mr-4 p-2 rounded-md hover:bg-gray-100 text-white hover:text-[var(--sidebar-primary)] cursor-pointer transition-colors"
+            aria-label={isCollapsed ? "Expandir sidebar" : "Colapsar sidebar"}
+          >
+            <Icon
+              name={isCollapsed ? "ArrowRightFromLine" : "AlignLeft"}
+              size={20}
+              className="transition-transform duration-300"
+            />
+          </button>
+
+          {/* Espaço flexível */}
+          <div className="flex-1"></div>
+
+          {/* Ícones e controles de usuário na direita */}
+          <div className="flex items-center gap-3">
+            <button className="p-2 rounded-md hover:bg-gray-100 text-white hover:text-[var(--sidebar-primary)] cursor-pointer transition-colors relative">
+              <Icon name="Bell" size={20} />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+
+            <button className="p-2 rounded-md hover:bg-gray-100 text-white hover:text-[var(--sidebar-primary)] cursor-pointer transition-colors">
+              <Icon name="User" size={20} />
+            </button>
+
+            {/* Removido DarkTheme component */}
+          </div>
+        </header>
+
+        {/* Conteúdo principal */}
+        <main className="flex-1 overflow-auto p-6 bg-[var(--background-body)]">
+          {children}
+        </main>
       </div>
-
-      <div className="flex items-center gap-4">
-        {/* Theme toggle */}
-        <DarkTheme />
-
-        {/* Ícones de notificação */}
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell size={20} />
-          <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-        </Button>
-
-        {/* User profile button */}
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <span className="sr-only">User menu</span>
-          <div className="h-8 w-8 rounded-full bg-muted"></div>
-        </Button>
-      </div>
-    </header>
+    </div>
   );
 }
-
-// Export component as default for easier imports
-export default DashboardHeader;

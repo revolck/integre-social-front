@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { ThemeProvider } from "@/providers/theme-provider";
 import { ToasterCustom } from "@/components/ui/custom/toast";
 import "@/styles/globals.css";
 
@@ -12,8 +11,8 @@ export const metadata: Metadata = {
 /**
  * Layout principal da aplicação
  *
- * Configura o tema, elementos globais e estrutura básica
- * Implementa ThemeProvider para suporte ao modo claro/escuro
+ * Configura elementos globais e estrutura básica
+ * Removido ThemeProvider - aplicação apenas em modo claro
  */
 export default function RootLayout({
   children,
@@ -21,30 +20,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
+    <html lang="pt-BR">
       <head>
         {/* Meta tags e outros elementos de cabeçalho são gerenciados pelo Next.js */}
       </head>
-      <body className="min-h-screen font-sans antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <main className="flex-1 flex flex-col">{children}</main>
+      <body className="min-h-screen font-sans antialiased bg-background text-foreground">
+        <main className="flex-1 flex flex-col">{children}</main>
 
-          {/* Container centralizado de notificações do sistema */}
-          <ToasterCustom
-            position="top-right"
-            theme="system"
-            richColors={true}
-            closeButton={false}
-            maxToasts={5}
-            gap={8}
-            defaultDuration={5000}
-          />
-        </ThemeProvider>
+        {/* Container centralizado de notificações do sistema */}
+        <ToasterCustom
+          position="top-right"
+          theme="light"
+          richColors={true}
+          closeButton={false}
+          maxToasts={5}
+          gap={8}
+          defaultDuration={5000}
+        />
       </body>
     </html>
   );

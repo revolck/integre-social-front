@@ -1,10 +1,8 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
-import { useTheme } from "next-themes";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { DashboardSidebar } from "@/theme";
-import { DarkTheme } from "@/components/partials/darkTheme/darkTheme";
 import { Icon } from "@/components/ui/custom/Icons";
 
 interface DashboardLayoutProps {
@@ -13,11 +11,9 @@ interface DashboardLayoutProps {
 
 /**
  * Layout específico para a seção de Dashboard
+ * Removido suporte ao dark mode - aplicação apenas em modo claro
  */
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  // Acesso ao tema atual
-  const { theme } = useTheme();
-
   // Hook personalizado para detectar dispositivos móveis
   const isMobileDevice = useIsMobile();
 
@@ -65,7 +61,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className={`flex h-screen ${theme === "dark" ? "dark" : ""}`}>
+    <div className="flex h-screen">
       {/* Sidebar principal do dashboard */}
       <DashboardSidebar
         isMobileMenuOpen={isMobileMenuOpen}
@@ -104,12 +100,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <Icon name="User" size={20} />
             </button>
 
-            <DarkTheme />
+            {/* Removido DarkTheme component */}
           </div>
         </header>
 
         {/* Conteúdo principal */}
-        <main className="flex-1 overflow-auto p-6 bg-[var(--background-body)] dark:bg-[var(--background)] ">
+        <main className="flex-1 overflow-auto p-6 bg-[var(--background-body)]">
           {children}
         </main>
       </div>

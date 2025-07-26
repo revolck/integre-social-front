@@ -6,7 +6,7 @@
 @import "./components.css";
 @import "./theme.css";
 
-@custom-variant dark (&:is(.dark *));
+/* Removido @custom-variant dark - apenas light mode */
 
 @theme inline {
   --color-background: var(--background);
@@ -48,136 +48,64 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* Apenas variáveis para modo claro */
 :root {
-  --font-nunito-sans: "Nunito", sans-serif;
-  --font-open-sans: "Open Sans", sans-serif;
-  --radius: 0.625rem;
-  --background: var(--global-background);
-  --foreground: oklch(0.145 0 0);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.205 0 0);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.205 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: #19322f;
+  --popover-foreground: oklch(0.205 0 0);
   --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.985 0 0);
   --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
+  --muted: oklch(0.985 0 0);
   --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
+  --accent: oklch(0.985 0 0);
   --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(0.985 0 0);
+  --input: oklch(0.985 0 0);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.704 0.151 47.888);
+  --chart-2: oklch(0.633 0.23 283.496);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.205 0 0);
+  --sidebar-primary: oklch(0.704 0.151 47.888);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.985 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-border: oklch(0.985 0 0);
+  --sidebar-ring: oklch(0.556 0 0);
 
   /* Titulos */
-  --global-title: #2c434e;
+  --global-title: #1a1a1a;
 
-  /* Descrição */
-  --global-description: #19322f;
-
-  /* Texto Secundario */
-  --global-title-secondary: #3dae2b;
-
-  /* Background  */
-  --global-background: #f8f8f8;
-
-  /* Global Colors */
-  --global-primary: #1d2c34;
-  --global-text: #c8dbe3;
+  /* Global Colors - Light Mode */
+  --global-button: #46b277;
+  --global-button-hover: #3a9f69;
   --global-secondary: rgba(70, 178, 119, 0.1);
   --global-secondary-hover: rgba(58, 161, 105, 0.1);
   --global-terciary: rgba(40, 138, 85, 0.1);
   --global-terciary-hover: rgb(26, 114, 67);
   --background-body: #f5f7f9;
 
-  --sidebar-primary: #19322f;
-  --sidebar-primary-border: rgba(248, 248, 248, 0.1);
+  --sidebar-primary: #0c211f;
+  --sidebar-primary-border: #163c38;
   --sidebar-primary-hover: #012b27;
   --sidebar-primary-project: #00322d;
   --sidebar-primary-project-hover: #023933;
-  --sidebar-primary-active: #3dae2b;
+  --sidebar-primary-active: #a6ed69;
   --sidebar-primary-icon: #24655e;
-  --menuTitle: #e6ffe2;
-  --sidebar-text: #e6ffe2;
-  --sidebar-text-gray: #19322f;
-
-  /* Botoes */
-  --global-button: #19322f;
-  --global-button-text: #e6ffe2;
-  --global-button-primary: #1f8229;
-  --global-button-secondary: #f8f8f8;
-  --global-button-secondary-text: #19322f;
-
-  /* Modal Projects Selection */
-  --global-modal-projects-select: rgba(64, 160, 98, 0.088);
-  --global-modal-projects-border: rgba(64, 160, 98, 0.498);
+  --menuTitle: #49807a;
 
   h1,
   h2 {
     color: var(--global-title);
-  }
-}
-
-.dark {
-  --background: #1f1f1f;
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-
-  /* Titulos */
-  --global-title: #ffff;
-
-  /* Global Colors */
-  --global-secondary: #1d1d1d;
-  --global-secondary-hover: #171717;
-  --global-terciary: #313131;
-  --global-terciary-hover: #3d3d3d;
-
-  h1,
-  h2 {
-    color: #fff;
   }
 }
 
@@ -196,24 +124,24 @@
 @layer components {
   /* Botões semânticos */
   .btn-primary {
-    @apply bg-[var(--global-button)] text-[var(--global-cor-cinza-ardosia)] px-4 py-2 rounded-md font-semibold transition-colors duration-200 hover:opacity-90;
+    @apply bg-[var(--global-button)] text-white px-4 py-2 rounded-md font-semibold transition-colors duration-200 hover:bg-[var(--global-button-hover)];
   }
   .btn-secondary {
-    @apply bg-[var(--global-cor-roxo-medio)] text-white px-4 py-2 rounded-md font-semibold transition-colors duration-200 hover:opacity-90;
+    @apply bg-[var(--global-secondary)] text-[var(--global-title)] px-4 py-2 rounded-md font-semibold transition-colors duration-200 hover:bg-[var(--global-secondary-hover)];
   }
   .btn-accent {
-    @apply bg-[var(--global-cor-amarelo-ouro)] text-[var(--global-cor-preto-2)] px-4 py-2 rounded-md font-semibold transition-colors duration-200 hover:opacity-90;
+    @apply bg-[var(--global-terciary)] text-[var(--global-title)] px-4 py-2 rounded-md font-semibold transition-colors duration-200 hover:bg-[var(--global-terciary-hover)];
   }
   .btn-danger {
-    @apply bg-[var(--global-cor-vermelho-terra)] text-white px-4 py-2 rounded-md font-semibold transition-colors duration-200 hover:opacity-90;
+    @apply bg-red-500 text-white px-4 py-2 rounded-md font-semibold transition-colors duration-200 hover:bg-red-600;
   }
   .badge-accent {
-    @apply bg-[var(--global-cor-amarelo-ouro)] text-[var(--global-cor-preto-2)] px-2 py-1 rounded-full text-xs;
+    @apply bg-yellow-400 text-gray-800 px-2 py-1 rounded-full text-xs;
   }
   .badge-info {
-    @apply bg-[var(--global-cor-azul-ceruleo)] text-white px-2 py-1 rounded-full text-xs;
+    @apply bg-blue-500 text-white px-2 py-1 rounded-full text-xs;
   }
   .badge-success {
-    @apply bg-[var(--global-cor-verde-ciano)] text-white px-2 py-1 rounded-full text-xs;
+    @apply bg-green-500 text-white px-2 py-1 rounded-full text-xs;
   }
 }
